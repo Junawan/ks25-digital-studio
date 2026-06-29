@@ -1,0 +1,27 @@
+export type SubscriptionPlan =
+  | "trial"
+  | "pro"
+  | "business";
+
+export type SubscriptionStatus =
+  | "active"
+  | "expired"
+  | "cancelled";
+
+export interface Subscription {
+  id: string;
+
+  companyId: string;
+
+  plan: SubscriptionPlan;
+
+  status: SubscriptionStatus;
+
+  amount: number;
+
+  startedAt: Date;
+
+  expiredAt: Date;
+
+  createdAt: Date;
+}
