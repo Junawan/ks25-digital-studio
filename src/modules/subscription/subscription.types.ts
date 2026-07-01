@@ -9,7 +9,7 @@ export type SubscriptionStatus =
   | "cancelled";
 
 export interface Subscription {
-  id: string;
+  subscriptionId: string;
 
   companyId: string;
 

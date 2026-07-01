@@ -11,7 +11,7 @@ export type UserStatus =
   | "blocked";
 
 export interface User {
-  id: string;
+  userId: string;
 
   companyId: string;
 

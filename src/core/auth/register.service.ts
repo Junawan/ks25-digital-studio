@@ -40,7 +40,7 @@ export class RegisterService {
       });
 
       await userService.create({
-        id: uid,
+        userId: uid,
         companyId,
         email: input.email,
         fullName: input.fullName,
@@ -53,7 +53,7 @@ export class RegisterService {
       });
 
       await subscriptionService.create({
-        id: uuid(),
+        subscriptionId: uuid(),
         companyId,
         plan: "trial",
         status: "active",

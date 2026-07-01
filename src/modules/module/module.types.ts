@@ -2,16 +2,10 @@ export type ModuleCategory =
   | "business"
   | "marketing"
   | "finance"
-  | "productivity"
-  | "ai"
-  | "utility";
-
-export type ModuleStatus =
-  | "active"
-  | "inactive";
+  | "ai";
 
 export interface Module {
-  id: string;
+  moduleId: string;
 
   code: string;
 
@@ -23,9 +17,7 @@ export interface Module {
 
   category: ModuleCategory;
 
-  version: string;
-
-  status: ModuleStatus;
+  active: boolean;
 
   createdAt: Date;
 
@@ -42,6 +34,10 @@ export interface CompanyModule {
   enabled: boolean;
 
   installedAt: Date;
+}
 
-  expiresAt: Date | null;
+export interface InstalledModule extends Module {
+  enabled: boolean;
+
+  installedAt: Date;
 }
