@@ -377,78 +377,15 @@ bg-black
 onClick={showUI}
 >
 
-      <div
-className="
-sticky
-top-0
-z-40
-bg-background
-pb-3
-"
->
-
-  <Button
-variant="secondary"
-size="icon"
-onClick={()=>{
-    setSearchOpen(true);
-}}
->
-
-🔍
-
-</Button>
-
-</div>
-
-      {product.image && (
-
-        <div className="flex items-center gap-4">
-
-  <img
-    src={product.image}
-    alt={product.title}
-    className="
-    h-20
-    w-20
-    rounded-lg
-    border
-    object-cover
-    "
-  />
-
-  <div>
-
-    <div className="font-semibold">
-      Preview Produk
-    </div>
-
-    <div className="text-sm text-muted-foreground">
-      Gambar referensi host
-    </div>
-
-  </div>
-
-</div>
-
-      )}
-
       <PresenterHeader
+  current={currentIndex + 1}
+  total={playlist?.productIds.length ?? 0}
 
-current={currentIndex+1}
+  image={product.image}
+  title={product.title}
 
-total={
-playlist?.productIds.length ?? 0
-}
-
-onBack={()=>
-router.back()
-}
-
-onSearch={()=>
-setSearchOpen(true)
-}
-
+  onBack={() => router.back()}
+  onSearch={() => setSearchOpen(true)}
 />
 
       <PresenterScript

@@ -10,6 +10,10 @@ import { Button } from "@/shared/components/ui/button";
 interface Props {
   current: number;
   total: number;
+
+  image?: string;
+  title?: string;
+
   onBack: () => void;
   onSearch: () => void;
 }
@@ -19,6 +23,8 @@ export default function PresenterHeader({
   total,
   onBack,
   onSearch,
+  image,
+  title,
 }: Props) {
 
   return (
@@ -56,27 +62,46 @@ onClick={onBack}
 
 <div
 className="
-pointer-events-auto
+absolute
+left-1/2
+-top-translate-x-1/2
+
+flex
+items-center
+gap-2
 
 rounded-full
+bg-zinc-900/90
 
-bg-black/60
-
-px-4
-
+px-3
 py-2
+"
+>
 
+<img
+src={image}
+alt={title}
+className="
+h-9
+w-9
+rounded-full
+border
+border-zinc-700
+object-cover
+"
+/>
+
+<div
+className="
 text-sm
-
 font-semibold
-
 text-white
-
-backdrop-blur
 "
 >
 
 {current} / {total}
+
+</div>
 
 </div>
 
