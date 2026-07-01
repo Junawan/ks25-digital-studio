@@ -16,6 +16,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import TeleprompterControls from "@/modules/live-assistant/teleprompter/components/TeleprompterControls";
 import PresenterScript from "@/modules/live-assistant/teleprompter/components/PresenterScript";
+import PresenterHeader from "@/modules/live-assistant/teleprompter/components/PresenterHeader";
 
 export default function TeleprompterPage() {
 
@@ -366,49 +367,15 @@ playlist.productIds[currentIndex+1]
 
   return (
 
-    <div
+<div
 className="
-mx-auto
-max-w-6xl
+fixed
+inset-0
+overflow-hidden
 bg-black
-min-h-screen
 "
 onClick={showUI}
 >
-
-      <Button
-        variant="outline"
-        onClick={() => router.back()}
-      >
-
-        <ArrowLeft className="mr-2 h-4 w-4"/>
-
-        Kembali
-
-      </Button>
-
-      <div>
-
-        <h1 className="text-3xl font-bold">
-
-          {product.title}
-
-        </h1>
-        <p className="text-muted-foreground">
-
-Produk
-
-{" "}
-
-{currentIndex + 1}
-
-{" / "}
-
-{playlist?.productIds.length ?? 0}
-
-</p>
-
-      </div>
 
       <div
 className="
@@ -465,6 +432,24 @@ onClick={()=>{
 </div>
 
       )}
+
+      <PresenterHeader
+
+current={currentIndex+1}
+
+total={
+playlist?.productIds.length ?? 0
+}
+
+onBack={()=>
+router.back()
+}
+
+onSearch={()=>
+setSearchOpen(true)
+}
+
+/>
 
       <PresenterScript
 
