@@ -25,7 +25,7 @@ const isPresenter =
 <div
 className="
 min-h-screen
-bg-zinc-950
+bg-black/70
 text-white
 "
 >
