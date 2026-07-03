@@ -147,7 +147,7 @@ export default function NotificationDrawer({
             h-40
             items-center
             justify-center
-            text-zinc-500
+            text-red
             "
 
           >
@@ -185,6 +185,7 @@ export default function NotificationDrawer({
                   border-zinc-800
                   p-4
                   text-left
+                  text-white
                   transition
                   hover:bg-zinc-900
                   "
@@ -246,7 +247,7 @@ export default function NotificationDrawer({
 
   )}
 
-  <div className="flex-1">
+  <div className="flex-1 text-yellow">
 
                       {notification.title}
 
@@ -257,7 +258,7 @@ export default function NotificationDrawer({
                       className="
                       mt-1
                       text-sm
-                      text-zinc-500
+                      text-yellow
                       "
 
                     >
@@ -265,7 +266,7 @@ export default function NotificationDrawer({
                       {notification.message}
 
                     </div>
-                    <div className="mt-2 text-xs text-zinc-600">
+                    <div className="mt-2 text-xs text-white">
 
   {notification.createdAt instanceof Date
 

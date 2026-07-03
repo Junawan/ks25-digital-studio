@@ -17,6 +17,9 @@ import { Input } from "@/shared/components/ui/input";
 import TeleprompterControls from "@/modules/live-assistant/teleprompter/components/TeleprompterControls";
 import PresenterScript from "@/modules/live-assistant/teleprompter/components/PresenterScript";
 import PresenterHeader from "@/modules/live-assistant/teleprompter/components/PresenterHeader";
+import {
+  useTeleprompterKeyboard,
+} from "@/modules/live-assistant/teleprompter/hooks/useTeleprompterKeyboard";
 
 export default function TeleprompterPage() {
 
@@ -261,20 +264,6 @@ useEffect(() => {
   };
 }, []);
 
-useEffect(() => {
-  function handleKeyDown(e: KeyboardEvent) {
-    console.log("KEY:", e.key);
-    console.log("CODE:", e.code);
-    console.log("KEYCODE:", e.keyCode);
-  }
-
-  window.addEventListener("keydown", handleKeyDown);
-
-  return () => {
-    window.removeEventListener("keydown", handleKeyDown);
-  };
-}, []);
-
 useEffect(()=>{
 
     showUI();
@@ -292,6 +281,23 @@ useEffect(()=>{
     }
 
 },[]);
+
+useTeleprompterKeyboard({
+
+  onPlayPause: () =>
+    setPlaying((v) => !v),
+
+  onPrev: goPrev,
+
+  onNext: goNext,
+
+  onFontUp: () =>
+    setFontSize((v) => v + 2),
+
+  onFontDown: () =>
+    setFontSize((v) => Math.max(20, v - 2)),
+
+});
 
   if (loading) {
 
@@ -390,6 +396,7 @@ onClick={showUI}
     )
   }
   onSearch={() => setSearchOpen(true)}
+  onFullscreen={toggleFullscreen}
 />
 
       <PresenterScript
@@ -402,6 +409,10 @@ product.teleprompterText ??
 fontSize={fontSize}
 
 contentRef={contentRef}
+
+onPlayPause={()=>
+setPlaying(v=>!v)
+}
 
 />
 
@@ -443,8 +454,6 @@ Math.min(
 v+0.5
 ))
 }
-
-onFullscreen={toggleFullscreen}
 
 />
 )}

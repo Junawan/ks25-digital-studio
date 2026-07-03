@@ -4,7 +4,12 @@ import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 import MobileHeader from "./MobileHeader";
-import BottomNavigation from "./BottomNavigation";
+
+import RootBottomNavigation
+from "@/shared/navigation/RootBottomNavigation";
+
+import LiveAssistantBottomNavigation
+from "@/modules/live-assistant/components/LiveAssistantBottomNavigation";
 
 interface Props {
   children: ReactNode;
@@ -19,6 +24,11 @@ export default function MobileShell({
 
 const isPresenter =
   pathname.includes("/teleprompter");
+
+  const isLiveAssistant =
+  pathname.startsWith(
+    "/live-assistant"
+  );
 
   return (
 
@@ -51,9 +61,11 @@ isPresenter
 </main>
 
 {!isPresenter && (
-
-<BottomNavigation/>
-
+  isLiveAssistant ? (
+    <LiveAssistantBottomNavigation />
+  ) : (
+    <RootBottomNavigation />
+  )
 )}
 
 </div>

@@ -7,7 +7,6 @@ import {
   ChevronRight,
   Minus,
   Plus,
-  Maximize,
 } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -25,8 +24,6 @@ interface Props {
 
   onFontUp: () => void;
 
-  onFullscreen: () => void;
-
   speed: number;
 
   onSpeedDown: () => void;
@@ -41,10 +38,7 @@ export default function TeleprompterControls({
   onNext,
   onFontDown,
   onFontUp,
-  onFullscreen,
   speed,
-  onSpeedDown,
-  onSpeedUp,
 }: Props) {
 
   return (
@@ -52,9 +46,10 @@ export default function TeleprompterControls({
 <div
 className="
 fixed
-bottom-0
-left-0
-right-0
+bottom-1
+left-3
+right-3
+rounded-3xl
 z-50
 
 border-t
@@ -76,20 +71,79 @@ pb-4
 <div
 className="
 mx-auto
-
 grid
-
 max-w-xl
-
-grid-cols-7
-
-gap-2
+grid-cols-[1fr_1fr_84px_1fr_1fr]
+items-center
+gap-3
 "
 >
 
 <Button
-size="icon"
-className="h-14 w-full"
+className="
+h-16
+w-full
+rounded-2xl
+"
+variant="secondary"
+onClick={onFontDown}
+>
+
+A<Minus/>
+
+</Button>
+
+<Button
+className="
+h-16
+w-full
+rounded-2xl
+"
+variant="secondary"
+onClick={onFontUp}
+>
+
+A<Plus/>
+
+</Button>
+
+<Button
+
+className="
+mx-auto
+
+h-20
+w-20
+
+rounded-full
+
+bg-violet-600
+
+shadow-xl
+
+shadow-violet-700/50
+
+hover:scale-105
+"
+
+onClick={onPlayPause}
+
+>
+
+{playing
+
+? <Pause className="h-8 w-8"/>
+
+: <Play className="ml-1 h-8 w-8"/>}
+
+</Button>
+
+<Button
+className="
+h-16
+w-full
+rounded-2xl
+"
 variant="secondary"
 onClick={onPrev}
 >
@@ -99,69 +153,16 @@ onClick={onPrev}
 </Button>
 
 <Button
-size="icon"
-className="h-14 w-full"
-onClick={onPlayPause}
->
-
-{playing
-? <Pause/>
-: <Play/>}
-
-</Button>
-
-<Button
-size="icon"
-className="h-14 w-full"
+className="
+h-16
+w-full
+rounded-2xl
+"
 variant="secondary"
 onClick={onNext}
 >
 
 <ChevronRight/>
-
-</Button>
-
-<Button
-size="icon"
-className="h-14 w-full"
-variant="secondary"
-onClick={onFontDown}
->
-
-<Minus/>
-
-</Button>
-
-<Button
-variant="secondary"
-className="h-14"
-
-onClick={onSpeedDown}
->
-
-{speed.toFixed(1)}×
-
-</Button>
-
-<Button
-size="icon"
-className="h-14 w-full"
-variant="secondary"
-onClick={onFontUp}
->
-
-<Plus/>
-
-</Button>
-
-<Button
-size="icon"
-className="h-14 w-full"
-variant="secondary"
-onClick={onFullscreen}
->
-
-<Maximize/>
 
 </Button>
 

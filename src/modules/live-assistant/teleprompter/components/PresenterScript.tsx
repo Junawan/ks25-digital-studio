@@ -1,30 +1,74 @@
 "use client";
 
-import { RefObject } from "react";
+import {
+  RefObject,
+  useRef,
+} from "react";
 
 interface Props {
+
   text: string;
 
   fontSize: number;
 
   contentRef: RefObject<HTMLDivElement | null>;
+
+  onPlayPause: () => void;
+
 }
 
 export default function PresenterScript({
+
   text,
+
   fontSize,
+
   contentRef,
+
+  onPlayPause,
+
 }: Props) {
+  const moved =
+  useRef(false);
 
   return (
 
 <div
-className="
-absolute
-inset-0
-overflow-hidden
-bg-black
-"
+  className="
+  absolute
+  inset-0
+  overflow-hidden
+  bg-black
+  "
+
+  onPointerDown={() => {
+    moved.current = false;
+  }}
+
+  onPointerMove={() => {
+    moved.current = true;
+  }}
+
+  onPointerUp={(e) => {
+
+    if (moved.current) {
+      return;
+    }
+
+    const target =
+      e.target as HTMLElement;
+
+    if (
+      target.closest("button") ||
+      target.closest("[data-control]")
+    ) {
+      return;
+    }
+
+    onPlayPause();
+
+  }}
+
 >
 
 <div

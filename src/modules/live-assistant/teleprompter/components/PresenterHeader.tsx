@@ -3,6 +3,7 @@
 import {
   Search,
   X,
+  Maximize,
 } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -16,6 +17,7 @@ interface Props {
 
   onBack: () => void;
   onSearch: () => void;
+  onFullscreen: () => void;
 }
 
 export default function PresenterHeader({
@@ -23,6 +25,7 @@ export default function PresenterHeader({
   total,
   onBack,
   onSearch,
+  onFullscreen,
   image,
   title,
 }: Props) {
@@ -30,93 +33,116 @@ export default function PresenterHeader({
   return (
 
 <div
-className="
-fixed
-top-0
-left-0
-right-0
-z-40
-pointer-events-none
-"
+  className="
+  fixed
+  top-0
+  left-0
+  right-0
+  z-40
+  px-4
+  pt-4
+  pointer-events-none
+  "
 >
 
-<div
-className="
-flex
-items-center
-justify-between
-p-4
-"
->
+  <div className="relative flex items-center">
 
-<Button
-size="icon"
-variant="secondary"
-className="pointer-events-auto rounded-full"
-onClick={onBack}
->
+    {/* LEFT */}
 
-<X className="h-5 w-5"/>
+    <div className="pointer-events-auto">
 
-</Button>
+      <Button
+        size="icon"
+        variant="secondary"
+        className="rounded-full"
+        onClick={onBack}
+      >
+        <X className="h-5 w-5"/>
+      </Button>
 
-<div
-className="
-absolute
-left-1/2
--top-translate-x-1/2
+    </div>
 
-flex
-items-center
-gap-2
+    {/* CENTER */}
 
-rounded-full
-bg-zinc-900/90
+    <div
+      className="
+      absolute
+      left-1/2
+      -translate-x-1/2
 
-px-3
-py-2
-"
->
+      pointer-events-auto
 
-<img
-src={image}
-alt={title}
-className="
-h-9
-w-9
-rounded-full
-border
-border-zinc-700
-object-cover
-"
-/>
+      flex
+      items-center
+      gap-3
 
-<div
-className="
-text-sm
-font-semibold
-text-white
-"
->
+      rounded-full
+      bg-black/70
+      backdrop-blur
 
-{current} / {total}
+      px-3
+      py-2
+      "
+    >
 
-</div>
+      <img
+        src={image}
+        alt={title}
+        className="
+        h-10
+        w-10
+        rounded-full
+        object-cover
+        "
+      />
 
-</div>
+      <span
+        className="
+        font-semibold
+        text-white
+        "
+      >
+        {current} / {total}
+      </span>
 
-<Button
-size="icon"
-variant="secondary"
-className="pointer-events-auto rounded-full"
-onClick={onSearch}
->
+    </div>
 
-<Search className="h-5 w-5"/>
+    {/* RIGHT */}
 
-</Button>
+    <div
+      className="
+      ml-auto
+      flex
+      gap-2
+      pointer-events-auto
+      "
+    >
 
-</div>
+      <Button
+        size="icon"
+        variant="secondary"
+        className="rounded-full"
+        onClick={onSearch}
+      >
+
+        <Search className="h-5 w-5"/>
+
+      </Button>
+
+      <Button
+        size="icon"
+        variant="secondary"
+        className="rounded-full"
+        onClick={onFullscreen}
+      >
+
+        <Maximize className="h-5 w-5"/>
+
+      </Button>
+
+    </div>
+
+  </div>
 
 </div>
 
