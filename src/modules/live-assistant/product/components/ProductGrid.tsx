@@ -52,7 +52,7 @@ const [loadingId, setLoadingId] =
   }
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-4">
 
       {products.map((product) => (
         <Card
@@ -69,17 +69,17 @@ const [loadingId, setLoadingId] =
 
           </div>
 
-          <CardContent className="space-y-4 p-5">
+          <CardContent className="space-y-2 p-3">
 
             <div>
 
-              <h3 className="text-lg font-semibold line-clamp-2">
+              <h3 className="line-clamp-2 text-sm font-semibold md:text-base">
                 {product.title}
               </h3>
 
             </div>
 
-            <p className="text-sm text-muted-foreground line-clamp-3">
+            <p className="line-clamp-2 text-xs text-muted-foreground md:text-sm">
               {product.productInfo}
             </p>
 
@@ -119,16 +119,16 @@ const [loadingId, setLoadingId] =
 
             <div className="flex gap-2">
 
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => onEdit?.(product)}
-              >
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </Button>
+               <Button
+    size="icon"
+    variant="outline"
+    onClick={() => onEdit?.(product)}
+  >
+    <Pencil className="h-4 w-4"/>
+  </Button>
 
               <Button
+              size="icon"
   disabled={loadingId === product.productId}
   onClick={async () => {
     setLoadingId(product.productId);
@@ -149,22 +149,22 @@ const [loadingId, setLoadingId] =
   </>
 ) : product.teleprompterText?.trim() ? (
   <>
-    🔄 Generate Ulang
+    🔄
   </>
 ) : (
   <>
-    ✨ Generate AI
+    ✨
   </>
 )}
 </Button>
 
               <Button
+              size="icon"
                 variant="destructive"
                 className="flex-1"
                 onClick={() => onDelete?.(product)}
               >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Hapus
+                <Trash2 className="h-4 w-4"/>
               </Button>
 
             </div>

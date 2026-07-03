@@ -21,23 +21,38 @@ export class RegisterService {
       const trialEndsAt = addDays(now, 14);
 
       await companyService.create({
-        id: companyId,
-        ownerId: uid,
-        name: input.companyName,
-        slug: input.companyName
-          .trim()
-          .toLowerCase()
-          .replace(/\s+/g, "-"),
-        email: input.email,
-        phone: null,
-        logo: null,
-        address: null,
-        plan: "trial",
-        status: "active",
-        trialEndsAt,
-        createdAt: now,
-        updatedAt: now,
-      });
+  id: companyId,
+
+  ownerId: uid,
+
+  name: input.companyName,
+
+  slug: input.companyName
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-"),
+
+  email: input.email,
+
+  phone: null,
+
+  logo: null,
+
+  address: null,
+
+  // Starter adalah paket default
+  plan: "starter",
+
+  status: "active",
+
+  planStartedAt: null,
+
+  planExpiresAt: null,
+
+  createdAt: now,
+
+  updatedAt: now,
+});
 
       await userService.create({
         userId: uid,
@@ -50,12 +65,13 @@ export class RegisterService {
         status: "active",
         createdAt: now,
         updatedAt: now,
+        isSystemAdmin: false,
       });
 
       await subscriptionService.create({
         subscriptionId: uuid(),
         companyId,
-        plan: "trial",
+        plan: "starter",
         status: "active",
         amount: 0,
         startedAt: now,

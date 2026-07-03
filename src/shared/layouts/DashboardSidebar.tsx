@@ -24,7 +24,7 @@ export default function DashboardSidebar() {
         </h2>
 
         <p className="mt-1 text-sm text-muted-foreground">
-          {workspace?.subscription?.plan ?? "Free"}
+          {workspace?.company?.plan ?? "Free"}
         </p>
       </div>
 

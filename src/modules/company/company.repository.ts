@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 import { db } from "@/core/firebase";
 import type { Company } from "@/modules/company/company.types";
@@ -18,6 +18,72 @@ export class CompanyRepository {
   }
 
   return snapshot.data() as Company;
+}
+
+async updatePlan(
+
+  companyId: string,
+
+  data: {
+
+    plan: string;
+
+    planStartedAt: Date;
+
+    planExpiresAt: Date;
+
+  }
+
+) {
+
+  await updateDoc(
+
+    doc(
+      db,
+      "companies",
+      companyId
+    ),
+
+    {
+
+      ...data,
+
+      updatedAt:
+        new Date(),
+
+    }
+
+  );
+
+}
+
+async updateLogo(
+
+  companyId: string,
+
+  logo: string
+
+) {
+
+  await updateDoc(
+
+    doc(
+      db,
+      "companies",
+      companyId
+    ),
+
+    {
+
+      logo,
+
+      updatedAt:
+        new Date(),
+
+    }
+
+  );
+
 }
 }
 

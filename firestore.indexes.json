@@ -1,0 +1,130 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "subscription-payments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "receiverId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "receiverId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isRead",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+
+    {
+  "collectionGroup": "notifications",
+  "queryScope": "COLLECTION",
+  "fields": [
+    {
+      "fieldPath": "receiverType",
+      "order": "ASCENDING"
+    },
+    {
+      "fieldPath": "createdAt",
+      "order": "DESCENDING"
+    }
+  ]
+},
+{
+  "collectionGroup": "notifications",
+  "queryScope": "COLLECTION",
+  "fields": [
+    {
+      "fieldPath": "receiverType",
+      "order": "ASCENDING"
+    },
+    {
+      "fieldPath": "isRead",
+      "order": "ASCENDING"
+    }
+  ]
+},
+{
+  "collectionGroup": "notifications",
+  "queryScope": "COLLECTION",
+  "fields": [
+    {
+      "fieldPath": "companyId",
+      "order": "ASCENDING"
+    },
+    {
+      "fieldPath": "receiverType",
+      "order": "ASCENDING"
+    },
+    {
+      "fieldPath": "receiverId",
+      "order": "ASCENDING"
+    },
+    {
+      "fieldPath": "createdAt",
+      "order": "DESCENDING"
+    }
+  ]
+},
+{
+  "collectionGroup": "notifications",
+  "queryScope": "COLLECTION",
+  "fields": [
+    {
+      "fieldPath": "companyId",
+      "order": "ASCENDING"
+    },
+    {
+      "fieldPath": "receiverType",
+      "order": "ASCENDING"
+    },
+    {
+      "fieldPath": "receiverId",
+      "order": "ASCENDING"
+    },
+    {
+      "fieldPath": "isRead",
+      "order": "ASCENDING"
+    }
+  ]
+}
+  ],
+  "fieldOverrides": []
+}

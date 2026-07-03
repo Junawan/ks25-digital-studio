@@ -1,5 +1,5 @@
 export type SubscriptionPlan =
-  | "trial"
+  | "starter"
   | "pro"
   | "business";
 

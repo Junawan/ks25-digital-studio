@@ -13,10 +13,6 @@ export const sidebarItems: SidebarItem[] = [
     href: "/dashboard",
   },
   {
-    title: "Marketplace",
-    href: "/marketplace",
-  },
-  {
     title: "My Apps",
     href: "/my-apps",
   },

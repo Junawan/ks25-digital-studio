@@ -8,7 +8,7 @@ import {
   Package,
   Play,
   ListMusic,
-  Settings,
+  History,
 } from "lucide-react";
 
 const menus = [
@@ -34,10 +34,10 @@ const menus = [
     label: "Playlist",
   },
   {
-    href: "/settings",
-    icon: Settings,
-    label: "Settings",
-  },
+  href: "/live-assistant/history",
+  icon: History,
+  label: "Riwayat",
+},
 ];
 
 export default function BottomNavigation() {

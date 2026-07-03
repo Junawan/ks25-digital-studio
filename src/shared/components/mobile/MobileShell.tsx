@@ -26,7 +26,7 @@ const isPresenter =
 className="
 min-h-screen
 bg-black/70
-text-white
+text-black
 "
 >
 

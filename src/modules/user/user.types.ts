@@ -30,4 +30,6 @@ export interface User {
   createdAt: Date;
 
   updatedAt: Date;
+
+  isSystemAdmin: boolean;
 }

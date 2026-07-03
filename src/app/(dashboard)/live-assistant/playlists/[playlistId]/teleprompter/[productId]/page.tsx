@@ -384,7 +384,11 @@ onClick={showUI}
   image={product.image}
   title={product.title}
 
-  onBack={() => router.back()}
+  onBack={() =>
+    router.push(
+      `/live-assistant/playlists/${playlistId}`
+    )
+  }
   onSearch={() => setSearchOpen(true)}
 />
 

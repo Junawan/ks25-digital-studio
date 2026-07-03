@@ -1,4 +1,7 @@
-export type CompanyPlan = "trial" | "pro" | "business";
+export type CompanyPlan =
+  | "starter"
+  | "pro"
+  | "business";
 
 export type CompanyStatus =
   | "active"
@@ -6,6 +9,7 @@ export type CompanyStatus =
   | "suspended";
 
 export interface Company {
+
   id: string;
 
   ownerId: string;
@@ -18,7 +22,7 @@ export interface Company {
 
   phone: string | null;
 
-  logo: string | null;
+  logo?: string | null;
 
   address: string | null;
 
@@ -26,9 +30,12 @@ export interface Company {
 
   status: CompanyStatus;
 
-  trialEndsAt: Date | null;
+  planStartedAt: Date | null;
+
+  planExpiresAt: Date | null;
 
   createdAt: Date;
 
   updatedAt: Date;
+
 }
