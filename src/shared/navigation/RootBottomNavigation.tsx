@@ -99,8 +99,8 @@ export default function RootBottomNavigation() {
               <span
                 className={
                   active
-                    ? "text-violet-500"
-                    : "text-zinc-500"
+                    ? "text-violet-500 text-sm"
+                    : "text-zinc-500 text-sm"
                 }
               >
 

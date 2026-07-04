@@ -12,6 +12,7 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { useModules } from "@/modules/module/use-modules";
+import { useRouter } from "next/navigation";
 
 import {
   DashboardProduct,
@@ -50,6 +51,8 @@ const comingSoon =
   install,
 } = useModules();
 
+const router = useRouter();
+
 const categoryLabel = {
 
     sales: "🚀 Sales",
@@ -65,19 +68,41 @@ const categoryLabel = {
   return (
 
     <div
-      className="
-group
-overflow-hidden
-rounded-3xl
-border
-bg-background
-transition-all
-duration-300
-hover:-translate-y-2
-hover:border-violet-500
-hover:shadow-2xl
-"
-    >
+  role="button"
+  tabIndex={0}
+  onClick={()=>
+    router.push(
+      `/dashboard/apps/${product.moduleId}`
+    )
+  }
+  onKeyDown={(e)=>{
+
+    if(
+      e.key==="Enter"||
+      e.key===" "
+    ){
+
+      router.push(
+        `/dashboard/apps/${product.moduleId}`
+      );
+
+    }
+
+  }}
+  className="
+  group
+  cursor-pointer
+  overflow-hidden
+  rounded-3xl
+  border
+  bg-background
+  transition-all
+  duration-300
+  hover:-translate-y-2
+  hover:border-violet-500
+  hover:shadow-2xl
+  "
+>
 
       {/* Cover */}
 
@@ -139,47 +164,88 @@ hover:shadow-2xl
 
 </Badge>
 
-        {installed && (
-
-          <Button
-  asChild
+<div
   className="
-  w-full
-  bg-emerald-600
-  hover:bg-emerald-700
+  flex
+  items-center
+  justify-between
+  text-sm
   "
 >
 
-  <Link
-    href={product.route}
+  <span className="text-muted-foreground">
+
+    Versi 1.0.0
+
+  </span>
+
+  {installed && (
+
+    <span className="text-emerald-600 font-medium">
+
+      ✓ Terinstal
+
+    </span>
+
+  )}
+
+</div>
+
+        {installed && (
+
+          <div
+  onClick={(e) =>
+    e.stopPropagation()
+  }
+>
+
+  <Button
+    asChild
+    className="
+    w-full
+    bg-emerald-600
+    hover:bg-emerald-700
+    "
   >
 
-    <CheckCircle2
-      className="mr-2 h-4 w-4"
-    />
+    <Link href={product.route}>
 
-    Buka Aplikasi
+      <CheckCircle2
+        className="mr-2 h-4 w-4"
+      />
 
-  </Link>
+      Buka Aplikasi
 
-</Button>
+    </Link>
+
+  </Button>
+
+</div>
 
         )}
 
         {available && (
 
-          <Button
-  className="w-full"
-  onClick={() =>
-    install(product.moduleId)
+          <div
+  onClick={(e) =>
+    e.stopPropagation()
   }
 >
 
-  <Download className="mr-2 h-4 w-4"/>
+  <Button
+    className="w-full"
+    onClick={() =>
+      install(product.moduleId)
+    }
+  >
 
-  Install
+    <Download className="mr-2 h-4 w-4"/>
 
-</Button>
+    Install
+
+  </Button>
+
+</div>
 
         )}
 
