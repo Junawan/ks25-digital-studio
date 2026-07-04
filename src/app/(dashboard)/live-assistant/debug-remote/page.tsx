@@ -58,6 +58,34 @@ export default function DebugRemotePage() {
 
   }, []);
 
+  useEffect(() => {
+
+  function log(event: KeyboardEvent) {
+
+    setKey(event.key);
+    setCode(event.code);
+    setKeyCode(event.keyCode);
+
+    console.log(event);
+
+  }
+
+  window.addEventListener("keydown", log);
+  window.addEventListener("keyup", log);
+  document.addEventListener("keydown", log);
+  document.addEventListener("keyup", log);
+
+  return () => {
+
+    window.removeEventListener("keydown", log);
+    window.removeEventListener("keyup", log);
+    document.removeEventListener("keydown", log);
+    document.removeEventListener("keyup", log);
+
+  };
+
+}, []);
+
   return (
 
 <div

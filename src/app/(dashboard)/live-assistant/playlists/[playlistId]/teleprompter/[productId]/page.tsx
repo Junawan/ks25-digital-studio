@@ -20,6 +20,9 @@ import PresenterHeader from "@/modules/live-assistant/teleprompter/components/Pr
 import {
   useTeleprompterKeyboard,
 } from "@/modules/live-assistant/teleprompter/hooks/useTeleprompterKeyboard";
+import {
+  useTeleprompterSwipe,
+} from "@/modules/live-assistant/teleprompter/hooks/useTeleprompterSwipe";
 
 export default function TeleprompterPage() {
 
@@ -309,6 +312,14 @@ useTeleprompterKeyboard({
             v - 2
         )
     ),
+
+});
+
+useTeleprompterSwipe({
+
+  onPrev: goPrev,
+
+  onNext: goNext,
 
 });
 
