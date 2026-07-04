@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "ks25-digital-studio"
-  }
+  },
+  "targets": {
+    "ks25-digital-studio": {
+      "hosting": {
+        "production": [
+          "ks25studio"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
