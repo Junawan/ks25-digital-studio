@@ -72,32 +72,46 @@ export default function PresenterScript({
 >
 
 <div
+  ref={contentRef}
+  className="
+  mx-auto
 
-ref={contentRef}
+  h-full
+  w-full
+  max-w-[760px]
 
-className="
-h-full
-overflow-y-auto
+  overflow-y-auto
+  overflow-x-hidden
 
-px-8
+  px-5
+  sm:px-8
+  md:px-10
 
-pt-24
+  pt-24
+  pb-40
 
-pb-40
+  whitespace-pre-wrap
 
-leading-[2.2]
+  break-words
 
-whitespace-pre-wrap
+  text-white
+  font-medium
 
-text-white
+  select-none
+  "
+  style={{
+    fontSize,
 
-font-medium
+    lineHeight: 2.1,
 
-"
-style={{
-fontSize,
-}}
+    wordBreak: "break-word",
 
+    overflowWrap: "anywhere",
+
+    WebkitHyphens: "auto",
+
+    hyphens: "auto",
+  }}
 >
 
 {text ||

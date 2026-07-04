@@ -80,30 +80,46 @@ gap-3
 >
 
 <Button
-className="
-h-16
-w-full
-rounded-2xl
-"
-variant="secondary"
-onClick={onFontDown}
+  variant="secondary"
+  className="
+    h-14
+    w-full
+    flex
+    flex-col
+    items-center
+    justify-center
+    gap-0
+  "
+  onClick={onFontDown}
 >
 
-A<Minus/>
+  <span className="text-base font-semibold">
+    A
+  </span>
+
+  <Minus className="h-3.5 w-3.5" />
 
 </Button>
 
 <Button
-className="
-h-16
-w-full
-rounded-2xl
-"
-variant="secondary"
-onClick={onFontUp}
+  variant="secondary"
+  className="
+    h-14
+    w-full
+    flex
+    flex-col
+    items-center
+    justify-center
+    gap-0
+  "
+  onClick={onFontUp}
 >
 
-A<Plus/>
+  <span className="text-xl font-semibold">
+    A
+  </span>
+
+  <Plus className="h-3.5 w-3.5" />
 
 </Button>
 

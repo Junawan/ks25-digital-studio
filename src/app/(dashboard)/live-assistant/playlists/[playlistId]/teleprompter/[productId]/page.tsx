@@ -42,6 +42,9 @@ const playlistId =
     const [fontSize, setFontSize] =
     useState(42);
 
+    const [displayFontSize, setDisplayFontSize] =
+  useState(42);
+
 const [speed, setSpeed] =
     useState(1.0);
 
@@ -292,12 +295,58 @@ useTeleprompterKeyboard({
   onNext: goNext,
 
   onFontUp: () =>
-    setFontSize((v) => v + 2),
+    setFontSize((v) =>
+        Math.min(
+            72,
+            v + 2
+        )
+    ),
 
   onFontDown: () =>
-    setFontSize((v) => Math.max(20, v - 2)),
+    setFontSize((v) =>
+        Math.max(
+            20,
+            v - 2
+        )
+    ),
 
 });
+
+useEffect(() => {
+
+  function updateFont() {
+
+    const width =
+      window.innerWidth;
+
+    const scale =
+      Math.min(width, 430) / 390;
+
+    setDisplayFontSize(
+
+      Math.round(
+        fontSize * scale
+      )
+
+    );
+
+  }
+
+  updateFont();
+
+  window.addEventListener(
+    "resize",
+    updateFont
+  );
+
+  return () =>
+
+    window.removeEventListener(
+      "resize",
+      updateFont
+    );
+
+}, [fontSize]);
 
   if (loading) {
 
@@ -406,7 +455,7 @@ product.teleprompterText ??
 ""
 }
 
-fontSize={fontSize}
+fontSize={displayFontSize}
 
 contentRef={contentRef}
 
@@ -432,11 +481,29 @@ setPlaying(v=>!v)
 }
 
 onFontDown={()=>
-setFontSize(v=>v-2)
+
+setFontSize(v=>
+
+Math.max(
+20,
+v-2
+)
+
+)
+
 }
 
 onFontUp={()=>
-setFontSize(v=>v+2)
+
+setFontSize(v=>
+
+Math.min(
+72,
+v+2
+)
+
+)
+
 }
 
 onSpeedDown={()=>
