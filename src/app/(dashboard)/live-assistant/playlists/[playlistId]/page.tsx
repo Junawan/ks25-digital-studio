@@ -14,13 +14,39 @@ import { Plus } from "lucide-react";
 import { useGeneratePlaylistAI } from "@/modules/live-assistant/playlist/hooks/useGeneratePlaylistAI";
 import { Playlist } from "@/modules/live-assistant/playlist/playlist.types";
 import { Product } from "@/modules/live-assistant/product/product.types";
-import { getPlaylistUseCase, getProductsByIdsUseCase } from "@/modules/live-assistant/di";
+import { getPlaylistUseCase, getProductsByIdsUseCase, removeProductFromPlaylistUseCase, updatePlaylistOrderUseCase } from "@/modules/live-assistant/di";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Input } from "@/shared/components/ui/input";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Progress } from "@/shared/components/ui/progress";
 import AndroidBackHandler from "@/shared/components/native/AndroidBackHandler";
+import PlaylistProductItem from "@/modules/live-assistant/playlist/components/PlaylistProductItem";
+import DeleteConfirmDialog from "@/shared/components/DeleteConfirmDialog";
+import {
+
+DndContext,
+
+PointerSensor,
+
+useSensor,
+
+useSensors,
+
+closestCenter,
+
+} from "@dnd-kit/core";
+
+import {
+
+SortableContext,
+
+verticalListSortingStrategy,
+
+arrayMove,
+
+} from "@dnd-kit/sortable";
+import SortablePlaylistItem from "@/modules/live-assistant/playlist/components/SortablePlaylistItem";
 
 
 export default function PlaylistDetailPage() {
@@ -41,7 +67,33 @@ export default function PlaylistDetailPage() {
   const [products, setProducts] =
     useState<Product[]>([]);
 
+    const [deleteProduct, setDeleteProduct] =
+  useState<Product | null>(null);
+
+const [deleting, setDeleting] =
+  useState(false);
+
     const [search, setSearch] = useState("");
+
+    const sensors = useSensors(
+
+useSensor(
+
+PointerSensor,
+
+{
+
+activationConstraint:{
+
+distance:8,
+
+},
+
+}
+
+)
+
+);
 
     const numberedProducts = products.map((product, index) => ({
   ...product,
@@ -110,7 +162,65 @@ setProducts(orderedProducts);
 
   }
 
-  <AndroidBackHandler />
+  async function handleDragEnd(
+event:any
+){
+
+const{
+
+active,
+
+over,
+
+}=event;
+
+if(
+!over ||
+active.id===over.id
+){
+
+return;
+
+}
+
+const oldIndex=
+products.findIndex(
+p=>
+p.productId===active.id
+);
+
+const newIndex=
+products.findIndex(
+p=>
+p.productId===over.id
+);
+
+const newProducts=
+arrayMove(
+products,
+oldIndex,
+newIndex
+);
+
+setProducts(
+newProducts
+);
+
+await updatePlaylistOrderUseCase.execute(
+
+playlistId,
+
+newProducts.map(
+p=>p.productId
+)
+
+);
+
+}
+
+  <AndroidBackHandler
+  href={`/live-assistant/playlists/`}
+/>
 
   if (loading) {
 
@@ -366,106 +476,91 @@ Gagal
 
 )}
 
-      <div className="space-y-2">
+      <DndContext
 
-  {filteredProducts.map((product) => {
+sensors={sensors}
 
-    const number =
-      products.findIndex(
-        p => p.productId === product.productId
-      ) + 1;
+collisionDetection={closestCenter}
 
-    return (
+onDragEnd={handleDragEnd}
 
-      <button
-        key={product.productId}
-        onClick={() =>
-          router.push(
-            `/live-assistant/playlists/${playlistId}/teleprompter/${product.productId}`
-          )
-        }
-        className="
-        flex
-        w-full
-        items-center
-        gap-3
-        rounded-xl
-        border
-        bg-card
-        p-3
-        transition
-        hover:bg-muted
-        "
-      >
+>
 
-        <div
-          className="
-          flex
-          h-11
-          w-11
-          shrink-0
-          items-center
-          justify-center
-          rounded-full
-          bg-red-600
-          text-lg
-          font-bold
-          text-white
-          "
-        >
-          {number}
-        </div>
+<SortableContext
 
-        <img
-          src={product.image}
-          alt={product.title}
-          className="
-          h-16
-          w-16
-          rounded-lg
-          object-cover
-          "
-        />
+items={products.map(
+p=>p.productId
+)}
 
-        <div
-          className="
-          flex-1
-          min-w-0
-          text-left
-          "
-        >
+strategy={
+verticalListSortingStrategy
+}
 
-          <div
-            className="
-            truncate
-            font-semibold
-            "
-          >
-            {product.title}
-          </div>
+>
 
-          <div
-            className="
-            text-sm
-            text-muted-foreground
-            "
-          >
+  <div className="space-y-2">
 
-            {product.teleprompterText?.trim()
-              ? "✅ AI Siap"
-              : "⚪ Belum Generate"}
+{
 
-          </div>
+filteredProducts.map(
 
-        </div>
+(product,index)=>(
 
-      </button>
+<SortablePlaylistItem
 
-    );
+key={product.productId}
 
-  })}
+number={index+1}
+
+product={product}
+/>
+
+)
+
+)
+
+}
 
 </div>
+
+</SortableContext>
+
+</DndContext>
+
+<DeleteConfirmDialog
+  open={!!deleteProduct}
+  onOpenChange={(open) => {
+    if (!open) {
+      setDeleteProduct(null);
+    }
+  }}
+  title="Hapus Produk"
+  description={
+    deleteProduct
+      ? `Hapus "${deleteProduct.title}" dari playlist?`
+      : ""
+  }
+  loading={deleting}
+  onConfirm={async () => {
+    if (!deleteProduct) return;
+
+    try {
+      setDeleting(true);
+
+      await removeProductFromPlaylistUseCase.execute(
+        playlistId,
+        deleteProduct.productId
+      );
+
+      await load();
+
+      setDeleteProduct(null);
+
+    } finally {
+      setDeleting(false);
+    }
+  }}
+/>
 
     </div>
 

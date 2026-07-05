@@ -13,6 +13,8 @@ import { GetProductsUseCase } from "../product/use-cases/GetProductsUseCase";
 import { ImportProductsUseCase } from "../product/use-cases/ImportProductsUseCase";
 import { UpdateProductUseCase } from "../product/use-cases/UpdateProductUseCase";
 import { playlistRepository } from "./repositories";
+import { RemoveProductFromPlaylistUseCase } from "../playlist/use-cases/RemoveProductFromPlaylistUseCase";
+import { UpdatePlaylistOrderUseCase } from "../playlist/use-cases/UpdatePlaylistOrderUseCase";
 
 
   export const createProductUseCase =
@@ -79,5 +81,15 @@ export const deletePlaylistUseCase =
 
   export const getPlaylistByIdUseCase =
   new GetPlaylistByIdUseCase(
+    playlistRepository
+  );
+
+  export const removeProductFromPlaylistUseCase =
+  new RemoveProductFromPlaylistUseCase(
+    playlistRepository
+  );
+
+  export const updatePlaylistOrderUseCase =
+  new UpdatePlaylistOrderUseCase(
     playlistRepository
   );

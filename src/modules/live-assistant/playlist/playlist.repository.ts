@@ -178,4 +178,38 @@ export class PlaylistRepository extends BaseRepository<Playlist> {
 
 }
 
+async removeProduct(
+  playlistId: string,
+  productId: string
+): Promise<void> {
+  const playlist = await this.findById(playlistId);
+
+  if (!playlist) {
+    throw new Error("Playlist tidak ditemukan.");
+  }
+
+  await updateDoc(
+    doc(db, this.collectionName, playlistId),
+    {
+      productIds: playlist.productIds.filter(
+        (id) => id !== productId
+      ),
+      updatedAt: new Date(),
+    }
+  );
+}
+
+async updateProductOrder(
+  playlistId: string,
+  productIds: string[]
+): Promise<void> {
+  await updateDoc(
+    doc(db, this.collectionName, playlistId),
+    {
+      productIds,
+      updatedAt: new Date(),
+    }
+  );
+}
+
 }
