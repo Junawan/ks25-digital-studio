@@ -74,22 +74,6 @@ export default function AnnouncementCard({
 
           </h3>
 
-          {announcement.version && (
-
-            <div
-              className="
-              mt-1
-              text-sm
-              text-violet-600
-              "
-            >
-
-              v{announcement.version}
-
-            </div>
-
-          )}
-
           <p
             className="
             mt-3
@@ -144,17 +128,14 @@ function getIcon(
     case "bugfix":
       return <Wrench className="h-6 w-6" />;
 
-    case "module":
+    case "improvement":
       return <Package className="h-6 w-6" />;
 
     case "maintenance":
       return <Megaphone className="h-6 w-6" />;
 
-    case "promo":
+    case "promotion":
       return <Tag className="h-6 w-6" />;
-
-    case "tips":
-      return <Lightbulb className="h-6 w-6" />;
 
     default:
       return <Sparkles className="h-6 w-6" />;
