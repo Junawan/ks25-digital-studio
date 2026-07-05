@@ -1,11 +1,27 @@
 "use client";
 
+import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 import { useAndroidBack } from "@/hooks/useAndroidBack";
+import AnnouncementDialog from "@/modules/announcement/components/AnnouncementDialog";
 import AnnouncementList from "@/modules/announcement/components/AnnouncementList";
+import { Button } from "@/shared/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
 
 export default function UpdatesPage() {
   const router = useRouter();
+  const { workspace } = useWorkspace();
+
+const canManageAnnouncement =
+  workspace?.user.userId ===
+  process.env.NEXT_PUBLIC_OWNER_UID;
+
+  const [openDialog, setOpenDialog] =
+  useState(false);
+
+const [refreshKey, setRefreshKey] =
+  useState(0);
 
   useAndroidBack(() => {
           router.back();
@@ -51,7 +67,48 @@ export default function UpdatesPage() {
 
       </div>
 
-      <AnnouncementList />
+      <AnnouncementList
+    refreshKey={refreshKey}
+/>
+
+      <AnnouncementDialog
+  open={openDialog}
+  onOpenChange={setOpenDialog}
+  publishedBy={
+    workspace?.user.userId ?? ""
+  }
+  onSuccess={() => {
+
+    setRefreshKey(
+      (v) => v + 1
+    );
+
+  }}
+/>
+
+      {canManageAnnouncement && (
+
+<Button
+  size="icon"
+  className="
+    fixed
+    bottom-6
+    right-6
+    h-14
+    w-14
+    rounded-full
+    shadow-xl
+  "
+  onClick={() =>
+    setOpenDialog(true)
+  }
+>
+
++
+
+</Button>
+
+)}
 
     </div>
 

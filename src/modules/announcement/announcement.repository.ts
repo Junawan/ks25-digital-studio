@@ -1,10 +1,16 @@
 import {
+  addDoc,
   collection,
+  deleteDoc,
+  doc,
+  DocumentData,
+  getDoc,
   getDocs,
   orderBy,
   query,
+  setDoc,
+  updateDoc,
   where,
-  DocumentData,
 } from "firebase/firestore";
 
 import { db } from "@/core/firebase";
@@ -13,10 +19,88 @@ import type {
   Announcement,
 } from "./announcement.types";
 
-class AnnouncementRepository {
+export class AnnouncementRepository {
 
   private readonly collectionName =
     "announcements";
+
+    async create(
+  announcement: Announcement
+): Promise<void> {
+
+  const cleanData =
+    Object.fromEntries(
+      Object.entries(announcement).filter(
+        ([, value]) => value !== undefined
+      )
+    );
+
+  await setDoc(
+    doc(
+      db,
+      this.collectionName,
+      announcement.announcementId
+    ),
+    cleanData
+  );
+
+}
+
+async update(
+  id: string,
+  data: Partial<Announcement>
+): Promise<void> {
+
+  await updateDoc(
+    doc(
+      db,
+      this.collectionName,
+      id
+    ),
+    data
+  );
+
+}
+
+async delete(
+  id: string
+): Promise<void> {
+
+  await deleteDoc(
+    doc(
+      db,
+      this.collectionName,
+      id
+    )
+  );
+
+}
+
+async findById(
+  id: string
+): Promise<Announcement | null> {
+
+  const snapshot =
+    await getDoc(
+      doc(
+        db,
+        this.collectionName,
+        id
+      )
+    );
+
+  if (!snapshot.exists()) {
+
+    return null;
+
+  }
+
+  return this.map(
+    snapshot.id,
+    snapshot.data()
+  );
+
+}
 
   async getAll(): Promise<Announcement[]> {
 
@@ -55,41 +139,33 @@ class AnnouncementRepository {
   }
 
   private map(
-    id: string,
-    data: DocumentData
-  ): Announcement {
+  id: string,
+  data: DocumentData
+): Announcement {
 
-    return {
+  return {
 
-      announcementId: id,
+    announcementId: id,
 
-      title:
-        data.title,
+    title: data.title,
 
-      content:
-        data.content,
+    content: data.content,
 
-      category:
-        data.category,
+    category: data.category,
 
-      image:
-        data.image ?? null,
+    active: data.active,
 
-      version:
-        data.version ?? null,
+    isPopup: data.isPopup ?? false,
 
-      active:
-        data.active,
+    publishedAt:
+      data.publishedAt.toDate(),
 
-      publishedAt:
-        data.publishedAt.toDate(),
+    publishedBy:
+      data.publishedBy,
 
-      publishedBy:
-        data.publishedBy,
+  };
 
-    };
-
-  }
+}
 
 }
 

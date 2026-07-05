@@ -1,13 +1,11 @@
 export type AnnouncementCategory =
   | "feature"
+  | "improvement"
   | "bugfix"
-  | "module"
   | "maintenance"
-  | "promo"
-  | "tips";
+  | "promotion";
 
 export interface Announcement {
-
   announcementId: string;
 
   title: string;
@@ -16,14 +14,11 @@ export interface Announcement {
 
   category: AnnouncementCategory;
 
-  image?: string | null;
-
-  version?: string | null;
-
   active: boolean;
+
+  isPopup: boolean;
 
   publishedAt: Date;
 
   publishedBy: string;
-
 }

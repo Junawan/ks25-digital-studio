@@ -11,7 +11,12 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Product } from "@/modules/live-assistant/product/product.types";
 import { Playlist } from "@/modules/live-assistant/playlist/playlist.types";
-import { getPlaylistByIdUseCase, productRepository } from "@/modules/live-assistant/di";
+import {
+  createOrResumeLiveSessionUseCase,
+  getPlaylistByIdUseCase,
+  productRepository,
+  updateCurrentProductUseCase,
+} from "@/modules/live-assistant/di";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import TeleprompterControls from "@/modules/live-assistant/teleprompter/components/TeleprompterControls";
@@ -162,6 +167,11 @@ console.log("Native:", Capacitor.isNativePlatform());
 setPlaylist(list);
 
 if (list) {
+
+  await createOrResumeLiveSessionUseCase.execute(
+    list
+  );
+  
   const products =
     await productRepository.findByIds(
       list.productIds
@@ -188,6 +198,20 @@ if (list) {
     setLoading(false);
 
 }
+
+useEffect(() => {
+
+  if (!playlist) {
+    return;
+  }
+
+  updateCurrentProductUseCase.execute(
+    playlist.companyId,
+    playlist.playlistId,
+    productId
+  );
+
+}, [playlist, productId]);
 
 const filteredProducts = playlistProducts.filter((product) => {
   const q = keyword.trim().toLowerCase();

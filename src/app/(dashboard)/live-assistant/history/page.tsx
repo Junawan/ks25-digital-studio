@@ -10,35 +10,77 @@ import { Button } from "@/shared/components/ui/button";
 import { useAndroidBack } from "@/hooks/useAndroidBack";
 import { useRouter } from "next/navigation";
 
-const histories = [
-  {
-    id: "1",
-    playlist: "Promo Shopee Pagi",
-    time: "Hari ini • 09:20",
-    total: 18,
-  },
-  {
-    id: "2",
-    playlist: "Flash Sale Siang",
-    time: "Hari ini • 13:15",
-    total: 12,
-  },
-  {
-    id: "3",
-    playlist: "Live Malam",
-    time: "Kemarin • 20:05",
-    total: 25,
-  },
-];
+import { useEffect, useState } from "react";
+
+import {
+  getLiveSessionHistoryUseCase,
+} from "@/modules/live-assistant/di";
+
+import { LiveSession } from "@/modules/live-assistant/live-session/live-session.types";
+import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
 export default function HistoryPage() {
   const router = useRouter();
+  const { workspace } = useWorkspace();
+
+const [histories, setHistories] =
+  useState<LiveSession[]>([]);
+
+const [loading, setLoading] =
+  useState(true);
   useAndroidBack(() => {
   router.back();
   return true;
 });
+
+useEffect(() => {
+
+  loadHistory();
+
+}, [workspace]);
+
+async function loadHistory() {
+
+  if (!workspace) {
+    return;
+  }
+
+  setLoading(true);
+
+  const result =
+    await getLiveSessionHistoryUseCase.execute(
+      workspace.company.id
+    );
+
+  setHistories(result);
+
+  setLoading(false);
+
+}
+
+if (loading) {
+  return (
+    <div className="flex h-64 items-center justify-center">
+      Memuat riwayat...
+    </div>
+  );
+}
   return (
     <div className="space-y-6">
+
+      {histories.length === 0 && (
+
+<Card className="rounded-2xl p-10">
+
+<div className="text-center">
+
+Belum ada riwayat live.
+
+</div>
+
+</Card>
+
+)}
 
       <div>
 
@@ -57,7 +99,7 @@ export default function HistoryPage() {
         {histories.map((item) => (
 
           <Card
-            key={item.id}
+            key={item.sessionId}
             className="rounded-2xl p-5"
           >
 
@@ -66,32 +108,38 @@ export default function HistoryPage() {
               <div>
 
                 <div className="text-lg font-semibold">
-                  {item.playlist}
+                  {item.playlistName}
                 </div>
 
                 <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
 
                   <Clock3 className="h-4 w-4"/>
 
-                  {item.time}
+                  new Date(item.startedAt).toLocaleString("id-ID")
 
                 </div>
 
                 <div className="mt-1 text-sm text-muted-foreground">
 
-                  {item.total} Produk
+                  {item.totalProducts} Produk
 
                 </div>
 
               </div>
 
-              <Button>
+              <Button
+  onClick={() =>
+    router.push(
+  `/live-assistant/playlists/${item.playlistId}/teleprompter/${
+    item.currentProductId || item.firstProductId
+  }`
+)
+  }
+>
+  <PlayCircle className="mr-2 h-4 w-4" />
 
-                <PlayCircle className="mr-2 h-4 w-4"/>
-
-                Buka Lagi
-
-              </Button>
+  Buka Lagi
+</Button>
 
             </div>
 

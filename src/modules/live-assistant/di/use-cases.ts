@@ -15,7 +15,18 @@ import { UpdateProductUseCase } from "../product/use-cases/UpdateProductUseCase"
 import { playlistRepository } from "./repositories";
 import { RemoveProductFromPlaylistUseCase } from "../playlist/use-cases/RemoveProductFromPlaylistUseCase";
 import { UpdatePlaylistOrderUseCase } from "../playlist/use-cases/UpdatePlaylistOrderUseCase";
+import {
+  liveSessionRepository,
+} from "../live-session/live-session.repository";
 
+import {
+  CreateOrResumeLiveSessionUseCase,
+} from "../live-session/usecases/CreateOrResumeLiveSessionUseCase";
+
+import {
+  GetLiveSessionHistoryUseCase,
+} from "../live-session/usecases/GetLiveSessionHistoryUseCase";
+import { UpdateCurrentProductUseCase } from "../live-session/usecases/UpdateCurrentProductUseCase";
 
   export const createProductUseCase =
   new CreateProductUseCase(
@@ -93,3 +104,18 @@ export const deletePlaylistUseCase =
   new UpdatePlaylistOrderUseCase(
     playlistRepository
   );
+
+  export const createOrResumeLiveSessionUseCase =
+  new CreateOrResumeLiveSessionUseCase(
+    liveSessionRepository
+  );
+
+  export const getLiveSessionHistoryUseCase =
+  new GetLiveSessionHistoryUseCase(
+    liveSessionRepository
+  );
+
+  export const updateCurrentProductUseCase =
+new UpdateCurrentProductUseCase(
+liveSessionRepository
+);

@@ -3,8 +3,17 @@
 import AnnouncementCard from "./AnnouncementCard";
 
 import { useAnnouncements } from "../hooks/useAnnouncements";
+import { useEffect } from "react";
 
-export default function AnnouncementList() {
+interface Props{
+    refreshKey?:number;
+}
+
+export default function AnnouncementList({
+
+refreshKey,
+
+}:Props){
 
   const {
 
@@ -12,7 +21,19 @@ export default function AnnouncementList() {
 
     loading,
 
+    refresh,
+
   } = useAnnouncements();
+
+  useEffect(() => {
+
+  if (refreshKey !== undefined) {
+
+    refresh();
+
+  }
+
+}, [refreshKey]);
 
   if (loading) {
 
