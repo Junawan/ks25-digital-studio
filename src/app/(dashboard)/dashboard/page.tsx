@@ -14,7 +14,6 @@ import { Capacitor } from "@capacitor/core";
 import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
-  const router = useRouter();
 
   useAndroidBack(() => {
   if (!Capacitor.isNativePlatform()) {

@@ -1,3 +1,5 @@
+"use client";
+
 import { useAndroidBack } from "@/hooks/useAndroidBack";
 import AnnouncementList from "@/modules/announcement/components/AnnouncementList";
 import { useRouter } from "next/navigation";

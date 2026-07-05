@@ -1,4 +1,6 @@
-import { notFound, useRouter } from "next/navigation";
+"use client";
+
+import { notFound, } from "next/navigation";
 
 import ProductHero from "@/modules/apps/components/ProductHero";
 
@@ -14,7 +16,7 @@ from "@/modules/apps/components/ProductScreenshots";
 
 import ProductWorkflow
 from "@/modules/apps/components/ProductWorkflow";
-import { useAndroidBack } from "@/hooks/useAndroidBack";
+import AndroidBackHandler from "@/shared/components/native/AndroidBackHandler";
 
 interface Props {
 
@@ -31,8 +33,6 @@ export default async function AppDetailPage({
   params,
 
 }: Props) {
-
-  const router = useRouter();
 
   const {
 
@@ -56,10 +56,7 @@ export default async function AppDetailPage({
 
   }
 
-  useAndroidBack(() => {
-    router.back();
-    return true;
-  });
+  <AndroidBackHandler />
 
   return(
 
