@@ -507,12 +507,17 @@ filteredProducts.map(
 (product,index)=>(
 
 <SortablePlaylistItem
-
-key={product.productId}
-
-number={index+1}
-
-product={product}
+  key={product.productId}
+  number={index + 1}
+  product={product}
+  onClick={() =>
+    router.push(
+      `/live-assistant/playlists/${playlistId}/teleprompter/${product.productId}`
+    )
+  }
+  onDelete={() => {
+    setDeleteProduct(product);
+  }}
 />
 
 )
