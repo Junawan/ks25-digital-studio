@@ -20,7 +20,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Input } from "@/shared/components/ui/input";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Progress } from "@/shared/components/ui/progress";
-import { useAndroidBack } from "@/hooks/useAndroidBack";
+import AndroidBackHandler from "@/shared/components/native/AndroidBackHandler";
 
 
 export default function PlaylistDetailPage() {
@@ -110,6 +110,8 @@ setProducts(orderedProducts);
 
   }
 
+  <AndroidBackHandler />
+
   if (loading) {
 
     return (
@@ -129,11 +131,6 @@ setProducts(orderedProducts);
     );
 
   }
-
-  useAndroidBack(() => {
-  router.back();
-  return true;
-});
 
   return (
 
