@@ -23,6 +23,8 @@ import {
 import {
   useTeleprompterSwipe,
 } from "@/modules/live-assistant/teleprompter/hooks/useTeleprompterSwipe";
+import { Capacitor } from "@capacitor/core";
+import { Screen } from "@/lib/native/screen";
 
 export default function TeleprompterPage() {
 
@@ -104,6 +106,26 @@ function showUI() {
     },3000);
 
 }
+
+useEffect(() => {
+console.log("Native:", Capacitor.isNativePlatform());
+        if (Capacitor.isNativePlatform()) {
+            Screen.keepAwake();
+        }
+
+        return () => {
+            if (Capacitor.isNativePlatform()) {
+                Screen.allowSleep();
+            }
+        };
+
+    }, []);
+
+    useEffect(() => {
+  alert("Teleprompter mounted");
+
+  console.log("Teleprompter mounted");
+}, []);
 
   useEffect(() => {
 
