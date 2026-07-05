@@ -127,6 +127,40 @@ const [deleting, setDeleting] =
   open={importOpen}
   onOpenChange={setImportOpen}
 />
+
+<DeleteConfirmDialog
+  open={!!deleteProduct}
+  onOpenChange={(open) => {
+    if (!open) {
+      setDeleteProduct(null);
+    }
+  }}
+  title="Hapus Produk"
+  description={
+    deleteProduct
+      ? `Yakin ingin menghapus "${deleteProduct.title}"?`
+      : ""
+  }
+  loading={deleting}
+  onConfirm={async () => {
+    if (!deleteProduct) return;
+
+    try {
+      setDeleting(true);
+
+      await deleteProductUseCase.execute(
+        deleteProduct.productId
+      );
+
+      refresh();
+
+      setDeleteProduct(null);
+
+    } finally {
+      setDeleting(false);
+    }
+  }}
+/>
     </div>
   );
 }
