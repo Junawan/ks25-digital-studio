@@ -19,6 +19,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
 
 
 export default function PlaylistProductsPage() {
@@ -43,6 +44,11 @@ export default function PlaylistProductsPage() {
 
   const [loadingId, setLoadingId] =
     useState<string | null>(null);
+
+    useAndroidBack(() => {
+  router.back();
+  return true;
+});
 
   useEffect(() => {
 

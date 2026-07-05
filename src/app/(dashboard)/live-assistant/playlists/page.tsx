@@ -10,8 +10,11 @@ import { usePlaylists } from "@/modules/live-assistant/playlist/hooks/usePlaylis
 import type { Playlist } from "@/modules/live-assistant/playlist/playlist.types";
 import { Button } from "@/shared/components/ui/button";
 import { Plus } from "lucide-react";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
+import { useRouter } from "next/navigation";
 
 export default function PlaylistsPage() {
+  const router = useRouter();
   const { playlists, loading, refresh } = usePlaylists();
 
   const [search, setSearch] = useState("");
@@ -20,6 +23,11 @@ export default function PlaylistsPage() {
 
   const [selectedPlaylist, setSelectedPlaylist] =
     useState<Playlist | undefined>();
+
+    useAndroidBack(() => {
+  router.back();
+  return true;
+});
 
   if (loading) {
     return (

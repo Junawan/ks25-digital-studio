@@ -1,8 +1,15 @@
 "use client";
 
+import { useAndroidBack } from "@/hooks/useAndroidBack";
 import PaymentGrid from "@/modules/subscription/components/PaymentGrid";
+import { useRouter } from "next/navigation";
 
 export default function AdminSubscriptionsPage() {
+  const router = useRouter();
+  useAndroidBack(() => {
+  router.back();
+  return true;
+});
 
   return (
 

@@ -25,6 +25,7 @@ import {
 } from "@/modules/live-assistant/teleprompter/hooks/useTeleprompterSwipe";
 import { Capacitor } from "@capacitor/core";
 import { Screen } from "@/lib/native/screen";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
 
 export default function TeleprompterPage() {
 
@@ -107,6 +108,25 @@ function showUI() {
 
 }
 
+useAndroidBack(() => {
+  // Tutup pencarian terlebih dahulu
+  if (searchOpen) {
+    setSearchOpen(false);
+    return true;
+  }
+
+  // Keluar dari fullscreen jika aktif
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+    return true;
+  }
+
+  // Kembali ke playlist
+  router.push(`/live-assistant/playlists/${playlistId}`);
+
+  return true;
+});
+
 useEffect(() => {
 console.log("Native:", Capacitor.isNativePlatform());
         if (Capacitor.isNativePlatform()) {
@@ -120,12 +140,6 @@ console.log("Native:", Capacitor.isNativePlatform());
         };
 
     }, []);
-
-    useEffect(() => {
-  alert("Teleprompter mounted");
-
-  console.log("Teleprompter mounted");
-}, []);
 
   useEffect(() => {
 

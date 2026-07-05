@@ -10,6 +10,10 @@ import { useProducts } from "@/modules/live-assistant/product/hooks/useProducts"
 import ProductDialog from "@/modules/live-assistant/product/components/ProductDialog";
 import ImportProductDialog from "@/modules/live-assistant/product/components/ImportProductDialog";
 import { Product } from "@/modules/live-assistant/product/product.types";
+import { useRouter } from "next/navigation";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
+import DeleteConfirmDialog from "@/shared/components/DeleteConfirmDialog";
+import { deleteProductUseCase } from "@/modules/live-assistant/di";
 
 export default function ProductsPage() {
   const { products, loading, refresh } = useProducts();
@@ -24,6 +28,19 @@ export default function ProductsPage() {
   const [importOpen, setImportOpen] =
   useState(false);
 
+  const router = useRouter();
+
+  const [deleteProduct, setDeleteProduct] =
+  useState<Product | null>(null);
+
+const [deleting, setDeleting] =
+  useState(false);
+
+  useAndroidBack(() => {
+    router.back();
+    return true;
+  });
+
   if (loading) {
     return (
       <div className="p-6">
@@ -31,6 +48,28 @@ export default function ProductsPage() {
       </div>
     );
   }
+
+  async function handleDelete(product: Product) {
+  const ok = window.confirm(
+    `Hapus produk "${product.title}"?`
+  );
+
+  if (!ok) {
+    return;
+  }
+
+  try {
+    await deleteProductUseCase.execute(
+      product.productId
+    );
+
+    refresh();
+  } catch (error) {
+    console.error(error);
+
+    alert("Gagal menghapus produk.");
+  }
+}
 
   return (
     <div className="space-y-6">
@@ -62,6 +101,9 @@ export default function ProductsPage() {
   onEdit={(product) => {
     setSelectedProduct(product);
     setOpenDialog(true);
+  }}
+  onDelete={(product) => {
+    setDeleteProduct(product);
   }}
 />
 

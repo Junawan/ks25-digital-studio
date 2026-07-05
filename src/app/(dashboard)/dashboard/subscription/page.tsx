@@ -1,9 +1,17 @@
 "use client";
 
+import { useAndroidBack } from "@/hooks/useAndroidBack";
 import CurrentPlanCard from "@/modules/subscription/components/CurrentPlanCard";
 import PlanCard from "@/modules/subscription/components/PlanCard";
+import { useRouter } from "next/navigation";
 
 export default function SubscriptionPage() {
+const router = useRouter();
+
+  useAndroidBack(() => {
+          router.back();
+          return true;
+        });
   return (
     <div className="space-y-8">
 

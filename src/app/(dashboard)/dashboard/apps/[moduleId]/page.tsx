@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 
 import ProductHero from "@/modules/apps/components/ProductHero";
 
@@ -14,6 +14,7 @@ from "@/modules/apps/components/ProductScreenshots";
 
 import ProductWorkflow
 from "@/modules/apps/components/ProductWorkflow";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
 
 interface Props {
 
@@ -30,6 +31,8 @@ export default async function AppDetailPage({
   params,
 
 }: Props) {
+
+  const router = useRouter();
 
   const {
 
@@ -52,6 +55,11 @@ export default async function AppDetailPage({
     notFound();
 
   }
+
+  useAndroidBack(() => {
+    router.back();
+    return true;
+  });
 
   return(
 

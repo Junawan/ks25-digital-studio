@@ -16,9 +16,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import { useRouter } from "next/navigation";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
 
 export default function MyAppsPage() {
   const { workspace, loading } = useWorkspace();
+  const router = useRouter();
+
+  useAndroidBack(() => {
+      router.back();
+      return true;
+    });
 
   if (loading) {
     return <div>Loading...</div>;

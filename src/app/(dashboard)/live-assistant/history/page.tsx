@@ -7,6 +7,8 @@ import {
 
 import { Card } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
+import { useRouter } from "next/navigation";
 
 const histories = [
   {
@@ -30,6 +32,11 @@ const histories = [
 ];
 
 export default function HistoryPage() {
+  const router = useRouter();
+  useAndroidBack(() => {
+  router.back();
+  return true;
+});
   return (
     <div className="space-y-6">
 

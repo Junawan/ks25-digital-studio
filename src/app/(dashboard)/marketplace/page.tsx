@@ -6,6 +6,8 @@ import { Button } from "@/shared/components/ui/button";
 
 import { useModules } from "@/modules/module/use-modules";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
+import { useRouter } from "next/navigation";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
 
 export default function MarketplacePage() {
   const {
@@ -37,6 +39,13 @@ export default function MarketplacePage() {
       setInstalling(null);
     }
   };
+
+  const router = useRouter();
+
+  useAndroidBack(() => {
+      router.back();
+      return true;
+    });
 
   if (loading) {
     return <p>Loading...</p>;

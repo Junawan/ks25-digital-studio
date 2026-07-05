@@ -12,10 +12,16 @@ import {
   Card,
   CardContent,
 } from "@/shared/components/ui/card";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
 
 export default function SubscriptionStatusPage() {
 
   const router = useRouter();
+
+  useAndroidBack(() => {
+          router.back();
+          return true;
+        });
 
   return (
 

@@ -9,8 +9,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import { useRouter } from "next/navigation";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
 
 export default function LiveAssistantPage() {
+  const router = useRouter();
+
+  useAndroidBack(() => {
+    router.back();
+    return true;
+  });
   return (
     <div className="space-y-8">
 
