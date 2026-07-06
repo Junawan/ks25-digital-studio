@@ -115,7 +115,7 @@ Belum ada riwayat live.
 
                   <Clock3 className="h-4 w-4"/>
 
-                  new Date(item.startedAt).toLocaleString("id-ID")
+                  {item.startedAt.toLocaleString("id-ID")}
 
                 </div>
 

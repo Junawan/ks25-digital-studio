@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+import { generateId } from "@/shared/utils/id";
 import { Announcement, AnnouncementCategory } from "../announcement.types";
 import { AnnouncementRepository } from "../announcement.repository";
 
@@ -24,7 +24,7 @@ export class CreateAnnouncementUseCase {
     input: Input
   ): Promise<void> {
     const announcement: Announcement = {
-      announcementId: randomUUID(),
+      announcementId: generateId(),
 
       title: input.title.trim(),
 

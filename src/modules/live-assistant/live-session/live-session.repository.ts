@@ -30,15 +30,13 @@ export class LiveSessionRepository {
 
   const snapshot = await getDocs(q);
 
-  if (!snapshot.empty) {
+  for (const session of snapshot.docs) {
 
-    const session = snapshot.docs[0];
+    const value = session.data();
 
-    const value =
-      session.data() as LiveSession;
-
-    const lastOpened =
-      new Date(value.lastOpenedAt);
+const lastOpened =
+  value.lastOpenedAt?.toDate?.() ??
+  new Date();
 
     const now = new Date();
 
@@ -116,10 +114,44 @@ export class LiveSessionRepository {
 
   const snapshot = await getDocs(q);
 
-  return snapshot.docs.map(
-    (doc) =>
-      doc.data() as LiveSession
-  );
+  return snapshot.docs.map((doc) => {
+
+  const data = doc.data();
+
+  return {
+
+    sessionId: doc.id,
+
+    companyId: data.companyId,
+
+    playlistId: data.playlistId,
+
+    playlistName: data.playlistName,
+
+    firstProductId: data.firstProductId,
+
+    currentProductId:
+      data.currentProductId ?? null,
+
+    totalProducts:
+      data.totalProducts,
+
+    status: data.status,
+
+    startedAt:
+      data.startedAt.toDate(),
+
+    lastOpenedAt:
+      data.lastOpenedAt.toDate(),
+
+    endedAt:
+      data.endedAt
+        ? data.endedAt.toDate()
+        : null,
+
+  } as LiveSession;
+
+});
 }
 
 async updateCurrentProduct(

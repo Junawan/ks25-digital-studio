@@ -1,7 +1,6 @@
-import { randomUUID } from "crypto";
-
 import { LiveSessionRepository } from "../live-session.repository";
 import { Playlist } from "../../playlist/playlist.types";
+import { generateId } from "@/shared/utils/id";
 
 export class CreateOrResumeLiveSessionUseCase {
   constructor(
@@ -12,7 +11,7 @@ export class CreateOrResumeLiveSessionUseCase {
     playlist: Playlist
   ): Promise<void> {
     await this.repository.createOrResume({
-      sessionId: randomUUID(),
+      sessionId: generateId(),
 
       companyId: playlist.companyId,
 

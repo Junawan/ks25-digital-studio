@@ -32,66 +32,6 @@ export default function LiveAssistantPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Products
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-bold">
-              -
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Playlists
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-bold">
-              -
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              AI Generated
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-bold">
-              -
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Presenter
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-bold">
-              0
-            </p>
-          </CardContent>
-        </Card>
-
-      </div>
-
       <Card>
 
         <CardHeader>

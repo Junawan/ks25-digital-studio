@@ -91,14 +91,15 @@ const [refreshKey, setRefreshKey] =
 <Button
   size="icon"
   className="
-    fixed
-    bottom-6
-    right-6
-    h-14
-    w-14
-    rounded-full
-    shadow-xl
-  "
+fixed
+bottom-[96px]
+right-5
+z-50
+h-14
+w-14
+rounded-full
+shadow-xl
+"
   onClick={() =>
     setOpenDialog(true)
   }

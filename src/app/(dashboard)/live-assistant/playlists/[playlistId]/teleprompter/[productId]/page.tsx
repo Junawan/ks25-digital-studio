@@ -146,13 +146,9 @@ console.log("Native:", Capacitor.isNativePlatform());
 
     }, []);
 
-  useEffect(() => {
-
-    load();
-
-  }, []);
-
   async function load() {
+
+    try {
 
     const p =
         await productRepository.findById(
@@ -195,9 +191,19 @@ if (list) {
 
     setProduct(p);
 
+    } catch (error) {
+    console.error(error);
+  } finally {
     setLoading(false);
+  }
 
 }
+
+useEffect(() => {
+
+    load();
+
+  }, []);
 
 useEffect(() => {
 
