@@ -1,7 +1,6 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-
   appId: "com.ks25.mitraumkm",
 
   appName: "KS25",
@@ -9,19 +8,16 @@ const config: CapacitorConfig = {
   webDir: "www",
 
   server: {
-
-    url: "https://ks25-digital-studio--ks25-digital-studio.asia-southeast1.hosted.app",
+    url: "https://ks25studio.web.id",
 
     cleartext: false,
 
     androidScheme: "https",
 
     allowNavigation: [
-      "ks25-digital-studio--ks25-digital-studio.asia-southeast1.hosted.app",
-    ],
-
+  "ks25studio.web.id",
+],
   },
-
 };
 
 export default config;
