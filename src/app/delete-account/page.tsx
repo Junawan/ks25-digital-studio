@@ -98,6 +98,12 @@ export default function DeleteAccountPage() {
           <h2>Hubungi Kami</h2>
 
           <p>
+            Whatsapp:
+            <br />
+            <strong>6285710255464</strong>
+          </p>
+
+          <p>
             Email:
             <br />
             <strong>khairashop25@gmail.com</strong>
