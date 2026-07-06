@@ -7,6 +7,8 @@ import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
 import { Button } from "@/shared/components/ui/button";
 
+import { ShieldCheck } from "lucide-react";
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -134,6 +136,20 @@ export default function AccountMenu({
           ❓ Bantuan
 
         </Button>
+
+        <Button
+  variant="outline"
+  className="w-full justify-start"
+  onClick={() => {
+    onClose();
+
+    router.push("/privacy-policy");
+  }}
+>
+  <ShieldCheck className="mr-2 h-4 w-4" />
+
+  Kebijakan Privasi
+</Button>
 
         <Button
           variant="destructive"
