@@ -7,7 +7,7 @@ import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
 import { Button } from "@/shared/components/ui/button";
 
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, UserRoundX, } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -149,6 +149,20 @@ export default function AccountMenu({
   <ShieldCheck className="mr-2 h-4 w-4" />
 
   Kebijakan Privasi
+</Button>
+
+<Button
+  variant="outline"
+  className="w-full justify-start"
+  onClick={() => {
+    onClose();
+
+    router.push("/delete-account");
+  }}
+>
+  <UserRoundX className="mr-2 h-4 w-4" />
+
+  Hapus Akun
 </Button>
 
         <Button
