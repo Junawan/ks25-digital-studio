@@ -10,8 +10,8 @@ import { usePlaylists } from "@/modules/live-assistant/playlist/hooks/usePlaylis
 import type { Playlist } from "@/modules/live-assistant/playlist/playlist.types";
 import { Button } from "@/shared/components/ui/button";
 import { Plus } from "lucide-react";
-import { useAndroidBack } from "@/hooks/useAndroidBack";
 import { useRouter } from "next/navigation";
+import AndroidBackHandler from "@/shared/components/native/AndroidBackHandler";
 
 export default function PlaylistsPage() {
   const router = useRouter();
@@ -24,11 +24,6 @@ export default function PlaylistsPage() {
   const [selectedPlaylist, setSelectedPlaylist] =
     useState<Playlist | undefined>();
 
-    useAndroidBack(() => {
-  router.back();
-  return true;
-});
-
   if (loading) {
     return (
       <div className="p-6">
@@ -39,6 +34,10 @@ export default function PlaylistsPage() {
 
   return (
     <div className="space-y-6">
+
+      <AndroidBackHandler
+        href={`/live-assistant/`}
+      />
 
       <div>
         <h1 className="text-3xl font-bold">

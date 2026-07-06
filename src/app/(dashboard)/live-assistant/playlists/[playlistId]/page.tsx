@@ -21,7 +21,6 @@ import { Input } from "@/shared/components/ui/input";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Progress } from "@/shared/components/ui/progress";
 import AndroidBackHandler from "@/shared/components/native/AndroidBackHandler";
-import PlaylistProductItem from "@/modules/live-assistant/playlist/components/PlaylistProductItem";
 import DeleteConfirmDialog from "@/shared/components/DeleteConfirmDialog";
 import {
 

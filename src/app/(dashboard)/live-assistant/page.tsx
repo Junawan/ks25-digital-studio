@@ -9,18 +9,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { useRouter } from "next/navigation";
-import { useAndroidBack } from "@/hooks/useAndroidBack";
+import AndroidBackHandler from "@/shared/components/native/AndroidBackHandler";
 
 export default function LiveAssistantPage() {
-  const router = useRouter();
 
-  useAndroidBack(() => {
-    router.back();
-    return true;
-  });
   return (
     <div className="space-y-8">
+
+      <AndroidBackHandler
+        href={`/dashboard/`}
+      />
 
       <div>
         <h1 className="text-3xl font-bold">
