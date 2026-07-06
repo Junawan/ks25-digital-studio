@@ -8,14 +8,14 @@ const config: CapacitorConfig = {
   webDir: "www",
 
   server: {
-    url: "https://ks25studio.web.id",
+    url: "https://www.ks25studio.web.id",
 
     cleartext: false,
 
     androidScheme: "https",
 
     allowNavigation: [
-  "ks25studio.web.id",
+  "www.ks25studio.web.id",
 ],
   },
 };

@@ -102,6 +102,8 @@ export default function PresenterScript({
   style={{
     fontSize,
 
+    textAlign: "justify",
+
     lineHeight: 2.1,
 
     wordBreak: "break-word",

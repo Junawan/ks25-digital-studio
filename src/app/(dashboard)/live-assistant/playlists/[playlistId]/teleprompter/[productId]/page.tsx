@@ -31,6 +31,7 @@ import {
 import { Capacitor } from "@capacitor/core";
 import { Screen } from "@/lib/native/screen";
 import { useAndroidBack } from "@/hooks/useAndroidBack";
+import AndroidBackHandler from "@/shared/components/native/AndroidBackHandler";
 
 export default function TeleprompterPage() {
 
@@ -127,7 +128,9 @@ useAndroidBack(() => {
   }
 
   // Kembali ke playlist
-  router.push(`/live-assistant/playlists/${playlistId}`);
+  <AndroidBackHandler
+    href={`/live-assistant/playlists/${playlistId}`}
+  />
 
   return true;
 });
