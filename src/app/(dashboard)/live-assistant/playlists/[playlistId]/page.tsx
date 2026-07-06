@@ -218,10 +218,6 @@ p=>p.productId
 
 }
 
-  <AndroidBackHandler
-  href={`/live-assistant/playlists/`}
-/>
-
   if (loading) {
 
     return (
@@ -245,6 +241,9 @@ p=>p.productId
   return (
 
     <div className="space-y-6">
+      <AndroidBackHandler
+  href={`/live-assistant/playlists/`}
+/>
 
       <Button
         variant="outline"
