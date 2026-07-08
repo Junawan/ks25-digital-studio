@@ -272,8 +272,6 @@ async function pinShortcut() {
   }
 >
 
-  <div className="flex gap-2">
-
   <Button
     asChild
     className="
@@ -319,7 +317,6 @@ async function pinShortcut() {
 
 </Button>
 
-</div>
 </div>
 
         )}
