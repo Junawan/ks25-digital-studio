@@ -19,6 +19,9 @@ import {
 } from "../dashboard.data";
 
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
+import { useShortcut } from "@/hooks/useShortcut";
+import { Capacitor } from "@capacitor/core";
+import { toast } from "sonner";
 
 interface Props {
 
@@ -64,6 +67,76 @@ const categoryLabel = {
     creative: "🎉 Creative",
 
 };
+
+function getModuleRoute(
+  moduleId: string
+) {
+  switch (moduleId) {
+    case "live-assistant":
+      return "/live-assistant";
+
+    default:
+      return "/";
+  }
+}
+
+const shortcut =
+  useShortcut(
+    product.moduleId
+  );
+
+async function pinShortcut() {
+
+  if (!Capacitor.isNativePlatform()) {
+
+    toast.info(
+      "Shortcut hanya tersedia di Android."
+    );
+
+    return;
+
+  }
+
+  try {
+
+    const success =
+      await shortcut.pin(
+
+        product.name,
+
+        getModuleRoute(
+          product.moduleId
+        ),
+
+        "live_assistant"
+
+      );
+
+    if (success) {
+
+      toast.success(
+        "Shortcut berhasil ditambahkan."
+      );
+
+    } else {
+
+      toast.error(
+        "Perangkat tidak mendukung Shortcut."
+      );
+
+    }
+
+  } catch (e) {
+
+    console.error(e);
+
+    toast.error(
+      "Gagal membuat shortcut."
+    );
+
+  }
+
+}
 
   return (
 
@@ -199,6 +272,8 @@ const categoryLabel = {
   }
 >
 
+  <div className="flex gap-2">
+
   <Button
     asChild
     className="
@@ -208,7 +283,13 @@ const categoryLabel = {
     "
   >
 
-    <Link href={product.route}>
+    <Link
+  href={
+    getModuleRoute(
+      product.moduleId
+    )
+  }
+>
 
       <CheckCircle2
         className="mr-2 h-4 w-4"
@@ -220,6 +301,25 @@ const categoryLabel = {
 
   </Button>
 
+  <Button
+  variant="outline"
+  disabled={shortcut.loading}
+  onClick={(e) => {
+
+    e.stopPropagation();
+
+    pinShortcut();
+
+  }}
+>
+
+  {shortcut.pinned
+    ? "✓ Sudah di Layar Utama"
+    : "📌 Pasang ke Layar Utama"}
+
+</Button>
+
+</div>
 </div>
 
         )}

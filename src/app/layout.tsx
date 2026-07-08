@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/core/providers/AuthProvider";
 import { WorkspaceProvider } from "@/core/workspace/WorkspaceProvider";
+import DeepLinkProvider from "@/shared/components/native/DeepLinkProvider";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +34,11 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <AuthProvider>
     <WorkspaceProvider>
-      {children}
+      <DeepLinkProvider>
+
+  {children}
+
+</DeepLinkProvider>
     </WorkspaceProvider>
   </AuthProvider>
         </body>
