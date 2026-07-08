@@ -12,12 +12,20 @@ import {
   Shortcut,
 } from "@/lib/native/shortcut";
 
+function sleep(ms: number) {
+  return new Promise((resolve) =>
+    setTimeout(resolve, ms)
+  );
+}
+
 export function useShortcut(
   id: string
 ) {
-
   const [loading, setLoading] =
     useState(true);
+
+  const [pinning, setPinning] =
+    useState(false);
 
   const [pinned, setPinned] =
     useState(false);
@@ -68,28 +76,62 @@ export function useShortcut(
     icon: string
   ) {
 
-    const result =
-      await Shortcut.pin({
+    setPinning(true);
 
-        id,
+    try {
 
-        title,
+      const result =
+        await Shortcut.pin({
 
-        route,
+          id,
 
-        icon,
+          title,
 
-      });
+          route,
 
-    if (
-      result.success
-    ) {
+          icon,
 
-      await refresh();
+        });
+
+      if (!result.success) {
+
+        return false;
+
+      }
+
+      // Tunggu Android selesai membuat shortcut
+      for (
+        let i = 0;
+        i < 10;
+        i++
+      ) {
+
+        const check =
+          await Shortcut.isPinned({
+            id,
+          });
+
+        if (
+          check.pinned
+        ) {
+
+          setPinned(true);
+
+          return true;
+
+        }
+
+        await sleep(300);
+
+      }
+
+      return false;
+
+    } finally {
+
+      setPinning(false);
 
     }
-
-    return result.success;
 
   }
 
@@ -97,11 +139,13 @@ export function useShortcut(
 
     loading,
 
+    pinning,
+
     pinned,
 
-    pin,
-
     refresh,
+
+    pin,
 
   };
 

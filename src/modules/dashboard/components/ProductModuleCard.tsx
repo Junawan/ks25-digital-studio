@@ -4,9 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 
 import {
+  Check,
   CheckCircle2,
   Clock3,
   Download,
+  Loader2,
+  Pin,
 } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -80,6 +83,22 @@ function getModuleRoute(
   }
 }
 
+function getModuleIcon(
+  moduleId: string
+) {
+
+  switch (moduleId) {
+
+    case "live-assistant":
+      return "live_assistant";
+
+    default:
+      return "live_assistant";
+
+  }
+
+}
+
 const shortcut =
   useShortcut(
     product.moduleId
@@ -108,7 +127,9 @@ async function pinShortcut() {
           product.moduleId
         ),
 
-        "live_assistant"
+        getModuleIcon(
+          product.moduleId
+        )
 
       );
 
@@ -118,20 +139,20 @@ async function pinShortcut() {
         "Shortcut berhasil ditambahkan."
       );
 
-    } else {
-
-      toast.error(
-        "Perangkat tidak mendukung Shortcut."
-      );
+      return;
 
     }
 
-  } catch (e) {
+    toast.error(
+      "Gagal menambahkan shortcut."
+    );
 
-    console.error(e);
+  } catch (error) {
+
+    console.error(error);
 
     toast.error(
-      "Gagal membuat shortcut."
+      "Terjadi kesalahan."
     );
 
   }
@@ -301,7 +322,11 @@ async function pinShortcut() {
 
   <Button
   variant="outline"
-  disabled={shortcut.loading}
+  disabled={
+    shortcut.loading ||
+    shortcut.pinning ||
+    shortcut.pinned
+  }
   onClick={(e) => {
 
     e.stopPropagation();
@@ -311,9 +336,56 @@ async function pinShortcut() {
   }}
 >
 
-  {shortcut.pinned
-    ? "✓ Sudah di Layar Utama"
-    : "📌 Pasang ke Layar Utama"}
+  {shortcut.pinning ? (
+
+    <>
+
+      <Loader2
+        className="
+        mr-2
+        h-4
+        w-4
+        animate-spin
+        "
+      />
+
+      Menambahkan...
+
+    </>
+
+  ) : shortcut.pinned ? (
+
+    <>
+
+      <Check
+        className="
+        mr-2
+        h-4
+        w-4
+        "
+      />
+
+      Sudah di Layar Utama
+
+    </>
+
+  ) : (
+
+    <>
+
+      <Pin
+        className="
+        mr-2
+        h-4
+        w-4
+        "
+      />
+
+      Pasang ke Layar Utama
+
+    </>
+
+  )}
 
 </Button>
 
