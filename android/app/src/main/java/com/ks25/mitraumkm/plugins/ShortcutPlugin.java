@@ -7,13 +7,14 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
+
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
-import com.ks25.mitraumkm.MainActivity;
 
 import java.util.List;
 
@@ -47,27 +48,12 @@ public class ShortcutPlugin extends Plugin {
                                 getContext().getPackageName()
                         );
 
-        Intent intent =
-        new Intent(
-                getContext(),
-                MainActivity.class
-        );
-
-intent.setAction(
-        Intent.ACTION_VIEW
-);
-
-intent.setData(
+        Intent intent = new Intent(
+        Intent.ACTION_VIEW,
         Uri.parse(
                 "https://www.ks25studio.web.id" +
                         route
         )
-);
-
-intent.setFlags(
-        Intent.FLAG_ACTIVITY_NEW_TASK |
-        Intent.FLAG_ACTIVITY_CLEAR_TOP |
-        Intent.FLAG_ACTIVITY_SINGLE_TOP
 );
 
         ShortcutInfo shortcut =
