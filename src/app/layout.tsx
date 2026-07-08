@@ -34,11 +34,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <AuthProvider>
     <WorkspaceProvider>
-      <DeepLinkProvider>
 
   {children}
 
-</DeepLinkProvider>
     </WorkspaceProvider>
   </AuthProvider>
         </body>

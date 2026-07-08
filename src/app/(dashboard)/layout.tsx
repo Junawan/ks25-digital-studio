@@ -8,6 +8,7 @@ import DashboardSidebar from "@/shared/layouts/DashboardSidebar";
 import DashboardHeader from "@/shared/layouts/DashboardHeader";
 
 import MobileShell from "@/shared/components/mobile/MobileShell";
+import DeepLinkProvider from "@/shared/components/native/DeepLinkProvider";
 
 interface Props {
   children: React.ReactNode;
@@ -50,7 +51,11 @@ export default function DashboardLayout({
 
         <MobileShell>
 
-          {children}
+          <DeepLinkProvider>
+
+{children}
+
+</DeepLinkProvider>
 
         </MobileShell>
 
