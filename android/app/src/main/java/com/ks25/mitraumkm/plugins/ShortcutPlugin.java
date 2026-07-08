@@ -49,16 +49,12 @@ public class ShortcutPlugin extends Plugin {
                         );
 
         Intent intent = new Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse(
-                        "ks25://" +
-                                route.replaceFirst("^/", "")
-                )
-        );
-
-        intent.setPackage(
-                getContext().getPackageName()
-        );
+        Intent.ACTION_VIEW,
+        Uri.parse(
+                "https://www.ks25studio.web.id" +
+                        route
+        )
+);
 
         ShortcutInfo shortcut =
                 new ShortcutInfo.Builder(
