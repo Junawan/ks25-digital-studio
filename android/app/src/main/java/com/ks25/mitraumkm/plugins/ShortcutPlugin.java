@@ -51,9 +51,9 @@ public class ShortcutPlugin extends Plugin {
         Intent intent = new Intent(
         Intent.ACTION_VIEW,
         Uri.parse(
-    "ks25://app" +
-    route
-)
+                "ks25://" +
+                        route.replaceFirst("^/", "")
+        )
 );
 
 intent.setPackage(
