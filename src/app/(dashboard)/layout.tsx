@@ -47,15 +47,13 @@ export default function DashboardLayout({
 
     <AuthGuard>
 
+      <DeepLinkProvider>
+
       {mobile ? (
 
         <MobileShell>
 
-          <DeepLinkProvider>
-
 {children}
-
-</DeepLinkProvider>
 
         </MobileShell>
 
@@ -80,6 +78,8 @@ export default function DashboardLayout({
         </div>
 
       )}
+
+      </DeepLinkProvider>
 
     </AuthGuard>
 

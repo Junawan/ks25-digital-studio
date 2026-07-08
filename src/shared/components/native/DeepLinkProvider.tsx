@@ -1,17 +1,69 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
-import { initializeDeepLink } from "@/lib/native/deepLink";
+import { useRouter } from "next/navigation";
+
+import {
+  getLaunchRoute,
+  subscribeDeepLink,
+} from "@/lib/native/deepLink";
 
 export default function DeepLinkProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
+
+  const router = useRouter();
+
+  const handledLaunch =
+    useRef(false);
+
   useEffect(() => {
-    initializeDeepLink();
-  }, []);
+
+    let mounted = true;
+
+    getLaunchRoute()
+      .then((route) => {
+
+        if (
+          !mounted ||
+          handledLaunch.current ||
+          !route
+        ) {
+          return;
+        }
+
+        handledLaunch.current =
+          true;
+
+        router.replace(route);
+
+      });
+
+    const listener =
+      subscribeDeepLink(
+        (route) => {
+
+          router.replace(route);
+
+        }
+      );
+
+    return () => {
+
+      mounted = false;
+
+      listener.then(
+        (handle) =>
+          handle.remove()
+      );
+
+    };
+
+  }, [router]);
 
   return <>{children}</>;
+
 }
