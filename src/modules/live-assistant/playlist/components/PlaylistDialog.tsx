@@ -8,7 +8,7 @@ import { usePlaylists } from "../hooks/usePlaylists";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
 interface Props {

@@ -12,7 +12,7 @@ import {
 import { Playlist } from "../playlist.types";
 
 import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   playlists: Playlist[];

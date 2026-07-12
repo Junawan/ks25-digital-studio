@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 
 import { Sparkles, Crown } from "lucide-react";
 
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 

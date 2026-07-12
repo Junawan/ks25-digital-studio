@@ -6,7 +6,7 @@ import {
 
 import {
   Button,
-} from "@/shared/components/ui/button";
+} from "@/components/ui/button";
 
 import {
   Card,

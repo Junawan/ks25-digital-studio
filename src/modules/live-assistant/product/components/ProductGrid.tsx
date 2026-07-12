@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Product } from "../product.types";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useGenerateProductAI } from "../hooks/useGenerateProductAI";
 import { Badge } from "@/shared/components/ui/badge";
 import { Loader2, Pencil, Trash2 } from "lucide-react";

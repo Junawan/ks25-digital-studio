@@ -17,7 +17,7 @@ import {
   productRepository,
   updateCurrentProductUseCase,
 } from "@/modules/live-assistant/di";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import TeleprompterControls from "@/modules/live-assistant/teleprompter/components/TeleprompterControls";
 import PresenterScript from "@/modules/live-assistant/teleprompter/components/PresenterScript";

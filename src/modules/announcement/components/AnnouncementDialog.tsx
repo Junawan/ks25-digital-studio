@@ -15,7 +15,7 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
 

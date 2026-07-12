@@ -15,7 +15,7 @@ import { useGeneratePlaylistAI } from "@/modules/live-assistant/playlist/hooks/u
 import { Playlist } from "@/modules/live-assistant/playlist/playlist.types";
 import { Product } from "@/modules/live-assistant/product/product.types";
 import { getPlaylistUseCase, getProductsByIdsUseCase, removeProductFromPlaylistUseCase, updatePlaylistOrderUseCase } from "@/modules/live-assistant/di";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Input } from "@/shared/components/ui/input";
 import { Card, CardContent } from "@/shared/components/ui/card";

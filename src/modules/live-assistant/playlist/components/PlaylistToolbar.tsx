@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Plus, Search } from "lucide-react";
 

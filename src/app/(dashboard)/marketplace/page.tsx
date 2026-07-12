@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 import { useModules } from "@/modules/module/use-modules";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";

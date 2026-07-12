@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { authService } from "@/core/auth/auth.service";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 import { ShieldCheck, UserRoundX, } from "lucide-react";
 

@@ -11,7 +11,7 @@ import {
 
 import { Badge } from "@/shared/components/ui/badge";
 
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 import type { SubscriptionPayment } from "../subscription-payment.types";
 

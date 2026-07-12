@@ -8,6 +8,11 @@ export interface ProductFeature {
 
 }
 
+export type DashboardProductStatus =
+  | "stable"
+  | "beta"
+  | "coming-soon";
+
 export interface ProductWorkflow {
 
   title: string;
@@ -71,6 +76,8 @@ export interface DashboardProduct {
   tutorials: ProductTutorial[];
 
   faq: ProductFaq[];
+
+  status: DashboardProductStatus;
 
 }
 
@@ -298,6 +305,8 @@ export const dashboardProducts: DashboardProduct[] = [
 
   ],
 
+  status: "stable",
+
 },
 
   {
@@ -325,9 +334,9 @@ export const dashboardProducts: DashboardProduct[] = [
 
   color: "from-blue-600 to-cyan-600",
 
-  ready: false,
+  ready: true,
 
-  route: "#",
+  route: "/pos",
 
   features: [],
 
@@ -336,6 +345,8 @@ export const dashboardProducts: DashboardProduct[] = [
   tutorials: [],
 
   faq: [],
+
+  status: "beta",
 
 },
 
@@ -376,6 +387,8 @@ export const dashboardProducts: DashboardProduct[] = [
 
   faq: [],
 
+  status: "coming-soon",
+
 },
 
   {
@@ -414,6 +427,8 @@ export const dashboardProducts: DashboardProduct[] = [
   tutorials: [],
 
   faq: [],
+
+  status: "coming-soon",
 
 },
 
@@ -454,6 +469,8 @@ export const dashboardProducts: DashboardProduct[] = [
 
   faq: [],
 
+  status: "coming-soon",
+
 },
 
   {
@@ -492,6 +509,8 @@ export const dashboardProducts: DashboardProduct[] = [
   tutorials: [],
 
   faq: [],
+
+  status: "coming-soon",
 
 },
 

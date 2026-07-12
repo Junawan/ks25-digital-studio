@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useProducts } from "@/modules/live-assistant/product/hooks/useProducts";
 import { addProductToPlaylistUseCase, getPlaylistUseCase } from "@/modules/live-assistant/di";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";

@@ -12,7 +12,7 @@ import {
   Pin,
 } from "lucide-react";
 
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { useModules } from "@/modules/module/use-modules";
 import { useRouter } from "next/navigation";
@@ -78,6 +78,9 @@ function getModuleRoute(
     case "live-assistant":
       return "/live-assistant";
 
+      case "pos":
+  return "/pos";
+
     default:
       return "/";
   }
@@ -91,6 +94,9 @@ function getModuleIcon(
 
     case "live-assistant":
       return "live_assistant";
+
+      case "pos":
+  return "pos";
 
     default:
       return "live_assistant";
@@ -250,13 +256,64 @@ async function pinShortcut() {
 
         </div>
 
-        <Badge
-  variant="secondary"
->
+        <div className="flex flex-wrap gap-2">
 
-  {categoryLabel[product.category]}
+  <Badge variant="secondary">
+    {categoryLabel[product.category]}
+  </Badge>
 
-</Badge>
+  {product.status === "stable" && (
+    <Badge
+      variant="outline"
+      className="
+        border-emerald-300
+        bg-emerald-50
+        text-emerald-700
+      "
+    >
+      Stable
+    </Badge>
+  )}
+
+  {product.status === "beta" && (
+    <Badge
+      variant="outline"
+      className="
+        border-amber-300
+        bg-amber-50
+        text-amber-700
+      "
+    >
+      🧪 Beta
+    </Badge>
+  )}
+
+</div>
+
+{product.status === "beta" && (
+
+  <div
+    className="
+      rounded-xl
+      border
+      border-amber-200
+      bg-amber-50
+      p-3
+      text-xs
+      leading-relaxed
+      text-amber-700
+    "
+  >
+    <strong>Dalam Pengujian</strong>
+
+    <br />
+
+    Modul ini masih dalam tahap pengembangan.
+    Anda dapat mencobanya, namun beberapa fitur
+    mungkin belum lengkap atau masih berubah.
+  </div>
+
+)}
 
 <div
   className="

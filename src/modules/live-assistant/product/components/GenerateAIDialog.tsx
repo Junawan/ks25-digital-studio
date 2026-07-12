@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Product } from "../product.types";
 import { productRepository } from "../product.repository";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/shared/components/ui/progress";
 
 

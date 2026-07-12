@@ -8,7 +8,7 @@ import { Product } from "../product.types";
 import { useSaveProduct } from "../hooks/useSaveProduct";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { Input } from "@/shared/components/ui/input";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
 
 const schema = z.object({

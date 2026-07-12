@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { authService } from "@/core/auth";
 
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 import NotificationBell from "@/modules/notification/components/NotificationBell";
 import NotificationDrawer from "@/modules/notification/components/NotificationDrawer";

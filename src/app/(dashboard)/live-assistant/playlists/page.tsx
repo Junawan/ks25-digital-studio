@@ -8,7 +8,7 @@ import PlaylistDialog from "@/modules/live-assistant/playlist/components/Playlis
 
 import { usePlaylists } from "@/modules/live-assistant/playlist/hooks/usePlaylists";
 import type { Playlist } from "@/modules/live-assistant/playlist/playlist.types";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import AndroidBackHandler from "@/shared/components/native/AndroidBackHandler";

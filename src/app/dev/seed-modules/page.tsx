@@ -3,7 +3,7 @@
 import { doc, setDoc } from "firebase/firestore";
 
 import { db } from "@/core/firebase";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 const modules = [
   {

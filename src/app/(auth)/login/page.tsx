@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { useLogin } from "@/core/auth/use-login";
 
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import {

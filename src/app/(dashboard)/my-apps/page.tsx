@@ -6,7 +6,7 @@ import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
 import { MODULE_INFO } from "@/modules/module/module-info";
 
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 import {
   Card,

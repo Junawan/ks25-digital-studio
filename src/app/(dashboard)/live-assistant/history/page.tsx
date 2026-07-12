@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 
 import { Card } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useAndroidBack } from "@/hooks/useAndroidBack";
 import { useRouter } from "next/navigation";
 

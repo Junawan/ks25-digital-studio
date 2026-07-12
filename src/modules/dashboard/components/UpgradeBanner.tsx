@@ -3,7 +3,7 @@
 import { Crown } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 

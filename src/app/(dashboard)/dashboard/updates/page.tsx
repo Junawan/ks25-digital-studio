@@ -4,7 +4,7 @@ import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 import { useAndroidBack } from "@/hooks/useAndroidBack";
 import AnnouncementDialog from "@/modules/announcement/components/AnnouncementDialog";
 import AnnouncementList from "@/modules/announcement/components/AnnouncementList";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 

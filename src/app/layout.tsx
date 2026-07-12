@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/core/providers/AuthProvider";
 import { WorkspaceProvider } from "@/core/workspace/WorkspaceProvider";
-import DeepLinkProvider from "@/shared/components/native/DeepLinkProvider";
+import { Toaster } from "sonner";
 
 
 const geistSans = Geist({
@@ -39,6 +39,11 @@ export default function RootLayout({
 
     </WorkspaceProvider>
   </AuthProvider>
+  <Toaster
+  position="top-right"
+  richColors
+  closeButton
+/>
         </body>
     </html>
   );

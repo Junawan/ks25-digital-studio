@@ -4,7 +4,7 @@ import { GripVertical, Trash2 } from "lucide-react";
 
 import { Product } from "@/modules/live-assistant/product/product.types";
 
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 import { DraggableAttributes } from "@dnd-kit/core";
 import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
