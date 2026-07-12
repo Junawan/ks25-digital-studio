@@ -35,61 +35,54 @@ export default function BarcodeCamera({
     useRef(new BarcodeService());
 
   useEffect(() => {
-    if (!active) {
-      serviceRef.current.stop();
-      return;
-    }
+  if (!active) {
+    serviceRef.current.stop();
+    return;
+  }
 
-    // Android memakai ML Kit
-    if (Capacitor.isNativePlatform()) {
-      serviceRef.current
-        .scan(options)
-        .then((result) => {
-          if (result) {
-            onDetected(result);
-          }
-        })
-        .catch((error) => {
-          onError?.(
-            error instanceof Error
-              ? error
-              : new Error("Scan gagal.")
-          );
-        });
-
-      return;
-    }
-
-    // Browser memakai webcam
-    if (!videoRef.current) {
-      return;
-    }
-
+  if (Capacitor.isNativePlatform()) {
     serviceRef.current
-      .startCamera(
-        videoRef.current,
-        options ?? {},
-        onDetected
-      )
+      .scan(options)
+      .then((result) => {
+        if (result) {
+          onDetected(result);
+        }
+      })
       .catch((error) => {
         onError?.(
           error instanceof Error
             ? error
-            : new Error(
-                "Kamera tidak dapat dibuka."
-              )
+            : new Error("Scan gagal.")
         );
       });
 
-    return () => {
-      serviceRef.current.stop();
-    };
-  }, [
-    active,
-    options,
-    onDetected,
-    onError,
-  ]);
+    return;
+  }
+
+  if (!videoRef.current) {
+    return;
+  }
+
+  serviceRef.current
+    .startCamera(
+      videoRef.current,
+      options ?? {},
+      onDetected
+    )
+    .catch((error) => {
+      onError?.(
+        error instanceof Error
+          ? error
+          : new Error(
+              "Kamera tidak dapat dibuka."
+            )
+      );
+    });
+
+  return () => {
+    serviceRef.current.stop();
+  };
+}, [active]);
 
   if (Capacitor.isNativePlatform()) {
     return null;
