@@ -96,18 +96,38 @@ export default function BarcodeCamera({
   }
 
   return (
-    <video
-  ref={videoRef}
-  autoPlay
-  playsInline
-  muted
-  className="
-    w-full
-    rounded-xl
-    bg-black
-    aspect-video
-    object-cover
-  "
-/>
+    <div className="relative">
+
+  <video
+    ref={videoRef}
+    autoPlay
+    muted
+    playsInline
+    className="
+w-full
+aspect-[4/3]
+rounded-xl
+object-cover
+"
+  />
+
+  <div
+    className="
+      pointer-events-none
+      absolute
+      left-1/2
+      top-1/2
+      h-44
+      w-72
+      -translate-x-1/2
+      -translate-y-1/2
+      rounded-xl
+      border-4
+      border-emerald-400
+      shadow-[0_0_0_9999px_rgba(0,0,0,.35)]
+    "
+  />
+
+</div>
   );
 }

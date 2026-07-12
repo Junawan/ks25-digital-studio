@@ -38,21 +38,29 @@ export class WebBarcodeScannerAdapter
   await this.stop();
 
   this.stream =
-    await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: {
-          ideal: "environment",
-        },
-
-        width: {
-          ideal: 1920,
-        },
-
-        height: {
-          ideal: 1080,
-        },
+  await navigator.mediaDevices.getUserMedia({
+    video: {
+      facingMode: {
+        ideal: "environment",
       },
-    });
+
+      width: {
+        min: 1280,
+        ideal: 1920,
+        max: 3840,
+      },
+
+      height: {
+        min: 720,
+        ideal: 1080,
+        max: 2160,
+      },
+
+      frameRate: {
+        ideal: 30,
+      },
+    },
+  });
 
   video.srcObject = this.stream;
 
@@ -72,11 +80,13 @@ export class WebBarcodeScannerAdapter
 const capabilities =
   track.getCapabilities?.();
 
-if (
-  capabilities &&
-  "focusMode" in capabilities
-) {
-  try {
+  console.log(capabilities);
+
+try {
+  if (
+    capabilities &&
+    "focusMode" in capabilities
+  ) {
     await track.applyConstraints({
       advanced: [
         {
@@ -85,9 +95,11 @@ if (
         } as MediaTrackConstraintSet,
       ],
     });
-  } catch {
-    // Browser tidak mendukung.
   }
+} catch (e) {
+  console.log(
+    "Focus tidak didukung."
+  );
 }
 
   this.controls =
