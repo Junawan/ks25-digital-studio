@@ -83,6 +83,19 @@ export default function BarcodeInputDialog({
           }}
         />
 
+        <p
+  className="
+    mt-3
+    text-center
+    text-xs
+    text-muted-foreground
+  "
+>
+  Dekatkan barcode sekitar
+  10–15 cm dari kamera dan
+  pastikan pencahayaan cukup.
+</p>
+
         <Button
           variant="outline"
           onClick={() =>

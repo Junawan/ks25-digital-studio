@@ -18,6 +18,8 @@ export class WebBarcodeScannerAdapter
 
   private controls?: IScannerControls;
 
+  private stream?: MediaStream;
+
   async scan(
     _options?: BarcodeScanOptions
   ): Promise<BarcodeScanResult | null> {
@@ -27,43 +29,105 @@ export class WebBarcodeScannerAdapter
   }
 
   async startCamera(
-    video: HTMLVideoElement,
-    options: BarcodeScanOptions,
-    onDetected: (
-      result: BarcodeScanResult
-    ) => void
-  ) {
-    await this.stop();
+  video: HTMLVideoElement,
+  options: BarcodeScanOptions,
+  onDetected: (
+    result: BarcodeScanResult
+  ) => void
+) {
+  await this.stop();
 
-    this.controls =
-      await this.reader.decodeFromVideoDevice(
-        undefined,
-        video,
-        (result) => {
-          if (!result) {
-            return;
-          }
+  this.stream =
+    await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: {
+          ideal: "environment",
+        },
 
-          onDetected({
-            text: result.getText(),
-            format: result
-              .getBarcodeFormat()
-              .toString(),
-            timestamp: Date.now(),
-          });
+        width: {
+          ideal: 1920,
+        },
 
-          if (
-            options.mode !==
-            "continuous"
-          ) {
-            this.stop();
-          }
-        }
-      );
+        height: {
+          ideal: 1080,
+        },
+      },
+    });
+
+  video.srcObject = this.stream;
+
+  video.setAttribute(
+    "playsinline",
+    "true"
+  );
+
+  video.muted = true;
+
+  await video.play();
+
+  const track =
+  this.stream
+    .getVideoTracks()[0];
+
+const capabilities =
+  track.getCapabilities?.();
+
+if (
+  capabilities &&
+  "focusMode" in capabilities
+) {
+  try {
+    await track.applyConstraints({
+      advanced: [
+        {
+          focusMode:
+            "continuous",
+        } as MediaTrackConstraintSet,
+      ],
+    });
+  } catch {
+    // Browser tidak mendukung.
   }
+}
+
+  this.controls =
+    await this.reader.decodeFromVideoElement(
+      video,
+      (result) => {
+        if (!result) {
+          return;
+        }
+
+        onDetected({
+          text: result.getText(),
+          format: result
+            .getBarcodeFormat()
+            .toString(),
+          timestamp: Date.now(),
+        });
+
+        if (
+          options.mode !==
+          "continuous"
+        ) {
+          this.stop();
+        }
+      }
+    );
+}
 
   async stop() {
-    this.controls?.stop();
-    this.controls = undefined;
+  this.controls?.stop();
+  this.controls = undefined;
+
+  if (this.stream) {
+    this.stream
+      .getTracks()
+      .forEach((track) =>
+        track.stop()
+      );
+
+    this.stream = undefined;
   }
+}
 }
