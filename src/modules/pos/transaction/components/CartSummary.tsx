@@ -51,10 +51,12 @@ function Row({
   return (
     <div
       className="
-      flex
-      justify-between
-      py-1
-      "
+rounded-2xl
+border
+border-zinc-800
+bg-zinc-900
+p-5
+"
     >
       <span
         className={

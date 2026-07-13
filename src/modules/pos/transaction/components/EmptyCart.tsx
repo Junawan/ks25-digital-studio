@@ -4,40 +4,29 @@ export default function EmptyCart() {
   return (
     <div
       className="
-      flex
-      flex-col
-      items-center
-      justify-center
-      gap-4
-      rounded-xl
-      border
-      border-dashed
-      py-20
-      "
+rounded-2xl
+border
+bg-zinc-900
+border-zinc-800
+"
     >
       <ShoppingCart
-        className="
-        h-12
-        w-12
-        text-muted-foreground
-        "
-      />
+  className="
+  h-14
+  w-14
+  text-zinc-500
+  "
+/>
 
       <div className="text-center">
 
-        <h3 className="font-medium">
+        <h3 className="font-semibold text-white">
 
           Keranjang kosong
 
         </h3>
 
-        <p
-          className="
-          mt-1
-          text-sm
-          text-muted-foreground
-          "
-        >
+        <p className="text-zinc-400">
           Cari produk atau scan barcode.
         </p>
 

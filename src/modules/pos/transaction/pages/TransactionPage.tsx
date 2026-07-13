@@ -52,7 +52,10 @@ export default function TransactionPage() {
         />
 
         <Button
-          className="w-full"
+          className="
+    h-14
+    rounded-xl
+"
           disabled={
             cart.length === 0
           }

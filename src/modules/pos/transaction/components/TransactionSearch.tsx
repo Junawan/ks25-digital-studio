@@ -19,9 +19,14 @@ export default function TransactionSearch() {
       />
 
       <Input
-        placeholder="Cari produk..."
-        className="pl-10"
-      />
+  className="
+    h-12
+    bg-zinc-900
+    border-zinc-700
+    text-white
+    placeholder:text-zinc-500
+"
+/>
 
     </div>
   );
