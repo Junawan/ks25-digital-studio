@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Plus } from "lucide-react";
 
@@ -23,11 +23,24 @@ import LoadingSkeleton from "@/modules/pos/shared/components/skeletons/LoadingSk
 import TableSkeleton from "@/modules/pos/shared/components/skeletons/TableSkeleton";
 import ProductImportDialog from "@/modules/pos/product/components/import/ProductImportDialog";
 import { useProductExport } from "@/modules/pos/product/hooks/useProductExport";
+import { scannerDI }
+from "@/modules/pos/shared/scanner/di/scanner";
 
 export default function ProductPage() {
     const { workspace, loading: workspaceLoading } = useWorkspace();
 
 const company = workspace?.company;
+
+useEffect(() => {
+  if (!company) {
+    return;
+  }
+
+  scannerDI.scannerService.initialize(
+    company.id,
+    "kasir-1"
+  );
+}, [company]);
 
     const [keyword, setKeyword] = useState("");
 

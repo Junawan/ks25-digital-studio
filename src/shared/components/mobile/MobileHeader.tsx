@@ -26,6 +26,7 @@ import NotificationBell from "@/modules/notification/components/NotificationBell
 import NotificationDrawer
 from "@/modules/notification/components/NotificationDrawer";
 import AccountMenu from "@/modules/account/components/AccountMenu";
+import { BarcodeService } from "@/modules/pos/shared/barcode/services/BarcodeService";
 
 interface Props {
   title: string;
@@ -41,9 +42,33 @@ export default function MobileHeader({
 const company = workspace?.company;
 const user = workspace?.user;
 const router = useRouter();
+const [barcodeService] =
+  useState(
+    () => new BarcodeService()
+  );
 
   const [accountOpen, setAccountOpen] =
     useState(false);
+
+    async function handlePairing() {
+  try {
+    setOpen(false);
+
+    const barcode = await barcodeService.scan({
+      mode: "single",
+      vibrate: true,
+    });
+
+    if (!barcode) {
+      return;
+    }
+
+    console.log(barcode.text);
+
+  } catch (error) {
+    console.error(error);
+  }
+}
 
     const [
   notificationOpen,
@@ -224,16 +249,24 @@ const router = useRouter();
                 }
               />
 
-              <MenuItem
-                icon={
-                  <Sparkles className="h-5 w-5" />
-                }
-                title="Live Assistant"
-                href="/live-assistant"
-                onClick={() =>
-                  setOpen(false)
-                }
-              />
+              <Button
+  variant="ghost"
+  className="
+    w-full
+    justify-start
+    rounded-xl
+    px-4
+    py-6
+    text-zinc-300
+    hover:bg-zinc-800
+    hover:text-white
+  "
+  onClick={handlePairing}
+>
+  <Sparkles className="mr-3 h-5 w-5" />
+
+  Scan QR Pairing
+</Button>
 
             </nav>
 

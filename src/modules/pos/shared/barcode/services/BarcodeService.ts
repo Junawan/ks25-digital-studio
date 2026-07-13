@@ -3,16 +3,20 @@ import { Capacitor } from "@capacitor/core";
 import { BarcodeScannerAdapter } from "../types/BarcodeScannerAdapter";
 import { MlKitBarcodeScannerAdapter } from "../adapters/MlKitBarcodeScannerAdapter";
 import { BarcodeScanOptions, BarcodeScanResult } from "../types/barcode";
-import { WebBarcodeScannerAdapter } from "../adapters/WebBarcodeScannerAdapter";
 
 export class BarcodeService {
   private readonly adapter: BarcodeScannerAdapter;
 
   constructor() {
-    this.adapter = Capacitor.isNativePlatform()
-      ? new MlKitBarcodeScannerAdapter()
-      : new WebBarcodeScannerAdapter();
+  if (!Capacitor.isNativePlatform()) {
+    throw new Error(
+      "Scanner barcode hanya didukung pada Android."
+    );
   }
+
+  this.adapter =
+    new MlKitBarcodeScannerAdapter();
+}
 
   scan(options?: BarcodeScanOptions) {
     return this.adapter.scan(options);
@@ -21,27 +25,4 @@ export class BarcodeService {
   stop() {
     return this.adapter.stop();
   }
-
-  async startCamera(
-  video: HTMLVideoElement,
-  options: BarcodeScanOptions,
-  onDetected: (
-    result: BarcodeScanResult
-  ) => void
-) {
-  if (
-    "startCamera" in this.adapter &&
-    this.adapter.startCamera
-  ) {
-    return this.adapter.startCamera(
-      video,
-      options,
-      onDetected
-    );
-  }
-
-  throw new Error(
-    "Camera scanner tidak tersedia."
-  );
-}
 }
