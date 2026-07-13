@@ -45,6 +45,14 @@ const menus: Menu[] = [
     enabled: true,
   },
   {
+    title: "Transaksi",
+    description:
+      "Kasir dan penjualan.",
+    href: "/pos/transactions",
+    icon: ShoppingCart,
+    enabled: true,
+  },
+  {
     title: "Customer",
     description:
       "Kelola data pelanggan.",
@@ -58,14 +66,6 @@ const menus: Menu[] = [
       "Kelola data supplier.",
     href: "#",
     icon: Truck,
-    enabled: false,
-  },
-  {
-    title: "Transaksi",
-    description:
-      "Kasir dan penjualan.",
-    href: "#",
-    icon: ShoppingCart,
     enabled: false,
   },
   {
