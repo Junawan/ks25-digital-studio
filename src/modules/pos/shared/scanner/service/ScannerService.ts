@@ -36,7 +36,6 @@ export class ScannerService {
     source:
       | "android"
       | "usb"
-      | "webcam"
   ) {
     return this.repository.sendBarcode(
       companyId,

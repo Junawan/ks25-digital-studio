@@ -18,6 +18,7 @@ import { BarcodeScanOptions, BarcodeScanResult } from "../barcode/types/barcode"
 
 import { QRCodeSVG } from "qrcode.react";
 import { usePos } from "@/core/pos/usePos";
+import { scannerDI } from "../scanner/di/scanner";
 
 interface Props {
   open: boolean;
@@ -67,6 +68,52 @@ const qrValue =
     setScannerType("menu");
   }
 }, [open]);
+
+useEffect(() => {
+  if (
+    !open ||
+    scannerType !== "android"
+  ) {
+    return;
+  }
+
+  const unsubscribe =
+    scannerDI.scannerService.waitForScan(
+      companyId,
+      workstationId,
+      async (session) => {
+
+        if (
+          session.status !== "scanned"
+        ) {
+          return;
+        }
+
+        onDetected({
+          text: session.barcode,
+          format: session.source,
+          timestamp: session.updatedAt,
+        });
+
+        await scannerDI
+          .scannerService
+          .reset(
+            companyId,
+            workstationId
+          );
+
+        onOpenChange(false);
+      }
+    );
+
+  return unsubscribe;
+
+}, [
+  open,
+  scannerType,
+  companyId,
+  workstationId,
+]);
 
   return (
     <Dialog

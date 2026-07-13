@@ -1,7 +1,6 @@
 export type ScannerSource =
   | "android"
   | "usb"
-  | "webcam";
 
 export type ScannerStatus =
   | "waiting"
