@@ -1,31 +1,44 @@
-import { ShoppingCart } from "lucide-react";
+import {
+  ShoppingCart,
+} from "lucide-react";
 
 export default function EmptyCart() {
   return (
     <div
       className="
-rounded-2xl
-border
-border-zinc-200
-bg-white
-shadow-sm
-"
+      flex
+      flex-col
+      items-center
+      justify-center
+      gap-3
+      py-20
+      "
     >
       <ShoppingCart
-  className="
-    h-14
-    w-14
-    text-zinc-400
-  "
-/>
+        className="
+        h-14
+        w-14
+        text-zinc-400
+        "
+      />
 
-<h3 className="font-semibold text-zinc-900">
-  Keranjang kosong
-</h3>
+      <h3
+        className="
+        text-lg
+        font-semibold
+        "
+      >
+        Keranjang kosong
+      </h3>
 
-<p className="text-sm text-zinc-500">
-  Cari produk atau scan barcode.
-</p>
+      <p
+        className="
+        text-sm
+        text-muted-foreground
+        "
+      >
+        Cari produk atau scan barcode.
+      </p>
 
     </div>
   );
