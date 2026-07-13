@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   Dialog,
@@ -19,6 +19,8 @@ import { BarcodeScanOptions, BarcodeScanResult } from "../barcode/types/barcode"
 import { QRCodeSVG } from "qrcode.react";
 import { usePos } from "@/core/pos/usePos";
 import { scannerDI } from "../scanner/di/scanner";
+import { HidBarcodeScanner } from "../scanner/service/HidBarcodeScanner";
+
 
 interface Props {
   open: boolean;
@@ -53,6 +55,11 @@ const {
 
 const qrValue =
   `scanner?companyId=${companyId}&workstationId=${workstationId}`;
+
+  const hidScanner =
+  useRef(
+    new HidBarcodeScanner()
+  );
 
   useEffect(() => {
     if (!open) {
@@ -113,6 +120,39 @@ useEffect(() => {
   scannerType,
   companyId,
   workstationId,
+]);
+
+useEffect(() => {
+
+  if (
+    !open ||
+    scannerType !== "usb"
+  ) {
+    hidScanner.current.stop();
+
+    return;
+  }
+
+  hidScanner.current.start(
+    (barcode) => {
+
+      onDetected({
+        text: barcode,
+        format: "usb",
+        timestamp: Date.now(),
+      });
+
+      onOpenChange(false);
+
+    }
+  );
+
+  return () =>
+    hidScanner.current.stop();
+
+}, [
+  open,
+  scannerType,
 ]);
 
   return (
@@ -211,11 +251,39 @@ useEffect(() => {
 
 {scannerType === "usb" && (
 
-  <div className="py-8 text-center">
+  <div className="space-y-5 py-6">
 
-    <p className="font-medium">
-      Silakan scan barcode menggunakan USB Scanner.
-    </p>
+    <div
+      className="
+      rounded-xl
+      border-2
+      border-dashed
+      p-6
+      text-center
+      "
+    >
+
+      <p className="font-semibold">
+
+        Menunggu Scanner...
+
+      </p>
+
+      <p
+        className="
+        mt-2
+        text-sm
+        text-muted-foreground
+        "
+      >
+
+        Silakan scan barcode
+        menggunakan USB atau
+        Bluetooth Scanner.
+
+      </p>
+
+    </div>
 
   </div>
 
