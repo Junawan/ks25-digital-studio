@@ -53,28 +53,16 @@ function Row({
       className="
 rounded-2xl
 border
-border-zinc-800
-bg-zinc-900
+border-zinc-200
+bg-white
 p-5
 "
     >
-      <span
-        className={
-          bold
-            ? "font-semibold"
-            : ""
-        }
-      >
+      <span className="text-zinc-600">
         {label}
       </span>
 
-      <span
-        className={
-          bold
-            ? "font-semibold"
-            : ""
-        }
-      >
+      <span className="font-semibold text-zinc-900">
         Rp{" "}
         {value.toLocaleString(
           "id-ID"

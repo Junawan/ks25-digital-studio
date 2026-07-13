@@ -5,7 +5,13 @@ from "@/shared/components/ui/input";
 
 export default function TransactionSearch() {
   return (
-    <div className="relative">
+    <div className="
+rounded-2xl
+border
+border-zinc-200
+bg-white
+shadow-sm
+">
 
       <Search
         className="
@@ -21,11 +27,11 @@ export default function TransactionSearch() {
       <Input
   className="
     h-12
-    bg-zinc-900
-    border-zinc-700
-    text-white
+    border-zinc-300
+    bg-white
+    text-zinc-900
     placeholder:text-zinc-500
-"
+  "
 />
 
     </div>

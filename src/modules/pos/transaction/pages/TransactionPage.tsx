@@ -28,12 +28,15 @@ export default function TransactionPage() {
 
   return (
 
-    <div className="space-y-6">
+    <div className="min-h-screen bg-zinc-950">
 
-      <PageHeader
-        title="Transaksi"
-        description="Penjualan POS"
-      />
+      <h1 className="text-3xl font-bold text-violet-400">
+  Transaksi
+</h1>
+
+<p className="mt-1 text-zinc-200">
+  Penjualan POS
+</p>
 
       <div className="space-y-5">
 
@@ -52,16 +55,22 @@ export default function TransactionPage() {
         />
 
         <Button
-          className="
+  disabled={cart.length === 0}
+  className="
     h-14
+    w-full
     rounded-xl
-"
-          disabled={
-            cart.length === 0
-          }
-        >
-          Bayar
-        </Button>
+    bg-emerald-600
+    text-white
+    hover:bg-emerald-700
+
+    disabled:bg-zinc-300
+    disabled:text-zinc-500
+    disabled:opacity-100
+  "
+>
+  Bayar
+</Button>
 
       </div>
 
