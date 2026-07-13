@@ -63,7 +63,20 @@ const [barcodeService] =
       return;
     }
 
-    console.log(barcode.text);
+    const text = barcode.text;
+
+if (!text) {
+  return;
+}
+
+const url = new URL(
+  text,
+  "https://ks25.local"
+);
+
+router.push(
+  `/scanner?companyId=${url.searchParams.get("companyId")}&workstationId=${url.searchParams.get("workstationId")}`
+);
 
   } catch (error) {
     console.error(error);

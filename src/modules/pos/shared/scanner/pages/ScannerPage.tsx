@@ -5,6 +5,8 @@ import { useState } from "react";
 
 import { BarcodeService } from "@/modules/pos/shared/barcode/services/BarcodeService";
 
+import { useSearchParams } from "next/navigation";
+
 export default function ScannerPage() {
 
     const barcodeService =
@@ -15,6 +17,15 @@ const [loading, setLoading] =
 
 const [result, setResult] =
   useState("");
+
+  const params =
+  useSearchParams();
+
+const companyId =
+  params.get("companyId") ?? "";
+
+const workstationId =
+  params.get("workstationId") ?? "";
 
   async function handleScan() {
   try {
@@ -70,6 +81,10 @@ const [result, setResult] =
     <p className="text-sm text-muted-foreground">
       Barcode
     </p>
+
+    <p>{companyId}</p>
+
+<p>{workstationId}</p>
 
     <p className="mt-1 text-lg font-semibold">
       {result}

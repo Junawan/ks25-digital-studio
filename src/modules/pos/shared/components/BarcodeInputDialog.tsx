@@ -51,9 +51,7 @@ const {
 } = usePos();
 
 const qrValue =
-  `ks25://scanner` +
-  `?companyId=${encodeURIComponent(companyId)}` +
-  `&workstationId=${encodeURIComponent(workstationId)}`;
+  `scanner?companyId=${companyId}&workstationId=${workstationId}`;
 
   useEffect(() => {
     if (!open) {
