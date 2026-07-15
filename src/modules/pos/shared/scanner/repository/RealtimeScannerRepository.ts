@@ -41,6 +41,24 @@ export class RealtimeScannerRepository
     );
   }
 
+  async pairing(
+  companyId: string,
+  workstationId: string
+): Promise<void> {
+
+  await update(
+    this.getRef(
+      companyId,
+      workstationId
+    ),
+    {
+      status: "pairing",
+      updatedAt: Date.now(),
+    }
+  );
+
+}
+
   waitForScan(
     companyId: string,
     workstationId: string,

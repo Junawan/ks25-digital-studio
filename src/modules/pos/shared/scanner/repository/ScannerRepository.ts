@@ -6,6 +6,11 @@ export interface ScannerRepository {
     workstationId: string
   ): Promise<void>;
 
+  pairing(
+  companyId: string,
+  workstationId: string
+): Promise<void>;
+
   waitForScan(
     companyId: string,
     workstationId: string,

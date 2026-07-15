@@ -3,6 +3,7 @@ export type ScannerSource =
   | "usb"
 
 export type ScannerStatus =
+| "pairing"
   | "waiting"
   | "scanned"
   | "received";

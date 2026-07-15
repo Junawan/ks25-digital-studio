@@ -114,6 +114,11 @@ scannerOpen,
 setScannerOpen,
 ]=useState(false);
 
+const [
+  pairingStartedAt,
+  setPairingStartedAt,
+] = useState(0);
+
 useEffect(() => {
 
   if (!company) {
@@ -229,12 +234,12 @@ useEffect(() => {
         (session) => {
 
           if (
-            session.status === "waiting"
-          ) {
+  session.status === "pairing"
+) {
 
-            setScannerOpen(false);
+  setScannerOpen(false);
 
-          }
+}
 
         }
       );
@@ -244,6 +249,7 @@ useEffect(() => {
 }, [
   scannerOpen,
   company,
+  pairingStartedAt,
 ]);
 
 if (!company) {
@@ -264,8 +270,15 @@ if (!company) {
         onKeywordChange={
           setKeyword
         }
-        onScan={()=>
-setScannerOpen(true)}
+        onScan={() => {
+
+  setPairingStartedAt(
+    Date.now()
+  );
+
+  setScannerOpen(true);
+
+}}
       />
 
       <SearchResult

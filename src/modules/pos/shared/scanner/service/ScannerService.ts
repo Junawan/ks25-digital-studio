@@ -15,6 +15,16 @@ export class ScannerService {
     );
   }
 
+  pairing(
+  companyId: string,
+  workstationId: string
+) {
+  return this.repository.pairing(
+    companyId,
+    workstationId
+  );
+}
+
   waitForScan(
     companyId: string,
     workstationId: string,

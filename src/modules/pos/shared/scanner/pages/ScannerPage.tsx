@@ -99,6 +99,13 @@ const runningRef =
 
       });
 
+      await scannerDI
+  .scannerService
+  .pairing(
+    companyId,
+    workstationId
+  );
+
     setCompanyId(
       companyId
     );
