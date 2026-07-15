@@ -1,14 +1,23 @@
 import EmptyCart from "./EmptyCart";
 
-import { CartItem }
-from "../types/transaction";
+import type {
+  CartItem as CartItemType,
+} from "../types/transaction";
+
+import CartItem from "./CartItem";
+
 
 interface Props {
-  cart: CartItem[];
+  cart: CartItemType[];
+
+  onDelete: (
+    variantId: string
+  ) => void;
 }
 
 export default function CartCard({
   cart,
+  onDelete,
 }: Props) {
   return (
     <div
@@ -23,7 +32,19 @@ export default function CartCard({
       ) : (
         <div className="p-4">
 
-          Cart List
+          {cart.map((item) => (
+
+<CartItem
+
+key={item.variantId}
+
+item={item}
+
+onDelete={onDelete}
+
+/>
+
+))}
 
         </div>
       )}

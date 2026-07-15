@@ -4,7 +4,8 @@ export type ScannerSource =
 
 export type ScannerStatus =
   | "waiting"
-  | "scanned";
+  | "scanned"
+  | "received";
 
 export interface ScannerSession {
   status: ScannerStatus;

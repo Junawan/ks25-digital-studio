@@ -25,4 +25,9 @@ export interface ScannerRepository {
     companyId: string,
     workstationId: string
   ): Promise<void>;
+
+  markReceived(
+  companyId: string,
+  workstationId: string
+): Promise<void>;
 }

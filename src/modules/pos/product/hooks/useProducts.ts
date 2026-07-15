@@ -7,6 +7,9 @@ import { productDI } from "../di/product";
 import { Product } from "../types/product";
 import { toast } from "sonner";
 
+import { useMemo } from "react";
+import { ProductVariant } from "../types/product";
+
 interface UseProductsProps {
   companyId: string;
 }
@@ -43,6 +46,40 @@ export function useProducts({
     void load();
   }, [load]);
 
+  const barcodeMap = useMemo(() => {
+
+  const map = new Map<
+    string,
+    {
+      product: Product;
+      variant: ProductVariant;
+    }
+  >();
+
+  for (const product of products) {
+
+    for (const variant of product.variants) {
+
+      if (!variant.barcode.trim()) {
+        continue;
+      }
+
+      map.set(
+        variant.barcode,
+        {
+          product,
+          variant,
+        }
+      );
+
+    }
+
+  }
+
+  return map;
+
+}, [products]);
+
   const search = useCallback(
     async (keyword: string) => {
       if (!companyId) {
@@ -71,6 +108,18 @@ export function useProducts({
     [load]
   );
 
+  const findByBarcode = (
+  barcode: string
+) => {
+
+  return (
+    barcodeMap.get(
+      barcode.trim()
+    ) ?? null
+  );
+
+};
+
   return {
     loading,
 
@@ -81,5 +130,7 @@ export function useProducts({
     search,
 
     remove,
+
+    findByBarcode,
   };
 }

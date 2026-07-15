@@ -54,4 +54,45 @@ export class ScannerService {
       workstationId
     );
   }
+
+  markReceived(
+  companyId: string,
+  workstationId: string
+) {
+  return this.repository.markReceived(
+    companyId,
+    workstationId
+  );
+}
+
+waitUntilReceived(
+  companyId: string,
+  workstationId: string
+): Promise<void> {
+
+  return new Promise((resolve) => {
+
+    const unsubscribe =
+      this.waitForScan(
+        companyId,
+        workstationId,
+        (session) => {
+
+          if (
+            session.status !==
+            "received"
+          ) {
+            return;
+          }
+
+          unsubscribe();
+
+          resolve();
+
+        }
+      );
+
+  });
+
+}
 }

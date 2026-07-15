@@ -1,13 +1,16 @@
 "use client";
 
 import { Button } from "@/shared/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 
 import { BarcodeService } from "@/modules/pos/shared/barcode/services/BarcodeService";
 
-import { useSearchParams } from "next/navigation";
-
 import { scannerDI } from "@/modules/pos/shared/scanner/di/scanner";
+import { beep } from "../../utils/beep";
 
 export default function ScannerPage() {
 
@@ -20,6 +23,18 @@ const [loading, setLoading] =
 const [result, setResult] =
   useState("");
 
+  const [status, setStatus] =
+  useState<
+    | "connecting"
+    | "ready"
+    | "sending"
+  >("connecting");
+
+  const router = useRouter();
+
+const runningRef =
+  useRef(false);
+
   const params =
   useSearchParams();
 
@@ -30,43 +45,127 @@ const workstationId =
   params.get("workstationId") ?? "";
 
   async function handleScan() {
+
+    setStatus("ready");
+
+  if (
+    !runningRef.current
+  ) {
+    return;
+  }
+
   try {
-    const result =
+
+    const barcode =
       await barcodeService.scan({
         mode: "single",
         vibrate: true,
       });
 
-    if (!result) {
+    if (
+      !runningRef.current
+    ) {
       return;
     }
 
-    await scannerDI.scannerService.sendBarcode(
-      companyId,
-      workstationId,
-      result.text,
-      "android"
-    );
+    if (!barcode) {
 
-    alert("Barcode berhasil dikirim.");
-  } catch (error) {
-    console.error(error);
-  }
-}
+      handleScan();
 
-useEffect(() => {
-  if (!companyId || !workstationId) {
-    return;
-  }
+      return;
 
-  scannerDI.scannerService.initialize(
+    }
+
+    setResult(barcode.text);
+    setStatus("sending");
+
+    await scannerDI
+  .scannerService
+  .sendBarcode(
+    companyId,
+    workstationId,
+    barcode.text,
+    "android"
+  );
+
+await scannerDI
+  .scannerService
+  .waitUntilReceived(
     companyId,
     workstationId
   );
+  beep();
+  setStatus("ready");
+
+await scannerDI
+  .scannerService
+  .reset(
+    companyId,
+    workstationId
+  );
+
+if (
+  runningRef.current
+) {
+  handleScan();
+}
+
+  } catch (error) {
+
+  console.error(error);
+
+  if (
+    runningRef.current
+  ) {
+
+    handleScan();
+
+  }
+
+}
+
+}
+
+useEffect(() => {
+
+  if (
+    !companyId ||
+    !workstationId
+  ) {
+    return;
+  }
+
+  scannerDI
+  .scannerService
+  .initialize(
+      companyId,
+      workstationId
+  );
+
+setStatus("ready");
+
+  scannerDI
+    .scannerService
+    .initialize(
+      companyId,
+      workstationId
+    );
+
+  runningRef.current = true;
+
+  handleScan();
+
+  return () => {
+
+    runningRef.current = false;
+
+  };
+
 }, [
   companyId,
   workstationId,
 ]);
+
   return (
     <div className="mx-auto max-w-md space-y-6 p-6">
 
@@ -74,19 +173,24 @@ useEffect(() => {
         Scanner
       </h1>
 
-      <p className="text-sm text-muted-foreground">
-        Scan barcode menggunakan kamera Android.
-      </p>
-
-      <Button
-  className="w-full"
-  disabled={loading}
-  onClick={handleScan}
+      <p
+className="
+text-sm
+font-medium
+"
 >
-  {loading
-    ? "Membuka Scanner..."
-    : "Mulai Scan"}
-</Button>
+
+{status==="connecting" &&
+"🟡 Menghubungkan..."}
+
+{status==="ready" &&
+"🟢 Siap Scan"}
+
+{status==="sending" &&
+"🔵 Mengirim Barcode..."}
+
+</p>
+
 
 {result && (
 
@@ -107,6 +211,21 @@ useEffect(() => {
   </div>
 
 )}
+
+<Button
+  variant="destructive"
+  className="w-full"
+  onClick={() => {
+
+    runningRef.current =
+      false;
+
+    router.back();
+
+  }}
+>
+  Tutup Scanner
+</Button>
 
     </div>
   );

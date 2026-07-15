@@ -20,16 +20,181 @@ from "../components/TransactionToolbar";
 import { useTransaction }
 from "../hooks/useTransaction";
 
+import { useProducts } from "@/modules/pos/product/hooks/useProducts";
+
+import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
+
+import { useProductSearch } from "../hooks/useProductSearch";
+
+import SearchResult from "../components/SearchResult";
+
+import VariantPickerDialog from "../components/VariantPickerDialog";
+import { Product } from "../../product/types/product";
+import { useEffect } from "react";
+
+import { scannerDI, usbScanner }
+from "@/modules/pos/shared/scanner/di/scanner";
+import ScannerPairingDialog from "../../shared/scanner/components/ScannerPairingDialog";
+import { beep } from "../../shared/utils/beep";
+
 export default function TransactionPage() {
+
+  const { workspace } =
+  useWorkspace();
+
+const company =
+  workspace?.company;
 
   const [keyword, setKeyword] =
     useState("");
 
   const {
-    cart,
-    summary,
-  } =
-    useTransaction();
+
+cart,
+
+summary,
+
+addVariant,
+
+removeItem,
+
+} =
+useTransaction();
+
+function addBarcode(
+  barcode: string
+) {
+  const found =
+    findByBarcode(barcode);
+
+  if (!found) {
+    console.warn(
+      "Barcode tidak ditemukan:",
+      barcode
+    );
+
+    return;
+  }
+
+  addVariant(
+    found.product,
+    found.variant
+  );
+}
+
+    const {
+  products,
+  findByBarcode,
+} = useProducts({
+  companyId:
+    company?.id ?? "",
+});
+
+const results =
+  useProductSearch({
+    keyword,
+    products,
+});
+
+const [
+  selectedProduct,
+  setSelectedProduct,
+] =
+useState<Product>();
+
+const [
+  variantOpen,
+  setVariantOpen,
+] =
+useState(false);
+
+const [
+scannerOpen,
+setScannerOpen,
+]=useState(false);
+
+useEffect(() => {
+
+  if (!company) {
+    return;
+  }
+
+  const unsubscribe =
+    scannerDI
+      .scannerService
+      .waitForScan(
+        company.id,
+        "kasir-1",
+        async (session) => {
+
+          if (
+            session.status !== "scanned"
+          ) {
+            return;
+          }
+
+          const found =
+            findByBarcode(
+              session.barcode
+            );
+
+          if (!found) {
+            beep(
+    400,
+    250
+);
+
+            await scannerDI
+              .scannerService
+              .reset(
+                company.id,
+                "kasir-1"
+              );
+
+            return;
+          }
+
+          addVariant(
+            found.product,
+            found.variant
+          );
+          beep();
+
+          await scannerDI
+            .scannerService
+            .markReceived(
+              company.id,
+              "kasir-1"
+            );
+
+        }
+      );
+
+  return unsubscribe;
+
+}, [
+  company,
+  findByBarcode,
+  addVariant,
+]);
+
+useEffect(() => {
+
+    usbScanner.start(
+        addBarcode
+    );
+
+    return () => {
+
+        usbScanner.stop();
+
+    };
+
+}, []);
+
+if (!company) {
+  return null;
+}
 
   return (
 
@@ -45,12 +210,44 @@ export default function TransactionPage() {
         onKeywordChange={
           setKeyword
         }
-        onScan={() => {}}
+        onScan={()=>
+setScannerOpen(true)}
       />
 
+      <SearchResult
+  products={results}
+  onSelect={(product) => {
+
+    if (
+      product.variants.length === 1
+    ) {
+
+      addVariant(
+        product,
+        product.variants[0]
+      );
+
+      return;
+    }
+
+    setSelectedProduct(
+      product
+    );
+
+    setVariantOpen(true);
+
+  }}
+/>
+
       <CartCard
-        cart={cart}
-      />
+
+cart={cart}
+
+onDelete={
+removeItem
+}
+
+/>
 
       <CartSummary
         summary={summary}
@@ -67,6 +264,42 @@ export default function TransactionPage() {
       >
         Bayar
       </Button>
+
+      <VariantPickerDialog
+  open={variantOpen}
+  product={selectedProduct}
+  onOpenChange={
+    setVariantOpen
+  }
+  onSelect={(variant) => {
+
+    if (!selectedProduct) {
+      return;
+    }
+
+    addVariant(
+      selectedProduct,
+      variant
+    );
+
+  }}
+/>
+
+<ScannerPairingDialog
+
+open={scannerOpen}
+
+onOpenChange={
+setScannerOpen
+}
+
+companyId={
+company.id
+}
+
+workstationId="kasir-1"
+
+/>
 
     </div>
 

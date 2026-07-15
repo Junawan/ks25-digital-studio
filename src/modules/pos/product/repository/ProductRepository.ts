@@ -1,6 +1,7 @@
 import {
   CreateProductInput,
   Product,
+  ProductVariant,
   UpdateProductInput,
 } from "../types/product";
 
@@ -27,4 +28,12 @@ export interface ProductRepository {
     companyId: string,
     keyword: string
   ): Promise<Product[]>;
+
+  findByBarcode(
+  companyId: string,
+  barcode: string
+): Promise<{
+  product: Product;
+  variant: ProductVariant;
+} | null>;
 }

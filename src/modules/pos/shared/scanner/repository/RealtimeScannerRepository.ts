@@ -111,4 +111,22 @@ export class RealtimeScannerRepository
     );
 
   }
+
+  async markReceived(
+  companyId: string,
+  workstationId: string
+): Promise<void> {
+
+  await update(
+    this.getRef(
+      companyId,
+      workstationId
+    ),
+    {
+      status: "received",
+      updatedAt: Date.now(),
+    }
+  );
+
+}
 }

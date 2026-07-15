@@ -148,4 +148,31 @@ export class FirestoreProductRepository
 
   return ProductMapper.fromFirestore(snapshot.docs[0]);
 }
+
+async findByBarcode(
+  companyId: string,
+  barcode: string
+) {
+  const products =
+    await this.findAll(companyId);
+
+  for (const product of products) {
+
+    const variant =
+      product.variants.find(
+        (item) =>
+          item.barcode === barcode
+      );
+
+    if (variant) {
+      return {
+        product,
+        variant,
+      };
+    }
+
+  }
+
+  return null;
+}
 }
