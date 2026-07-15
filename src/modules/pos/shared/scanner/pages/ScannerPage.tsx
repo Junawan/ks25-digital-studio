@@ -23,6 +23,11 @@ const [result, setResult] =
   useState("");
 
   const [
+  paired,
+  setPaired,
+] = useState(false);
+
+  const [
   companyId,
   setCompanyId,
 ] = useState("");
@@ -43,6 +48,74 @@ const [
 
 const runningRef =
   useRef(false);
+
+  async function handlePairing() {
+
+  try {
+
+    const barcode =
+      await barcodeService.scan({
+
+        mode: "single",
+
+        vibrate: true,
+
+      });
+
+    if (!barcode) {
+      return;
+    }
+
+    const url =
+      new URL(
+        barcode.text,
+        "https://ks25.local"
+      );
+
+    const companyId =
+      url.searchParams.get(
+        "companyId"
+      );
+
+    const workstationId =
+      url.searchParams.get(
+        "workstationId"
+      );
+
+    if (
+      !companyId ||
+      !workstationId
+    ) {
+      return;
+    }
+
+    await scannerDI
+      .pairingStorage
+      .save({
+
+        companyId,
+
+        workstationId,
+
+      });
+
+    setCompanyId(
+      companyId
+    );
+
+    setWorkstationId(
+      workstationId
+    );
+
+    setPaired(true);
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
+
+}
 
   async function handleScan() {
 
@@ -140,7 +213,7 @@ if (
 
 useEffect(() => {
 
-  async function loadPairing() {
+  async function load() {
 
     const pairing =
       await scannerDI
@@ -148,7 +221,11 @@ useEffect(() => {
         .load();
 
     if (!pairing) {
+
+      setPaired(false);
+
       return;
+
     }
 
     setCompanyId(
@@ -159,9 +236,11 @@ useEffect(() => {
       pairing.workstationId
     );
 
+    setPaired(true);
+
   }
 
-  loadPairing();
+  load();
 
 }, []);
 
@@ -206,6 +285,45 @@ setStatus("ready");
   companyId,
   workstationId,
 ]);
+
+if (!paired) {
+
+  return (
+
+    <div
+      className="
+      space-y-6
+      p-6
+      "
+    >
+
+      <p
+        className="
+        text-center
+        text-muted-foreground
+        "
+      >
+
+        Scanner belum terhubung.
+
+      </p>
+
+      <Button
+        className="w-full"
+        onClick={
+          handlePairing
+        }
+      >
+
+        Hubungkan Scanner
+
+      </Button>
+
+    </div>
+
+  );
+
+}
 
   return (
     <div className="mx-auto max-w-md space-y-6 p-6">

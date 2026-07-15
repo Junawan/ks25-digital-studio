@@ -15,20 +15,14 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
-
 import { useRouter } from "next/navigation";
-
-import { authService } from "@/core/auth/auth.service";
 
 import NotificationBell from "@/modules/notification/components/NotificationBell";
 
 import NotificationDrawer
 from "@/modules/notification/components/NotificationDrawer";
 import AccountMenu from "@/modules/account/components/AccountMenu";
-import { BarcodeService } from "@/modules/pos/shared/barcode/services/BarcodeService";
-import { scannerDI } from "@/modules/pos/shared/scanner/di/scanner";
-import ScannerPage from "@/modules/pos/shared/scanner/pages/ScannerPage";
+
 
 interface Props {
   title: string;
@@ -38,16 +32,8 @@ export default function MobileHeader({
   title,
 }: Props) {
   const [open, setOpen] = useState(false);
-
-  const { workspace } = useWorkspace();
-
-const company = workspace?.company;
-const user = workspace?.user;
 const router = useRouter();
-const [barcodeService] =
-  useState(
-    () => new BarcodeService()
-  );
+
 
   const [accountOpen, setAccountOpen] =
     useState(false);
