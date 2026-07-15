@@ -37,7 +37,8 @@ from "@/modules/pos/shared/scanner/di/scanner";
 import ScannerPairingDialog from "../../shared/scanner/components/ScannerPairingDialog";
 import { beep } from "../../shared/utils/beep";
 import { Capacitor } from "@capacitor/core";
-import { useRouter } from "next/navigation";
+import { BarcodeService }
+from "@/modules/pos/shared/barcode/services/BarcodeService";
 
 export default function TransactionPage() {
 
@@ -47,7 +48,8 @@ export default function TransactionPage() {
 const company =
   workspace?.company;
 
-  const router = useRouter();
+  const barcodeService =
+  new BarcodeService();
 
   const [keyword, setKeyword] =
     useState("");
@@ -270,22 +272,33 @@ if (!company) {
       />
 
       <TransactionToolbar
-  keyword={keyword}
-  onKeywordChange={setKeyword}
-  onScan={() => {
+        keyword={keyword}
+        onKeywordChange={
+          setKeyword
+        }
+        onScan={async () => {
 
-    if (Capacitor.isNativePlatform()) {
+  if (Capacitor.isNativePlatform()) {
 
-      router.push("/scanner");
+    const barcode =
+      await barcodeService.scan({
+        mode: "single",
+        vibrate: true,
+      });
 
+    if (!barcode) {
       return;
-
     }
 
-    setScannerOpen(true);
+    addBarcode(barcode.text);
 
-  }}
-/>
+    return;
+  }
+
+  setScannerOpen(true);
+
+}}
+      />
 
       <SearchResult
   products={results}
