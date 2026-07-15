@@ -20,18 +20,21 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>KS25 Digital Studio</CardTitle>
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="space-y-2 text-center">
+          <CardTitle className="text-2xl">
+            KS25 Digital Studio
+          </CardTitle>
+
           <CardDescription>
-            Masuk ke akun Anda
+            Masuk menggunakan email dan password Anda.
           </CardDescription>
         </CardHeader>
 
         <CardContent>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4"
+            className="space-y-5"
           >
             <div className="space-y-2">
               <Label htmlFor="email">
@@ -41,34 +44,56 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
+                autoComplete="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                autoFocus
+                placeholder="nama@email.com"
                 {...form.register("email")}
               />
 
-              <p className="text-sm text-red-500">
-                {form.formState.errors.email?.message}
-              </p>
+              {form.formState.errors.email && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">
-                Password
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">
+                  Password
+                </Label>
+
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-primary hover:underline"
+                >
+                  Lupa Password?
+                </Link>
+              </div>
 
               <Input
                 id="password"
                 type="password"
+                autoComplete="current-password"
+                placeholder="Masukkan password"
                 {...form.register("password")}
               />
 
-              <p className="text-sm text-red-500">
-                {form.formState.errors.password?.message}
-              </p>
+              {form.formState.errors.password && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.password.message}
+                </p>
+              )}
             </div>
 
             {error && (
-              <p className="text-sm text-red-500">
-                {error}
-              </p>
+              <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3">
+                <p className="text-sm text-destructive">
+                  {error}
+                </p>
+              </div>
             )}
 
             <Button
@@ -76,22 +101,21 @@ export default function LoginPage() {
               className="w-full"
               disabled={loading}
             >
-              {loading ? "Memproses..." : "Masuk"}
+              {loading
+                ? "Sedang Masuk..."
+                : "Masuk"}
             </Button>
 
-            <div className="flex justify-between text-sm">
-              <Link
-                href="/register"
-                className="text-primary hover:underline"
-              >
-                Daftar
-              </Link>
+            <div className="border-t pt-4 text-center">
+              <p className="text-sm text-muted-foreground">
+                Belum memiliki akun?
+              </p>
 
               <Link
-                href="/forgot-password"
-                className="text-primary hover:underline"
+                href="/register"
+                className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
               >
-                Lupa Password?
+                Daftar Sekarang
               </Link>
             </div>
           </form>
