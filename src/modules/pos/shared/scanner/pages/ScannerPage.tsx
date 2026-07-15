@@ -84,6 +84,16 @@ const workstationId =
     setStatus("sending");
 
     await scannerDI
+  .pairingStorage
+  .save({
+
+    companyId,
+
+    workstationId,
+
+});
+
+    await scannerDI
   .scannerService
   .sendBarcode(
     companyId,
@@ -215,6 +225,19 @@ font-medium
   </div>
 
 )}
+
+<Button
+  className="w-full"
+  onClick={() => {
+    if (loading) return;
+
+    runningRef.current = true;
+
+    handleScan();
+  }}
+>
+  Scan Lagi
+</Button>
 
 <Button
   variant="destructive"
