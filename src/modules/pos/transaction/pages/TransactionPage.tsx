@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 import PageHeader
 from "@/modules/pos/shared/components/PageHeader";
@@ -30,15 +30,13 @@ import SearchResult from "../components/SearchResult";
 
 import VariantPickerDialog from "../components/VariantPickerDialog";
 import { Product } from "../../product/types/product";
-import { useEffect } from "react";
 
 import { scannerDI, usbScanner }
 from "@/modules/pos/shared/scanner/di/scanner";
 import ScannerPairingDialog from "../../shared/scanner/components/ScannerPairingDialog";
 import { beep } from "../../shared/utils/beep";
 import { Capacitor } from "@capacitor/core";
-import { BarcodeService }
-from "@/modules/pos/shared/barcode/services/BarcodeService";
+import { BarcodeService } from "../../shared/barcode/services/BarcodeService";
 
 export default function TransactionPage() {
 
@@ -47,9 +45,6 @@ export default function TransactionPage() {
 
 const company =
   workspace?.company;
-
-  const barcodeService =
-  new BarcodeService();
 
   const [keyword, setKeyword] =
     useState("");
@@ -121,9 +116,85 @@ setScannerOpen,
 ]=useState(false);
 
 const [
+  androidScanning,
+  setAndroidScanning,
+] = useState(false);
+
+const [
   pairingStartedAt,
   setPairingStartedAt,
 ] = useState(0);
+
+const runningRef =
+  useRef(false);
+
+  async function handleAndroidScan() {
+
+  if (
+    !runningRef.current
+  ) {
+    return;
+  }
+
+  try {
+
+    const barcodeService =
+      new BarcodeService();
+
+    const barcode =
+      await barcodeService.scan({
+
+        mode: "single",
+
+        vibrate: true,
+
+      });
+
+    if (
+      !runningRef.current
+    ) {
+      return;
+    }
+
+    if (!barcode) {
+
+      runningRef.current =
+        false;
+
+      setAndroidScanning(
+        false
+      );
+
+      return;
+
+    }
+
+    addBarcode(
+      barcode.text
+    );
+
+    if (
+      runningRef.current
+    ) {
+
+      handleAndroidScan();
+
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    runningRef.current =
+      false;
+
+    setAndroidScanning(
+      false
+    );
+
+  }
+
+}
 
 useEffect(() => {
 
@@ -272,33 +343,39 @@ if (!company) {
       />
 
       <TransactionToolbar
-        keyword={keyword}
-        onKeywordChange={
-          setKeyword
-        }
-        onScan={async () => {
+  keyword={keyword}
+  onKeywordChange={
+    setKeyword
+  }
+  onScan={() => {
 
-  if (Capacitor.isNativePlatform()) {
+    if (
+      Capacitor.isNativePlatform()
+    ) {
 
-    const barcode =
-      await barcodeService.scan({
-        mode: "single",
-        vibrate: true,
-      });
+      if (
+        androidScanning
+      ) {
+        return;
+      }
 
-    if (!barcode) {
+      runningRef.current =
+        true;
+
+      setAndroidScanning(
+        true
+      );
+
+      handleAndroidScan();
+
       return;
+
     }
 
-    addBarcode(barcode.text);
+    setScannerOpen(true);
 
-    return;
-  }
-
-  setScannerOpen(true);
-
-}}
-      />
+  }}
+/>
 
       <SearchResult
   products={results}
