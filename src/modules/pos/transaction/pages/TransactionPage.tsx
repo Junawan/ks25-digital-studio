@@ -36,6 +36,8 @@ import { scannerDI, usbScanner }
 from "@/modules/pos/shared/scanner/di/scanner";
 import ScannerPairingDialog from "../../shared/scanner/components/ScannerPairingDialog";
 import { beep } from "../../shared/utils/beep";
+import { Capacitor } from "@capacitor/core";
+import { useRouter } from "next/navigation";
 
 export default function TransactionPage() {
 
@@ -44,6 +46,8 @@ export default function TransactionPage() {
 
 const company =
   workspace?.company;
+
+  const router = useRouter();
 
   const [keyword, setKeyword] =
     useState("");
@@ -266,20 +270,22 @@ if (!company) {
       />
 
       <TransactionToolbar
-        keyword={keyword}
-        onKeywordChange={
-          setKeyword
-        }
-        onScan={() => {
+  keyword={keyword}
+  onKeywordChange={setKeyword}
+  onScan={() => {
 
-  setPairingStartedAt(
-    Date.now()
-  );
+    if (Capacitor.isNativePlatform()) {
 
-  setScannerOpen(true);
+      router.push("/scanner");
 
-}}
-      />
+      return;
+
+    }
+
+    setScannerOpen(true);
+
+  }}
+/>
 
       <SearchResult
   products={results}
