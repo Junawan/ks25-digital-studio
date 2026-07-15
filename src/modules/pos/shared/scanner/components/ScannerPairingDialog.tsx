@@ -61,6 +61,8 @@ Hubungkan Scanner
 
 Scan QR menggunakan
 Aplikasi KS25 POS.
+Atau tutup QRcode ini
+jika sudah tersambung.
 
 </DialogDescription>
 
