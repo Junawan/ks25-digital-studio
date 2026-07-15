@@ -139,6 +139,16 @@ useEffect(() => {
               session.barcode
             );
 
+            console.log(
+  "Barcode:",
+  session.barcode
+);
+
+console.log(
+  "Found:",
+  found
+);
+
             if (found) {
   console.log({
     scannedBarcode: session.barcode,
