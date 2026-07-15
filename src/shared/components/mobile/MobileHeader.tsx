@@ -28,6 +28,7 @@ from "@/modules/notification/components/NotificationDrawer";
 import AccountMenu from "@/modules/account/components/AccountMenu";
 import { BarcodeService } from "@/modules/pos/shared/barcode/services/BarcodeService";
 import { scannerDI } from "@/modules/pos/shared/scanner/di/scanner";
+import ScannerPage from "@/modules/pos/shared/scanner/pages/ScannerPage";
 
 interface Props {
   title: string;
@@ -50,61 +51,6 @@ const [barcodeService] =
 
   const [accountOpen, setAccountOpen] =
     useState(false);
-
-    async function handlePairing() {
-  try {
-    setOpen(false);
-
-    const barcode = await barcodeService.scan({
-      mode: "single",
-      vibrate: true,
-    });
-
-    if (!barcode) {
-      return;
-    }
-
-    const text = barcode.text;
-
-if (!text) {
-  return;
-}
-
-const url = new URL(
-  text,
-  "https://ks25.local"
-);
-
-const companyId =
-  url.searchParams.get(
-    "companyId"
-  );
-
-const workstationId =
-  url.searchParams.get(
-    "workstationId"
-  );
-
-if (
-  !companyId ||
-  !workstationId
-) {
-  return;
-}
-
-await scannerDI
-  .pairingStorage
-  .save({
-    companyId,
-    workstationId,
-  });
-
-router.push("/scanner");
-
-  } catch (error) {
-    console.error(error);
-  }
-}
 
     const [
   notificationOpen,
@@ -297,11 +243,14 @@ router.push("/scanner");
     hover:bg-zinc-800
     hover:text-white
   "
-  onClick={handlePairing}
+  onClick={() => {
+    setOpen(false);
+    router.push("/scanner");
+  }}
 >
   <Sparkles className="mr-3 h-5 w-5" />
 
-  Scan QR Pairing
+  Scanner
 </Button>
 
             </nav>
