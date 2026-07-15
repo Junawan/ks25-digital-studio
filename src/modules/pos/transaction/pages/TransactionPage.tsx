@@ -211,6 +211,41 @@ useEffect(() => {
 
 }, []);
 
+useEffect(() => {
+
+  if (
+    !scannerOpen ||
+    !company
+  ) {
+    return;
+  }
+
+  const unsubscribe =
+    scannerDI
+      .scannerService
+      .waitForScan(
+        company.id,
+        "kasir-1",
+        (session) => {
+
+          if (
+            session.status === "waiting"
+          ) {
+
+            setScannerOpen(false);
+
+          }
+
+        }
+      );
+
+  return unsubscribe;
+
+}, [
+  scannerOpen,
+  company,
+]);
+
 if (!company) {
   return null;
 }
@@ -313,7 +348,7 @@ setScannerOpen
 }
 
 companyId={
-company.id
+  company?.id ?? ""
 }
 
 workstationId="kasir-1"
