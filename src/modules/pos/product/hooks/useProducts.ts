@@ -71,7 +71,10 @@ export function useProducts({
           variant,
         }
       );
-      console.log("===== BARCODE MAP =====");
+
+    }
+
+    console.log("===== BARCODE MAP =====");
 
 for (const [barcode, value] of barcodeMap.entries()) {
   console.log(
@@ -80,8 +83,6 @@ for (const [barcode, value] of barcodeMap.entries()) {
     value.variant.name
   );
 }
-
-    }
 
   }
 
