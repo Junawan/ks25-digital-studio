@@ -80,6 +80,7 @@ function addBarcode(
     found.product,
     found.variant
   );
+  beep();
 }
 
     const {
@@ -138,6 +139,15 @@ useEffect(() => {
               session.barcode
             );
 
+            if (found) {
+  console.log({
+    scannedBarcode: session.barcode,
+    product: found.product.name,
+    variant: found.variant.name,
+    variantBarcode: found.variant.barcode,
+  });
+}
+
           if (!found) {
             beep(
     400,
@@ -158,7 +168,6 @@ useEffect(() => {
             found.product,
             found.variant
           );
-          beep();
 
           await scannerDI
             .scannerService

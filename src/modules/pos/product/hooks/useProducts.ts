@@ -71,12 +71,22 @@ export function useProducts({
           variant,
         }
       );
+      console.log("===== BARCODE MAP =====");
+
+for (const [barcode, value] of barcodeMap.entries()) {
+  console.log(
+    barcode,
+    value.product.name,
+    value.variant.name
+  );
+}
 
     }
 
   }
 
   return map;
+  
 
 }, [products]);
 
