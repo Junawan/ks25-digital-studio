@@ -70,13 +70,15 @@ const workstationId =
 
     if (!barcode) {
 
-      if (runningRef.current) {
-    handleScan();
+  runningRef.current = false;
+
+  setLoading(false);
+
+  setStatus("ready");
+
+  return;
+
 }
-
-      return;
-
-    }
 
     setResult(barcode.text);
     setStatus("sending");
@@ -116,13 +118,11 @@ if (
 
   console.error(error);
 
-  if (
-    runningRef.current
-  ) {
+  runningRef.current = false;
 
-    handleScan();
+  setLoading(false);
 
-  }
+  setStatus("ready");
 
 }
 
