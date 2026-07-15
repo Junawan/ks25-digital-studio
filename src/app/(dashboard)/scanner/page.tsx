@@ -1,16 +1,21 @@
 "use client";
 
-import ScannerPage from "@/modules/pos/shared/scanner/pages/ScannerPage";
 import MobileHeader from "@/shared/components/mobile/MobileHeader";
 
-
+import ScannerPage
+from "@/modules/pos/shared/scanner/pages/ScannerPage";
 
 export default function Page() {
+
   return (
     <>
-      <MobileHeader title="Scanner" />
+      <MobileHeader
+        title="Scanner"
+      />
 
       <ScannerPage />
+
     </>
   );
+
 }

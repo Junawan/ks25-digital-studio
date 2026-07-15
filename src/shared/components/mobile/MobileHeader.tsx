@@ -27,6 +27,7 @@ import NotificationDrawer
 from "@/modules/notification/components/NotificationDrawer";
 import AccountMenu from "@/modules/account/components/AccountMenu";
 import { BarcodeService } from "@/modules/pos/shared/barcode/services/BarcodeService";
+import { scannerDI } from "@/modules/pos/shared/scanner/di/scanner";
 
 interface Props {
   title: string;
@@ -74,9 +75,31 @@ const url = new URL(
   "https://ks25.local"
 );
 
-router.push(
-  `/scanner?companyId=${url.searchParams.get("companyId")}&workstationId=${url.searchParams.get("workstationId")}`
-);
+const companyId =
+  url.searchParams.get(
+    "companyId"
+  );
+
+const workstationId =
+  url.searchParams.get(
+    "workstationId"
+  );
+
+if (
+  !companyId ||
+  !workstationId
+) {
+  return;
+}
+
+await scannerDI
+  .pairingStorage
+  .save({
+    companyId,
+    workstationId,
+  });
+
+router.push("/scanner");
 
   } catch (error) {
     console.error(error);

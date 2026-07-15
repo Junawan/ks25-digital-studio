@@ -4,7 +4,6 @@ import { Button } from "@/shared/components/ui/button";
 import { useEffect, useRef, useState } from "react";
 import {
   useRouter,
-  useSearchParams,
 } from "next/navigation";
 
 import { BarcodeService } from "@/modules/pos/shared/barcode/services/BarcodeService";
@@ -23,6 +22,16 @@ const [loading, setLoading] =
 const [result, setResult] =
   useState("");
 
+  const [
+  companyId,
+  setCompanyId,
+] = useState("");
+
+const [
+  workstationId,
+  setWorkstationId,
+] = useState("");
+
   const [status, setStatus] =
   useState<
     | "connecting"
@@ -34,15 +43,6 @@ const [result, setResult] =
 
 const runningRef =
   useRef(false);
-
-  const params =
-  useSearchParams();
-
-const companyId =
-  params.get("companyId") ?? "";
-
-const workstationId =
-  params.get("workstationId") ?? "";
 
   async function handleScan() {
 
@@ -137,6 +137,33 @@ if (
 }
 
 }
+
+useEffect(() => {
+
+  async function loadPairing() {
+
+    const pairing =
+      await scannerDI
+        .pairingStorage
+        .load();
+
+    if (!pairing) {
+      return;
+    }
+
+    setCompanyId(
+      pairing.companyId
+    );
+
+    setWorkstationId(
+      pairing.workstationId
+    );
+
+  }
+
+  loadPairing();
+
+}, []);
 
 useEffect(() => {
 
