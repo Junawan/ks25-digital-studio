@@ -2,8 +2,9 @@ import { CashierRepository } from "../repositories/CashierRepository";
 
 export class GetCashiersUseCase {
   constructor(
-    private readonly repository: CashierRepository
-  ) {}
+    private readonly repository:
+        CashierRepository
+) {}
 
   async execute(
     companyId: string

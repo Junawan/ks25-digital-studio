@@ -21,4 +21,6 @@ export interface CashierRepository {
   companyId: string,
   nameLower: string
 ): Promise<Cashier | null>;
+
+findById(cashierId: string): Promise<Cashier | null>;
 }

@@ -40,7 +40,9 @@ interface Props {
     value: number
   ) => void;
 
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
+
+  loading: boolean;
 }
 
 export default function PaymentDialog({
@@ -50,6 +52,7 @@ export default function PaymentDialog({
   paymentMethod,
   paidAmount,
   changeAmount,
+  loading,
   staticQrisUrl,
   onPaymentMethodChange,
   onPaidAmountChange,
@@ -235,18 +238,20 @@ export default function PaymentDialog({
           </Button>
 
           <Button
-            onClick={onConfirm}
-          >
-            {paymentMethod ===
-            "cash"
-              ? "Bayar"
-
-              : paymentMethod ===
-                  "qris_static"
-                ? "Saya Sudah Menerima Pembayaran"
-
-                : "Tutup"}
-          </Button>
+  disabled={loading}
+  onClick={() => {
+    void onConfirm();
+  }}
+>
+  {loading
+    ? "Memproses..."
+    : paymentMethod === "cash"
+      ? "Bayar"
+      : paymentMethod ===
+          "qris_static"
+        ? "Saya Sudah Menerima Pembayaran"
+        : "Tutup"}
+</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

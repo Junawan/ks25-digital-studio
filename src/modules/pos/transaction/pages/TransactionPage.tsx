@@ -41,6 +41,8 @@ import CheckoutForm
 from "../components/CheckoutForm";
 import PaymentDialog
 from "../components/PaymentDialog";
+import { transactionDI } from "../di/transaction";
+import { toast } from "sonner";
 
 export default function TransactionPage() {
 
@@ -149,6 +151,11 @@ const [
   setPairingStartedAt,
 ] = useState(0);
 
+const [
+  checkoutLoading,
+  setCheckoutLoading,
+] = useState(false);
+
 const runningRef =
   useRef(false);
 
@@ -215,6 +222,74 @@ const runningRef =
     setAndroidScanning(
       false
     );
+
+  }
+
+}
+
+async function handleCheckout() {
+
+  if (!company) {
+    return;
+  }
+
+  if (!cashierId) {
+    toast.error(
+      "Pilih kasir terlebih dahulu."
+    );
+    return;
+  }
+
+  try {
+
+    setCheckoutLoading(true);
+
+    const transaction =
+      await transactionDI
+        .checkoutUseCase
+        .execute({
+
+          companyId:
+            company.id,
+
+          cashierId,
+
+          customerName:
+            customer,
+
+          paymentMethod,
+
+          discount,
+
+          paidAmount,
+
+          cart,
+
+        });
+
+    console.log(
+      transaction
+    );
+
+    toast.success(
+      "Transaksi berhasil disimpan."
+    );
+
+    setPaymentOpen(false);
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      error instanceof Error
+        ? error.message
+        : "Checkout gagal."
+    );
+
+  } finally {
+
+    setCheckoutLoading(false);
 
   }
 
@@ -501,11 +576,14 @@ if (!company) {
   onPaidAmountChange={
     setPaidAmount
   }
-  onConfirm={() => {
-    console.log(
-      "Checkout..."
-    );
-  }}
+
+    onConfirm={
+    handleCheckout
+}
+
+loading={
+        checkoutLoading
+}
 />
 
       <VariantPickerDialog

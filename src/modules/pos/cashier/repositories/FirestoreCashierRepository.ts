@@ -2,6 +2,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   orderBy,
   query,
@@ -10,8 +11,8 @@ import {
 } from "firebase/firestore";
 
 import { CashierRepository } from "./CashierRepository";
-import { Cashier } from "../types/cashier";
 import { db } from "@/core/firebase";
+import { Cashier } from "../types/cashier";
 
 export class FirestoreCashierRepository
   implements CashierRepository
@@ -109,5 +110,23 @@ export class FirestoreCashierRepository
   }
 
   return snapshot.docs[0].data() as Cashier;
+}
+
+async findById(
+  cashierId: string
+): Promise<Cashier | null> {
+  const snapshot = await getDoc(
+    doc(
+      db,
+      this.collectionName,
+      cashierId
+    )
+  );
+
+  if (!snapshot.exists()) {
+    return null;
+  }
+
+  return snapshot.data() as Cashier;
 }
 }
