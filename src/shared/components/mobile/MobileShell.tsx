@@ -33,7 +33,7 @@ const isPresenter =
 
   const isPos =
   pathname.startsWith(
-    "/dashboard/pos"
+    "/pos"
   );
 
   return (
@@ -112,7 +112,7 @@ function getTitle(pathname: string) {
 
   if (
   pathname.includes(
-    "/dashboard/pos/products"
+    "/pos/products"
   )
 ) {
   return "Produk";
@@ -120,7 +120,7 @@ function getTitle(pathname: string) {
 
 if (
   pathname.includes(
-    "/dashboard/pos/transactions"
+    "/pos/transactions"
   )
 ) {
   return "Transaksi";
@@ -128,7 +128,7 @@ if (
 
 if (
   pathname.includes(
-    "/dashboard/pos/history"
+    "pos/history"
   )
 ) {
   return "Riwayat";
@@ -136,7 +136,7 @@ if (
 
 if (
   pathname.includes(
-    "/dashboard/pos/income"
+    "/pos/income"
   )
 ) {
   return "Pemasukan";
@@ -144,7 +144,7 @@ if (
 
 if (
   pathname.includes(
-    "/dashboard/pos/expenses"
+    "/pos/expenses"
   )
 ) {
   return "Pengeluaran";
@@ -152,7 +152,7 @@ if (
 
 if (
   pathname.includes(
-    "/dashboard/pos/settings"
+    "/pos/settings"
   )
 ) {
   return "POS Settings";

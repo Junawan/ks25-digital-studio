@@ -23,32 +23,32 @@ interface MenuItem {
 const menus: MenuItem[] = [
   {
     title: "Produk",
-    href: "/dashboard/pos/products",
+    href: "/pos/products",
     icon: Package,
   },
   {
     title: "Transaksi",
-    href: "/dashboard/pos/transactions",
+    href: "/pos/transactions",
     icon: ShoppingCart,
   },
   {
     title: "Riwayat",
-    href: "/dashboard/pos/history",
+    href: "/pos/history",
     icon: ReceiptText,
   },
   {
     title: "Pemasukan",
-    href: "/dashboard/pos/income",
+    href: "/pos/income",
     icon: ArrowDownCircle,
   },
   {
     title: "Pengeluaran",
-    href: "/dashboard/pos/expenses",
+    href: "/pos/expenses",
     icon: ArrowUpCircle,
   },
   {
     title: "Setting",
-    href: "/dashboard/pos/settings",
+    href: "/pos/settings",
     icon: Settings,
   },
 ];
@@ -56,7 +56,7 @@ const menus: MenuItem[] = [
 export default function PosBottomNavigation() {
   const pathname = usePathname();
 
-  if (!pathname.startsWith("/dashboard/pos")) {
+  if (!pathname.startsWith("/pos")) {
     return null;
   }
 
