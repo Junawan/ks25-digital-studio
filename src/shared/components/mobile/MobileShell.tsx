@@ -117,7 +117,7 @@ function getTitle(pathname: string) {
 ) {
   return "Produk";
 }
-
+//
 if (
   pathname.includes(
     "/pos/transactions"
