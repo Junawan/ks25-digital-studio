@@ -10,6 +10,7 @@ from "@/shared/navigation/RootBottomNavigation";
 
 import LiveAssistantBottomNavigation
 from "@/modules/live-assistant/components/LiveAssistantBottomNavigation";
+import PosBottomNavigation from "@/modules/pos/shared/components/PosBottomNavigation";
 
 interface Props {
   children: ReactNode;
@@ -28,6 +29,11 @@ const isPresenter =
   const isLiveAssistant =
   pathname.startsWith(
     "/live-assistant"
+  );
+
+  const isPos =
+  pathname.startsWith(
+    "/dashboard/pos"
   );
 
   return (
@@ -61,11 +67,21 @@ isPresenter
 </main>
 
 {!isPresenter && (
+
   isLiveAssistant ? (
+
     <LiveAssistantBottomNavigation />
+
+  ) : isPos ? (
+
+    <PosBottomNavigation />
+
   ) : (
+
     <RootBottomNavigation />
+
   )
+
 )}
 
 </div>
@@ -93,6 +109,54 @@ function getTitle(pathname: string) {
   if (pathname.includes("/dashboard")) {
     return "Dashboard";
   }
+
+  if (
+  pathname.includes(
+    "/dashboard/pos/products"
+  )
+) {
+  return "Produk";
+}
+
+if (
+  pathname.includes(
+    "/dashboard/pos/transactions"
+  )
+) {
+  return "Transaksi";
+}
+
+if (
+  pathname.includes(
+    "/dashboard/pos/history"
+  )
+) {
+  return "Riwayat";
+}
+
+if (
+  pathname.includes(
+    "/dashboard/pos/income"
+  )
+) {
+  return "Pemasukan";
+}
+
+if (
+  pathname.includes(
+    "/dashboard/pos/expenses"
+  )
+) {
+  return "Pengeluaran";
+}
+
+if (
+  pathname.includes(
+    "/dashboard/pos/settings"
+  )
+) {
+  return "POS Settings";
+}
 
   return "KS25 Digital Studio";
 }

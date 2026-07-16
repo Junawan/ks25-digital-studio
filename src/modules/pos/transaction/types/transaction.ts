@@ -41,7 +41,9 @@ export interface Transaction {
 
   changeAmount: number;
 
-  status: "paid"
+  status:
+  | "paid"
+  | "cancelled";
 
   items: TransactionItem[];
 
