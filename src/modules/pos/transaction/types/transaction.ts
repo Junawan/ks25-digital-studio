@@ -23,3 +23,8 @@ export interface TransactionSummary {
 
   total: number;
 }
+
+export type PaymentMethod =
+  | "cash"
+  | "qris_static"
+  | "qris_dynamic";

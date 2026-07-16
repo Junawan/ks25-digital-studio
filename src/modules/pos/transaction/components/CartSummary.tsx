@@ -1,5 +1,4 @@
-import { TransactionSummary }
-from "../types/transaction";
+import { TransactionSummary } from "../types/transaction";
 
 interface Props {
   summary: TransactionSummary;
@@ -9,24 +8,20 @@ export default function CartSummary({
   summary,
 }: Props) {
   return (
-    <div
-      className="
-      rounded-xl
-      border
-      p-4
-      "
-    >
-      <Row
-        label="Subtotal"
-        value={summary.subtotal}
-      />
+    <div className="rounded-xl border bg-card p-4 shadow-sm">
+      <div className="space-y-3">
+        <Row
+          label="Subtotal"
+          value={summary.subtotal}
+        />
 
-      <Row
-        label="Diskon"
-        value={summary.discount}
-      />
+        <Row
+          label="Diskon"
+          value={summary.discount}
+        />
+      </div>
 
-      <div className="my-3 border-t" />
+      <div className="my-4 border-t" />
 
       <Row
         bold
@@ -43,30 +38,29 @@ function Row({
   bold,
 }: {
   label: string;
-
   value: number;
-
   bold?: boolean;
 }) {
   return (
-    <div
-      className="
-rounded-2xl
-border
-border-zinc-200
-bg-white
-p-5
-"
-    >
-      <span className="text-zinc-600">
+    <div className="flex items-center justify-between">
+      <span
+        className={
+          bold
+            ? "font-semibold"
+            : "text-muted-foreground"
+        }
+      >
         {label}
       </span>
 
-      <span className="font-semibold text-zinc-900">
-        Rp{" "}
-        {value.toLocaleString(
-          "id-ID"
-        )}
+      <span
+        className={
+          bold
+            ? "text-lg font-bold"
+            : "font-medium"
+        }
+      >
+        Rp {value.toLocaleString("id-ID")}
       </span>
     </div>
   );
