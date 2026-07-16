@@ -1,11 +1,11 @@
-import { randomUUID } from "crypto";
-
 import {
   CartItem,
   PaymentMethod,
   Transaction,
   TransactionItem,
 } from "../types/transaction";
+
+import { v4 as uuid } from "uuid";
 
 import { TransactionRepository } from "../repositories/TransactionRepository";
 
@@ -106,10 +106,11 @@ if (!cashier) {
           item.subtotal,
       }));
 
+      const id = uuid();
+
     const transaction: Transaction =
       {
-        transactionId:
-          randomUUID(),
+        transactionId: id,
 
         companyId:
           input.companyId,
