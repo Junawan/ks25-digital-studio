@@ -37,6 +37,8 @@ import ScannerPairingDialog from "../../shared/scanner/components/ScannerPairing
 import { beep } from "../../shared/utils/beep";
 import { Capacitor } from "@capacitor/core";
 import { BarcodeService } from "../../shared/barcode/services/BarcodeService";
+import CheckoutForm
+from "../components/CheckoutForm";
 
 export default function TransactionPage() {
 
@@ -50,17 +52,32 @@ const company =
     useState("");
 
   const {
+  cart,
+  summary,
+  addVariant,
+  removeItem,
 
-cart,
+  increaseQty,
+  decreaseQty,
+  updateQty,
 
-summary,
+  discount,
+  setDiscount,
 
-addVariant,
+  cashierId,
+  setCashierId,
 
-removeItem,
+  customer,
+  setCustomer,
 
-} =
-useTransaction();
+  paymentMethod,
+  setPaymentMethod,
+
+  paidAmount,
+  setPaidAmount,
+
+  changeAmount,
+} = useTransaction();
 
 function addBarcode(
   barcode: string
@@ -403,30 +420,65 @@ if (!company) {
 />
 
       <CartCard
-
-cart={cart}
-
-onDelete={
-removeItem
-}
-
+  cart={cart}
+  onDelete={removeItem}
+  onIncreaseQty={
+    increaseQty
+  }
+  onDecreaseQty={
+    decreaseQty
+  }
+  onUpdateQty={
+    updateQty
+  }
 />
 
       <CartSummary
-        summary={summary}
-      />
+  summary={summary}
+/>
 
-      <Button
-        className="
-        w-full
-        h-12
-        "
-        disabled={
-          cart.length === 0
-        }
-      >
-        Bayar
-      </Button>
+<CheckoutForm
+  companyId={company.id}
+
+  discount={discount}
+  cashierId={cashierId}
+  customer={customer}
+
+  paymentMethod={paymentMethod}
+
+  paidAmount={paidAmount}
+
+  changeAmount={changeAmount}
+
+  onDiscountChange={
+    setDiscount
+  }
+
+  onCashierChange={
+    setCashierId
+  }
+
+  onCustomerChange={
+    setCustomer
+  }
+
+  onPaymentMethodChange={
+    setPaymentMethod
+  }
+
+  onPaidAmountChange={
+    setPaidAmount
+  }
+/>
+
+<Button
+  className="w-full h-12"
+  disabled={
+    cart.length === 0
+  }
+>
+  Bayar
+</Button>
 
       <VariantPickerDialog
   open={variantOpen}

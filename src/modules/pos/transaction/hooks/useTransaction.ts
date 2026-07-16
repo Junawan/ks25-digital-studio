@@ -9,79 +9,94 @@ import {
 
 import {
   CartItem,
+  PaymentMethod,
   TransactionSummary,
 } from "../types/transaction";
 
 export function useTransaction() {
-
   const [cart, setCart] =
     useState<CartItem[]>([]);
 
+  const [discount, setDiscount] =
+    useState(0);
+
+  const [cashierId, setCashierId] =
+    useState("");
+
+  const [customer, setCustomer] =
+    useState("");
+
+  const [
+    paymentMethod,
+    setPaymentMethod,
+  ] =
+    useState<PaymentMethod>(
+      "cash"
+    );
+
+  const [paidAmount, setPaidAmount] =
+    useState(0);
+
   function addVariant(
-  product: Product,
-  variant: ProductVariant
-) {
-  setCart((current) => {
+    product: Product,
+    variant: ProductVariant
+  ) {
+    setCart((current) => {
+      const index =
+        current.findIndex(
+          (item) =>
+            item.variantId ===
+            variant.variantId
+        );
 
-    const index =
-      current.findIndex(
-        (item) =>
-          item.variantId ===
-          variant.variantId
-      );
+      if (index >= 0) {
+        const copy = [...current];
 
-    if (index >= 0) {
+        copy[index] = {
+          ...copy[index],
+          qty:
+            copy[index].qty + 1,
+          subtotal:
+            (copy[index].qty + 1) *
+            copy[index].price,
+        };
 
-      const copy = [...current];
+        return copy;
+      }
 
-      copy[index] = {
-        ...copy[index],
-        qty:
-          copy[index].qty + 1,
-        subtotal:
-          (copy[index].qty + 1) *
-          copy[index].price,
-      };
+      return [
+        ...current,
+        {
+          productId:
+            product.productId,
 
-      return copy;
+          variantId:
+            variant.variantId,
 
-    }
+          productName:
+            product.name,
 
-    return [
-      ...current,
-      {
-        productId:
-          product.productId,
+          variantName:
+            variant.name,
 
-        variantId:
-          variant.variantId,
+          barcode:
+            variant.barcode,
 
-        productName:
-          product.name,
+          price:
+            variant.price,
 
-        variantName:
-          variant.name,
+          qty: 1,
 
-        barcode:
-          variant.barcode,
-
-        price:
-          variant.price,
-
-        qty: 1,
-
-        subtotal:
-          variant.price,
-      },
-    ];
-
-  });
-}
+          subtotal:
+            variant.price,
+        },
+      ];
+    });
+  }
 
   function removeItem(
     variantId: string
   ) {
-
     setCart((current) =>
       current.filter(
         (item) =>
@@ -89,12 +104,97 @@ export function useTransaction() {
           variantId
       )
     );
-
   }
+
+  function increaseQty(
+  variantId: string
+) {
+  setCart((current) =>
+    current.map((item) => {
+      if (
+        item.variantId !==
+        variantId
+      ) {
+        return item;
+      }
+
+      const qty =
+        item.qty + 1;
+
+      return {
+        ...item,
+        qty,
+        subtotal:
+          qty * item.price,
+      };
+    })
+  );
+}
+
+function decreaseQty(
+  variantId: string
+) {
+  setCart((current) =>
+    current
+      .map((item) => {
+        if (
+          item.variantId !==
+          variantId
+        ) {
+          return item;
+        }
+
+        const qty =
+          item.qty - 1;
+
+        return {
+          ...item,
+          qty,
+          subtotal:
+            qty * item.price,
+        };
+      })
+      .filter(
+        (item) => item.qty > 0
+      )
+  );
+}
+
+function updateQty(
+  variantId: string,
+  qty: number
+) {
+  const value =
+    Math.max(
+      0,
+      Math.floor(qty)
+    );
+
+  setCart((current) =>
+    current
+      .map((item) => {
+        if (
+          item.variantId !==
+          variantId
+        ) {
+          return item;
+        }
+
+        return {
+          ...item,
+          qty: value,
+          subtotal:
+            value * item.price,
+        };
+      })
+      .filter(
+        (item) => item.qty > 0
+      )
+  );
+}
 
   const summary =
     useMemo<TransactionSummary>(() => {
-
       const subtotal =
         cart.reduce(
           (sum, item) =>
@@ -103,28 +203,66 @@ export function useTransaction() {
           0
         );
 
-      return {
+      const total =
+        Math.max(
+          0,
+          subtotal - discount
+        );
 
+      return {
         subtotal,
 
-        discount: 0,
+        discount,
 
-        total: subtotal,
-
+        total,
       };
+    }, [
+      cart,
+      discount,
+    ]);
 
-    }, [cart]);
+  const changeAmount =
+    Math.max(
+      0,
+      paidAmount -
+        summary.total
+    );
 
   return {
+  cart,
 
-    cart,
+  discount,
 
-    addVariant,
+  cashierId,
 
-    removeItem,
+  customer,
 
-    summary,
+  paymentMethod,
 
-  };
+  paidAmount,
 
+  changeAmount,
+
+  addVariant,
+
+  removeItem,
+
+  increaseQty,
+
+  decreaseQty,
+
+  updateQty,
+
+  setDiscount,
+
+  setCashierId,
+
+  setCustomer,
+
+  setPaymentMethod,
+
+  setPaidAmount,
+
+  summary,
+};
 }
