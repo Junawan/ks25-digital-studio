@@ -81,6 +81,8 @@ const company =
   setPaidAmount,
 
   changeAmount,
+
+  resetTransaction,
 } = useTransaction();
 
 function addBarcode(
@@ -271,11 +273,13 @@ async function handleCheckout() {
       transaction
     );
 
-    toast.success(
-      "Transaksi berhasil disimpan."
-    );
+    resetTransaction();
 
-    setPaymentOpen(false);
+setPaymentOpen(false);
+
+toast.success(
+    "Transaksi berhasil."
+);
 
   } catch (error) {
 

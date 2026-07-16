@@ -228,6 +228,18 @@ function updateQty(
         summary.total
     );
 
+    function resetTransaction() {
+  setCart([]);
+
+  setDiscount(0);
+
+  setCustomer("");
+
+  setPaidAmount(0);
+
+  setPaymentMethod("cash");
+}
+
   return {
   cart,
 
@@ -264,5 +276,7 @@ function updateQty(
   setPaidAmount,
 
   summary,
+
+  resetTransaction,
 };
 }
