@@ -20,12 +20,6 @@ interface Props {
 
   customer: string;
 
-  paymentMethod: PaymentMethod;
-
-  paidAmount: number;
-
-  changeAmount: number;
-
   onDiscountChange: (
     value: number
   ) => void;
@@ -38,13 +32,6 @@ onCashierChange: (
     value: string
   ) => void;
 
-  onPaymentMethodChange: (
-    value: PaymentMethod
-  ) => void;
-
-  onPaidAmountChange: (
-    value: number
-  ) => void;
 }
 
 export default function CheckoutForm({
@@ -52,14 +39,9 @@ export default function CheckoutForm({
   discount,
   cashierId,
   customer,
-  paymentMethod,
-  paidAmount,
-  changeAmount,
   onDiscountChange,
   onCashierChange,
   onCustomerChange,
-  onPaymentMethodChange,
-  onPaidAmountChange,
 }: Props) {
 
     const [
@@ -128,132 +110,6 @@ export default function CheckoutForm({
         />
       </div>
 
-      {/* Pembayaran */}
-
-      <div className="space-y-3">
-        <Label>
-          Metode Pembayaran
-        </Label>
-
-        <div className="grid grid-cols-3 gap-2">
-          <Button
-            type="button"
-            variant={
-              paymentMethod === "cash"
-                ? "default"
-                : "outline"
-            }
-            onClick={() =>
-              onPaymentMethodChange(
-                "cash"
-              )
-            }
-          >
-            Cash
-          </Button>
-
-          <Button
-            type="button"
-            variant={
-              paymentMethod ===
-              "qris_static"
-                ? "default"
-                : "outline"
-            }
-            onClick={() =>
-              onPaymentMethodChange(
-                "qris_static"
-              )
-            }
-          >
-            QRIS
-          </Button>
-
-          <Button
-            type="button"
-            variant={
-              paymentMethod ===
-              "qris_dynamic"
-                ? "default"
-                : "outline"
-            }
-            onClick={() =>
-              onPaymentMethodChange(
-                "qris_dynamic"
-              )
-            }
-          >
-            QRIS API
-          </Button>
-        </div>
-      </div>
-
-      {/* Cash */}
-
-      {paymentMethod === "cash" && (
-        <>
-          <div className="space-y-2">
-            <Label>
-              Uang Diterima
-            </Label>
-
-            <Input
-              type="number"
-              min={0}
-              value={
-                paidAmount || ""
-              }
-              placeholder="0"
-              onChange={(e) =>
-                onPaidAmountChange(
-                  Number(
-                    e.target.value
-                  )
-                )
-              }
-            />
-          </div>
-
-          <div className="flex items-center justify-between rounded-lg border bg-muted p-4">
-            <span className="text-muted-foreground">
-              Kembalian
-            </span>
-
-            <span className="text-lg font-bold">
-              Rp{" "}
-              {changeAmount.toLocaleString(
-                "id-ID"
-              )}
-            </span>
-          </div>
-        </>
-      )}
-
-      {/* QRIS Statis */}
-
-      {paymentMethod ===
-        "qris_static" && (
-        <div className="rounded-lg border border-dashed p-6 text-center">
-          <p className="text-sm text-muted-foreground">
-            QRIS Statis akan
-            ditampilkan di sini.
-          </p>
-        </div>
-      )}
-
-      {/* QRIS Dinamis */}
-
-      {paymentMethod ===
-        "qris_dynamic" && (
-        <div className="rounded-lg border border-dashed p-6 text-center">
-          <p className="text-sm text-muted-foreground">
-            QRIS Dinamis akan
-            tersedia setelah API
-            Midtrans / DOKU /
-            Xendit dikonfigurasi.
-          </p>
-        </div>
-      )}
     </div>
   );
 }

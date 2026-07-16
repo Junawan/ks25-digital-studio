@@ -39,6 +39,8 @@ import { Capacitor } from "@capacitor/core";
 import { BarcodeService } from "../../shared/barcode/services/BarcodeService";
 import CheckoutForm
 from "../components/CheckoutForm";
+import PaymentDialog
+from "../components/PaymentDialog";
 
 export default function TransactionPage() {
 
@@ -131,6 +133,11 @@ const [
 scannerOpen,
 setScannerOpen,
 ]=useState(false);
+
+const [
+  paymentOpen,
+  setPaymentOpen,
+] = useState(false);
 
 const [
   androidScanning,
@@ -444,12 +451,6 @@ if (!company) {
   cashierId={cashierId}
   customer={customer}
 
-  paymentMethod={paymentMethod}
-
-  paidAmount={paidAmount}
-
-  changeAmount={changeAmount}
-
   onDiscountChange={
     setDiscount
   }
@@ -462,13 +463,6 @@ if (!company) {
     setCustomer
   }
 
-  onPaymentMethodChange={
-    setPaymentMethod
-  }
-
-  onPaidAmountChange={
-    setPaidAmount
-  }
 />
 
 <Button
@@ -476,9 +470,43 @@ if (!company) {
   disabled={
     cart.length === 0
   }
+  onClick={() =>
+    setPaymentOpen(true)
+  }
 >
   Bayar
 </Button>
+
+<PaymentDialog
+  open={paymentOpen}
+  onOpenChange={
+    setPaymentOpen
+  }
+  total={summary.total}
+  paymentMethod={
+    paymentMethod
+  }
+  paidAmount={
+    paidAmount
+  }
+  changeAmount={
+    changeAmount
+  }
+  staticQrisUrl={
+    undefined
+  }
+  onPaymentMethodChange={
+    setPaymentMethod
+  }
+  onPaidAmountChange={
+    setPaidAmount
+  }
+  onConfirm={() => {
+    console.log(
+      "Checkout..."
+    );
+  }}
+/>
 
       <VariantPickerDialog
   open={variantOpen}
