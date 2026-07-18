@@ -287,14 +287,14 @@ return (
 </div>
           </div>
 
-          <Button
-            type="submit"
-            disabled={saving}
-          >
-            {saving
-              ? "Menyimpan..."
-              : "Simpan"}
-          </Button>
+          {!hideSaveButton && (
+  <Button
+    type="submit"
+    disabled={saving}
+  >
+    {saving ? "Menyimpan..." : "Simpan"}
+  </Button>
+)}
         </form>
       )}
     </CardContent>
