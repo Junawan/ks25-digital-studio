@@ -260,11 +260,13 @@ export default function PaymentInformationCard() {
             />
 
             <Button
-              type="submit"
-              disabled={saving}
-            >
-              Simpan
-            </Button>
+            type="submit"
+            disabled={saving}
+          >
+            {saving
+              ? "Menyimpan..."
+              : "Simpan"}
+          </Button>
           </form>
         )}
       </CardContent>
