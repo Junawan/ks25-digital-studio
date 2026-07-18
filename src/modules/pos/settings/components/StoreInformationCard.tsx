@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import { useForm } from "react-hook-form";
 
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
@@ -33,7 +38,25 @@ type FormValues = Pick<
   "address" | "phone" | "email" | "website"
 >;
 
-export default function StoreInformationCard() {
+interface Props {
+  hideSaveButton?: boolean;
+}
+
+export interface StoreInformationCardRef {
+    validate(): Promise<boolean>;
+
+    save(): Promise<void>;
+}
+
+const StoreInformationCard = forwardRef<
+  StoreInformationCardRef,
+  Props
+>(function StoreInformationCard(
+  {
+    hideSaveButton = false,
+  },
+  ref
+) {
   const { workspace } = useWorkspace();
 
   const company = workspace?.company;
@@ -135,6 +158,24 @@ if (latest) {
     setSaving(false);
   }
 }
+
+useImperativeHandle(ref, () => ({
+
+    async validate() {
+
+        return await form.trigger();
+
+    },
+
+    async save() {
+
+        await onSubmit(
+            form.getValues()
+        );
+
+    },
+
+}));
 
   async function handleLogoUpload(
   file: File
@@ -272,15 +313,18 @@ async function handleLogoRemove() {
 )}
             </div>
 
-            <Button
-              type="submit"
-              disabled={saving}
-            >
-              {saving ? "Menyimpan..." : "Simpan"}
-            </Button>
+            {!hideSaveButton && (
+  <Button
+    type="submit"
+    disabled={saving}
+  >
+    {saving ? "Menyimpan..." : "Simpan"}
+  </Button>
+)}
           </form>
         )}
       </CardContent>
     </Card>
   );
-}
+});
+export default StoreInformationCard;

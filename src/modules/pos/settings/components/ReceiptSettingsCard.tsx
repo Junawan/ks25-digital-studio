@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -32,7 +37,25 @@ import {
   ReceiptSettingsInput,
 } from "../validation/receiptSettingsSchema";
 
-export default function PaymentInformationCard() {
+interface Props {
+  hideSaveButton?: boolean;
+}
+
+export interface ReceiptSettingsCardRef {
+    validate(): Promise<boolean>;
+
+    save(): Promise<void>;
+}
+
+const ReceiptSettingsCard = forwardRef<
+  ReceiptSettingsCardRef,
+  Props
+>(function ReceiptSettingsCard(
+  {
+    hideSaveButton = false,
+  },
+  ref
+) {
 
 const { workspace } = useWorkspace();
 
@@ -140,6 +163,24 @@ async function onSubmit(
     setSaving(false);
   }
 }
+
+useImperativeHandle(ref, () => ({
+
+    async validate() {
+
+        return await form.trigger();
+
+    },
+
+    async save() {
+
+        await onSubmit(
+            form.getValues()
+        );
+
+    },
+
+}));
 
 return (
   <Card>
@@ -259,4 +300,5 @@ return (
     </CardContent>
   </Card>
 );
-}
+});
+export default ReceiptSettingsCard;

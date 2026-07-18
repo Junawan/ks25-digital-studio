@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -35,7 +40,25 @@ import {
 import QrisUploader from "./QrisUploader";
 import { storageService } from "@/shared/services/StorageService";
 
-export default function PaymentInformationCard() {
+interface Props {
+  hideSaveButton?: boolean;
+}
+
+export interface PaymentInformationCardRef {
+    validate(): Promise<boolean>;
+
+    save(): Promise<void>;
+}
+
+const PaymentInformationCard = forwardRef<
+  PaymentInformationCardRef,
+  Props
+>(function PaymentInformationCard(
+  {
+    hideSaveButton = false,
+  },
+  ref
+) {
   const { workspace } = useWorkspace();
 
   const companyId = workspace?.company.id;
@@ -133,6 +156,24 @@ export default function PaymentInformationCard() {
       setSaving(false);
     }
   }
+
+  useImperativeHandle(ref, () => ({
+
+    async validate() {
+
+        return await form.trigger();
+
+    },
+
+    async save() {
+
+        await onSubmit(
+            form.getValues()
+        );
+
+    },
+
+}));
 
   async function handleQrisUpload(
   file: File
@@ -259,17 +300,18 @@ export default function PaymentInformationCard() {
               }
             />
 
-            <Button
-            type="submit"
-            disabled={saving}
-          >
-            {saving
-              ? "Menyimpan..."
-              : "Simpan"}
-          </Button>
+            {!hideSaveButton && (
+  <Button
+    type="submit"
+    disabled={saving}
+  >
+    {saving ? "Menyimpan..." : "Simpan"}
+  </Button>
+)}
           </form>
         )}
       </CardContent>
     </Card>
   );
-}
+});
+export default PaymentInformationCard;
