@@ -66,25 +66,33 @@ export default function StoreInformationCard() {
 
       try {
         const data =
-          await getPosSettingsUseCase.execute(companyId);
+    await getPosSettingsUseCase.execute(companyId);
 
-        if (!data) return;
+const current =
+    data ?? {
+        companyId,
 
-        setSettings(data);
+        ...DEFAULT_POS_SETTINGS,
 
-        form.reset({
-          address: data.address,
-          phone: data.phone,
-          email: data.email ?? "",
-          website: data.website ?? "",
-        });
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    };
+
+setSettings(current);
+
+form.reset({
+    address: current.address,
+    phone: current.phone,
+    email: current.email ?? "",
+    website: current.website ?? "",
+});
       } finally {
         setLoading(false);
       }
     }
 
     load();
-  }, [companyId, form]);
+  }, [companyId]);
 
   async function saveSettings(
   updater: (
@@ -97,11 +105,20 @@ export default function StoreInformationCard() {
 
   await savePosSettingsUseCase.execute(updated);
 
-  setSettings(updated);
+  if (!companyId) return null;
+
+  const latest =
+    await getPosSettingsUseCase.execute(companyId);
+
+if (latest) {
+
+    setSettings(latest);
+
+}
 }
 
   async function onSubmit(
-  values: FormValues
+  values: StoreInformationInput
 ) {
   setSaving(true);
 
