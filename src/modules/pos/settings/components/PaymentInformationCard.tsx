@@ -33,6 +33,7 @@ import {
 } from "../di";
 
 import QrisUploader from "./QrisUploader";
+import { storageService } from "@/shared/services/StorageService";
 
 export default function PaymentInformationCard() {
   const { workspace } = useWorkspace();
@@ -98,20 +99,20 @@ export default function PaymentInformationCard() {
   }, [companyId, form]);
 
   async function saveSettings(
-    updater: (
-      current: PosSettings
-    ) => PosSettings
-  ) {
-    if (!settings) return;
+  updater: (
+    current: PosSettings
+  ) => PosSettings
+) {
+  if (!settings) return;
 
-    const updated = updater(settings);
+  const updated = updater(settings);
 
-    await savePosSettingsUseCase.execute(
-      updated
-    );
+  await savePosSettingsUseCase.execute(updated);
 
-    setSettings(updated);
-  }
+  setSettings(updated);
+
+  return updated;
+}
 
   async function onSubmit(
     values: PaymentInformationInput
@@ -134,14 +135,46 @@ export default function PaymentInformationCard() {
   }
 
   async function handleQrisUpload(
-    file: File
-  ) {
-    // implementasi setelah StorageService selesai
+  file: File
+) {
+  if (!companyId) return;
+
+  setSaving(true);
+
+  try {
+    const qrisImageUrl =
+      await storageService.upload(
+        `companies/${companyId}/qris`,
+        file
+      );
+
+    await saveSettings((current) => ({
+      ...current,
+      qrisImageUrl,
+    }));
+  } finally {
+    setSaving(false);
   }
+}
 
   async function handleQrisRemove() {
-    // implementasi setelah StorageService selesai
+  if (!companyId) return;
+
+  setSaving(true);
+
+  try {
+    await storageService.delete(
+      `companies/${companyId}/qris`
+    );
+
+    await saveSettings((current) => ({
+      ...current,
+      qrisImageUrl: null,
+    }));
+  } finally {
+    setSaving(false);
   }
+}
 
   return (
     <Card>
