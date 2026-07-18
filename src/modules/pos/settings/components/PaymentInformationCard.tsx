@@ -158,21 +158,13 @@ const PaymentInformationCard = forwardRef<
   }
 
   useImperativeHandle(ref, () => ({
+  async validate() {
+    return await form.trigger();
+  },
 
-    async validate() {
-
-        return await form.trigger();
-
-    },
-
-    async save() {
-
-        await onSubmit(
-            form.getValues()
-        );
-
-    },
-
+  async save() {
+    await form.handleSubmit(onSubmit)();
+  },
 }));
 
   async function handleQrisUpload(
