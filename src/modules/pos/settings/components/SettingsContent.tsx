@@ -51,11 +51,11 @@ export default function SettingsContent() {
     try {
       setSaving(true);
 
-      await Promise.all([
-        storeRef.current?.save(),
-        paymentRef.current?.save(),
-        receiptRef.current?.save(),
-      ]);
+      await storeRef.current?.save();
+
+await paymentRef.current?.save();
+
+await receiptRef.current?.save();
 
       toast.success(
         "Pengaturan berhasil disimpan."

@@ -102,17 +102,23 @@ const PaymentInformationCard = forwardRef<
             companyId
           );
 
-        if (!data) return;
+        const current =
+  data ?? {
+    companyId,
 
-        setSettings(data);
+    ...DEFAULT_POS_SETTINGS,
 
-        form.reset({
-          bankName: data.bankName,
-          accountNumber:
-            data.accountNumber,
-          accountHolder:
-            data.accountHolder,
-        });
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+setSettings(current);
+
+form.reset({
+  bankName: current.bankName,
+  accountNumber: current.accountNumber,
+  accountHolder: current.accountHolder,
+});
       } finally {
         setLoading(false);
       }
