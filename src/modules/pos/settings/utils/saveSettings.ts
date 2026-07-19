@@ -21,9 +21,12 @@ export async function saveSettings(
     const updated =
         updater(current);
 
+        console.log("Updated settings:", updated);
+
     await savePosSettingsUseCase.execute(
         updated
     );
+    console.log("SAVED");
 
     setSettings(updated);
 
