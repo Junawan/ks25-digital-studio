@@ -1,21 +1,19 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
+
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 import StoreInformationCard, {
   StoreInformationCardRef,
 } from "./StoreInformationCard";
-
 import PaymentInformationCard, {
   PaymentInformationCardRef,
 } from "./PaymentInformationCard";
-
 import ReceiptSettingsCard, {
   ReceiptSettingsCardRef,
 } from "./ReceiptSettingsCard";
-
-import SaveSettingsFooter from "./SaveSettingsFooter";
 
 export default function SettingsContent() {
   const storeRef =
@@ -27,59 +25,44 @@ export default function SettingsContent() {
   const receiptRef =
     useRef<ReceiptSettingsCardRef>(null);
 
+  const [saving, setSaving] =
+    useState(false);
+
   async function handleSave() {
-    const storeValid =
-    await storeRef.current?.validate();
+    const valid =
+      await Promise.all([
+        storeRef.current?.validate() ??
+          true,
 
-if (!storeValid) {
+        paymentRef.current?.validate() ??
+          true,
 
-    toast.error(
-        "Periksa Informasi Toko."
-    );
+        receiptRef.current?.validate() ??
+          true,
+      ]);
 
-    return;
+    if (valid.includes(false)) {
+      toast.error(
+        "Masih ada data yang belum valid."
+      );
+      return;
+    }
 
-}
+    try {
+      setSaving(true);
 
-const paymentValid =
-    await paymentRef.current?.validate();
+      await Promise.all([
+        storeRef.current?.save(),
+        paymentRef.current?.save(),
+        receiptRef.current?.save(),
+      ]);
 
-if (!paymentValid) {
-
-    toast.error(
-        "Periksa Informasi Pembayaran."
-    );
-
-    return;
-
-}
-
-const receiptValid =
-    await receiptRef.current?.validate();
-
-if (!receiptValid) {
-
-    toast.error(
-        "Periksa Pengaturan Struk."
-    );
-
-    return;
-
-}
-console.log("Store save");
-await storeRef.current?.save();
-
-console.log("Payment save");
-await paymentRef.current?.save();
-
-console.log("Receipt save");
-await receiptRef.current?.save();
-
-console.log("Selesai");
-
-    toast.success(
-      "Pengaturan berhasil disimpan."
-    );
+      toast.success(
+        "Pengaturan berhasil disimpan."
+      );
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -99,9 +82,16 @@ console.log("Selesai");
         hideSaveButton
       />
 
-      <SaveSettingsFooter
-        onSave={handleSave}
-      />
+      <div className="flex justify-end">
+        <Button
+          onClick={handleSave}
+          disabled={saving}
+        >
+          {saving
+            ? "Menyimpan..."
+            : "Simpan Perubahan"}
+        </Button>
+      </div>
     </div>
   );
 }

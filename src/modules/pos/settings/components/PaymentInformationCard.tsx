@@ -33,12 +33,12 @@ import {
 } from "../validation/paymentInformationSchema";
 
 import {
-  getPosSettingsUseCase,
-  savePosSettingsUseCase,
+  getPosSettingsUseCase
 } from "../di";
 
 import QrisUploader from "./QrisUploader";
 import { storageService } from "@/shared/services/StorageService";
+import { saveSettings } from "../utils/saveSettings";
 
 interface Props {
   hideSaveButton?: boolean;
@@ -121,37 +121,23 @@ const PaymentInformationCard = forwardRef<
     load();
   }, [companyId, form]);
 
-  async function saveSettings(
-  updater: (
-    current: PosSettings
-  ) => PosSettings
-) {
-  if (!settings) return;
-
-  const updated = updater(settings);
-
-  await savePosSettingsUseCase.execute(updated);
-
-  setSettings(updated);
-
-  return updated;
-}
-
   async function onSubmit(
     values: PaymentInformationInput
   ) {
     setSaving(true);
 
     try {
-      await saveSettings((current) => ({
-        ...current,
+      await saveSettings(
+  settings,
+  setSettings,
+  (current) => ({
+    ...current,
 
-        bankName: values.bankName,
-        accountNumber:
-          values.accountNumber,
-        accountHolder:
-          values.accountHolder,
-      }));
+    bankName: values.bankName,
+    accountNumber: values.accountNumber,
+    accountHolder: values.accountHolder,
+  })
+);
     } finally {
       setSaving(false);
     }
@@ -181,10 +167,14 @@ const PaymentInformationCard = forwardRef<
         file
       );
 
-    await saveSettings((current) => ({
-      ...current,
-      qrisImageUrl,
-    }));
+    await saveSettings(
+  settings,
+  setSettings,
+  (current) => ({
+    ...current,
+    qrisImageUrl,
+  })
+);
   } finally {
     setSaving(false);
   }
@@ -200,10 +190,21 @@ const PaymentInformationCard = forwardRef<
       `companies/${companyId}/qris`
     );
 
-    await saveSettings((current) => ({
-      ...current,
-      qrisImageUrl: null,
-    }));
+    await saveSettings(
+
+    settings,
+
+    setSettings,
+
+    current=>({
+
+        ...current,
+
+        qrisImageUrl:null,
+
+    })
+
+);
   } finally {
     setSaving(false);
   }

@@ -28,14 +28,14 @@ import {
 } from "../types/PosSettings";
 
 import {
-  getPosSettingsUseCase,
-  savePosSettingsUseCase,
+  getPosSettingsUseCase
 } from "../di";
 
 import {
   receiptSettingsSchema,
   ReceiptSettingsInput,
 } from "../validation/receiptSettingsSchema";
+import { saveSettings } from "../utils/saveSettings";
 
 interface Props {
   hideSaveButton?: boolean;
@@ -125,30 +125,17 @@ const [settings, setSettings] =
   load();
 }, [companyId, form]);
 
-async function saveSettings(
-  updater: (
-    current: PosSettings
-  ) => PosSettings
-) {
-  if (!settings) return;
-
-  const updated = updater(settings);
-
-  await savePosSettingsUseCase.execute(
-    updated
-  );
-
-  setSettings(updated);
-}
-
 async function onSubmit(
   values: ReceiptSettingsInput
 ) {
   setSaving(true);
 
   try {
-    await saveSettings((current) => ({
-      ...current,
+    await saveSettings(
+  settings,
+  setSettings,
+  (current) => ({
+    ...current,
 
       receiptFooter:
         values.receiptFooter,

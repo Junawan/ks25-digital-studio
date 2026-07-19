@@ -24,14 +24,12 @@ import {
   DEFAULT_POS_SETTINGS,
   PosSettings,
 } from "../types/PosSettings";
-import { getPosSettingsUseCase, savePosSettingsUseCase } from "../di";
+import { getPosSettingsUseCase } from "../di";
 import { StoreInformationInput, storeInformationSchema } from "../validation/storeInformationSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import StoreLogoUploader from "./StoreLogoUploader";
 import { storageService } from "@/shared/services/StorageService";
-
-// import { getPosSettingsUseCase } from "../di";
-// import { savePosSettingsUseCase } from "../di";
+import { saveSettings } from "../utils/saveSettings";
 
 type FormValues = Pick<
   PosSettings,
@@ -117,43 +115,35 @@ form.reset({
     load();
   }, [companyId]);
 
-  async function saveSettings(
-  updater: (
-    current: PosSettings
-  ) => PosSettings
-) {
-  if (!settings) return;
-
-  const updated = updater(settings);
-
-  await savePosSettingsUseCase.execute(updated);
-
-  if (!companyId) return null;
-
-  const latest =
-    await getPosSettingsUseCase.execute(companyId);
-
-if (latest) {
-
-    setSettings(latest);
-
-}
-}
-
   async function onSubmit(
   values: StoreInformationInput
 ) {
   setSaving(true);
 
   try {
-    await saveSettings((current) => ({
-      ...current,
+    await saveSettings(
 
-      address: values.address,
-      phone: values.phone,
-      email: values.email || null,
-      website: values.website || null,
-    }));
+    settings,
+
+    setSettings,
+
+    current=>({
+
+        ...current,
+
+        address: values.address,
+
+        phone: values.phone,
+
+        email:
+            values.email || null,
+
+        website:
+            values.website || null,
+
+    })
+
+);
   } finally {
     setSaving(false);
   }
@@ -180,10 +170,21 @@ useImperativeHandle(ref, () => ({
       file
     );
 
-  await saveSettings((current) => ({
-    ...current,
-    logoUrl,
-  }));
+  await saveSettings(
+
+    settings,
+
+    setSettings,
+
+    current=>({
+
+        ...current,
+
+        logoUrl,
+
+    })
+
+);
 }
 
 async function handleLogoRemove() {
@@ -193,10 +194,21 @@ async function handleLogoRemove() {
     `companies/${companyId}/logo`
   );
 
-  await saveSettings((current) => ({
-    ...current,
-    logoUrl: null,
-  }));
+  await saveSettings(
+
+    settings,
+
+    setSettings,
+
+    current=>({
+
+        ...current,
+
+        logoUrl:null,
+
+    })
+
+);
 }
 
   if (!companyId) return null;
