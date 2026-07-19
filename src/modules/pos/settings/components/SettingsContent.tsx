@@ -66,11 +66,16 @@ if (!receiptValid) {
     return;
 
 }
+console.log("Store save");
 await storeRef.current?.save();
 
+console.log("Payment save");
 await paymentRef.current?.save();
 
+console.log("Receipt save");
 await receiptRef.current?.save();
+
+console.log("Selesai");
 
     toast.success(
       "Pengaturan berhasil disimpan."
