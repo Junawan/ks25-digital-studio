@@ -14,6 +14,7 @@ import PaymentInformationCard, {
 import ReceiptSettingsCard, {
   ReceiptSettingsCardRef,
 } from "./ReceiptSettingsCard";
+import { savePosSettingsUseCase } from "../di";
 
 export default function SettingsContent() {
   const storeRef =
@@ -29,41 +30,54 @@ export default function SettingsContent() {
     useState(false);
 
   async function handleSave() {
-    const valid =
-      await Promise.all([
-        storeRef.current?.validate() ??
-          true,
+  const valid = await Promise.all([
+    storeRef.current?.validate() ?? true,
+    paymentRef.current?.validate() ?? true,
+    receiptRef.current?.validate() ?? true,
+  ]);
 
-        paymentRef.current?.validate() ??
-          true,
-
-        receiptRef.current?.validate() ??
-          true,
-      ]);
-
-    if (valid.includes(false)) {
-      toast.error(
-        "Masih ada data yang belum valid."
-      );
-      return;
-    }
-
-    try {
-      setSaving(true);
-
-      await storeRef.current?.save();
-
-await paymentRef.current?.save();
-
-await receiptRef.current?.save();
-
-      toast.success(
-        "Pengaturan berhasil disimpan."
-      );
-    } finally {
-      setSaving(false);
-    }
+  if (valid.includes(false)) {
+    toast.error("Masih ada data yang belum valid.");
+    return;
   }
+
+  const store = storeRef.current;
+  const payment = paymentRef.current;
+  const receipt = receiptRef.current;
+
+  if (!store || !payment || !receipt) {
+    return;
+  }
+
+  const settings = store.getSettings();
+
+  if (!settings) {
+    toast.error("Pengaturan belum dimuat.");
+    return;
+  }
+
+  const updated = {
+    ...settings,
+
+    ...store.getValues(),
+
+    ...payment.getValues(),
+
+    ...receipt.getValues(),
+
+    updatedAt: new Date(),
+  };
+
+  try {
+    setSaving(true);
+
+    await savePosSettingsUseCase.execute(updated);
+
+    toast.success("Pengaturan berhasil disimpan.");
+  } finally {
+    setSaving(false);
+  }
+}
 
   return (
     <div className="space-y-6">

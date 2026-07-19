@@ -11,8 +11,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
-import { Button } from "@/components/ui/button";
-
 import {
   Card,
   CardContent,
@@ -46,8 +44,8 @@ interface Props {
 
 export interface PaymentInformationCardRef {
     validate(): Promise<boolean>;
-
-    save(): Promise<void>;
+  getValues(): PaymentInformationInput;
+  getSettings(): PosSettings | null;
 }
 
 const PaymentInformationCard = forwardRef<
@@ -127,36 +125,17 @@ form.reset({
     load();
   }, [companyId, form]);
 
-  async function onSubmit(
-    values: PaymentInformationInput
-  ) {
-    console.log("Payment submit:", values);
-    setSaving(true);
-
-    try {
-      await saveSettings(
-  settings,
-  setSettings,
-  (current) => ({
-    ...current,
-
-    bankName: values.bankName,
-    accountNumber: values.accountNumber,
-    accountHolder: values.accountHolder,
-  })
-);
-    } finally {
-      setSaving(false);
-    }
-  }
-
   useImperativeHandle(ref, () => ({
   async validate() {
     return await form.trigger();
   },
 
-  async save() {
-    await form.handleSubmit(onSubmit)();
+  getValues() {
+    return form.getValues();
+  },
+
+  getSettings() {
+    return settings;
   },
 }));
 
@@ -229,12 +208,7 @@ form.reset({
         {loading ? (
           <p>Memuat...</p>
         ) : (
-          <form
-            onSubmit={form.handleSubmit(
-              onSubmit
-            )}
-            className="space-y-4"
-          >
+          <form className="space-y-4">
             <div className="space-y-2">
               <label>
                 Nama Bank
@@ -300,14 +274,6 @@ form.reset({
               }
             />
 
-            {!hideSaveButton && (
-  <Button
-    type="submit"
-    disabled={saving}
-  >
-    {saving ? "Menyimpan..." : "Simpan"}
-  </Button>
-)}
           </form>
         )}
       </CardContent>

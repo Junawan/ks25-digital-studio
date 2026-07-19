@@ -43,8 +43,8 @@ interface Props {
 
 export interface ReceiptSettingsCardRef {
     validate(): Promise<boolean>;
-
-    save(): Promise<void>;
+  getValues(): ReceiptSettingsInput;
+  getSettings(): PosSettings | null;
 }
 
 const ReceiptSettingsCard = forwardRef<
@@ -125,39 +125,17 @@ const [settings, setSettings] =
   load();
 }, [companyId, form]);
 
-async function onSubmit(
-  values: ReceiptSettingsInput
-) {
-  setSaving(true);
-
-  try {
-    await saveSettings(
-  settings,
-  setSettings,
-  (current) => ({
-    ...current,
-
-      receiptFooter:
-        values.receiptFooter,
-
-      paperSize:
-        values.paperSize,
-
-      autoPrint:
-        values.autoPrint,
-    }));
-  } finally {
-    setSaving(false);
-  }
-}
-
 useImperativeHandle(ref, () => ({
   async validate() {
     return await form.trigger();
   },
 
-  async save() {
-    await form.handleSubmit(onSubmit)();
+  getValues() {
+    return form.getValues();
+  },
+
+  getSettings() {
+    return settings;
   },
 }));
 
@@ -173,12 +151,7 @@ return (
       {loading ? (
         <p>Memuat...</p>
       ) : (
-        <form
-          onSubmit={form.handleSubmit(
-            onSubmit
-          )}
-          className="space-y-4"
-        >
+        <form className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">
               Footer Struk
@@ -266,14 +239,6 @@ return (
 </div>
           </div>
 
-          {!hideSaveButton && (
-  <Button
-    type="submit"
-    disabled={saving}
-  >
-    {saving ? "Menyimpan..." : "Simpan"}
-  </Button>
-)}
         </form>
       )}
     </CardContent>

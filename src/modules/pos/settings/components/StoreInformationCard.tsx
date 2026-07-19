@@ -10,8 +10,6 @@ import { useForm } from "react-hook-form";
 
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
-import { Button } from "@/components/ui/button";
-
 import {
   Card,
   CardContent,
@@ -31,19 +29,14 @@ import StoreLogoUploader from "./StoreLogoUploader";
 import { storageService } from "@/shared/services/StorageService";
 import { saveSettings } from "../utils/saveSettings";
 
-type FormValues = Pick<
-  PosSettings,
-  "address" | "phone" | "email" | "website"
->;
-
 interface Props {
   hideSaveButton?: boolean;
 }
 
 export interface StoreInformationCardRef {
-    validate(): Promise<boolean>;
-
-    save(): Promise<void>;
+  validate(): Promise<boolean>;
+  getValues(): StoreInformationInput;
+  getSettings(): PosSettings | null;
 }
 
 const StoreInformationCard = forwardRef<
@@ -115,76 +108,37 @@ form.reset({
     load();
   }, [companyId]);
 
-  async function onSubmit(
-  values: StoreInformationInput
-) {
-  setSaving(true);
-
-  try {
-    await saveSettings(
-
-    settings,
-
-    setSettings,
-
-    current=>({
-
-        ...current,
-
-        address: values.address,
-
-        phone: values.phone,
-
-        email:
-            values.email || null,
-
-        website:
-            values.website || null,
-
-    })
-
-);
-  } finally {
-    setSaving(false);
-  }
-}
 
 useImperativeHandle(ref, () => ({
   async validate() {
     return await form.trigger();
   },
 
-  async save() {
-    await form.handleSubmit(onSubmit)();
+  getValues() {
+    return form.getValues();
+  },
+
+  getSettings() {
+    return settings;
   },
 }));
 
-  async function handleLogoUpload(
-  file: File
-) {
+  async function handleLogoUpload(file: File) {
   if (!companyId) return;
 
-  const logoUrl =
-    await storageService.upload(
-      `companies/${companyId}/logo`,
-      file
-    );
+  const logoUrl = await storageService.upload(
+    `companies/${companyId}/logo`,
+    file
+  );
 
-  await saveSettings(
-
-    settings,
-
-    setSettings,
-
-    current=>({
-
-        ...current,
-
-        logoUrl,
-
-    })
-
-);
+  setSettings((current) =>
+    current
+      ? {
+          ...current,
+          logoUrl,
+        }
+      : current
+  );
 }
 
 async function handleLogoRemove() {
@@ -194,21 +148,14 @@ async function handleLogoRemove() {
     `companies/${companyId}/logo`
   );
 
-  await saveSettings(
-
-    settings,
-
-    setSettings,
-
-    current=>({
-
-        ...current,
-
-        logoUrl:null,
-
-    })
-
-);
+  setSettings((current) =>
+    current
+      ? {
+          ...current,
+          logoUrl: null,
+        }
+      : current
+  );
 }
 
   if (!companyId) return null;
@@ -225,10 +172,7 @@ async function handleLogoRemove() {
             Memuat...
           </p>
         ) : (
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4"
-          >
+          <form className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">
                 Nama Toko
@@ -317,14 +261,6 @@ async function handleLogoRemove() {
 )}
             </div>
 
-            {!hideSaveButton && (
-  <Button
-    type="submit"
-    disabled={saving}
-  >
-    {saving ? "Menyimpan..." : "Simpan"}
-  </Button>
-)}
           </form>
         )}
       </CardContent>
