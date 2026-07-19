@@ -130,6 +130,7 @@ form.reset({
   async function onSubmit(
     values: PaymentInformationInput
   ) {
+    console.log("Payment submit:", values);
     setSaving(true);
 
     try {
