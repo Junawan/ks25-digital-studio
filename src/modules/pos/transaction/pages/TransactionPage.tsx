@@ -170,6 +170,7 @@ const [lastTransaction, setLastTransaction] =
     paymentMethod: typeof paymentMethod;
     paidAmount: number;
     changeAmount: number;
+    cashierName: string,
     customerName: string;
   } | null>(null);
 
@@ -314,6 +315,8 @@ async function handleCheckout() {
   paidAmount,
 
   changeAmount,
+
+  cashierName: transaction.cashierName,
 
   customerName: customer,
 });
@@ -648,7 +651,7 @@ loading={
     transactionDate={
       lastTransaction.transactionDate
     }
-    cashierName={cashierId}
+    cashierName={lastTransaction.cashierName}
     customerName={
       lastTransaction.customerName
     }
