@@ -11,6 +11,9 @@ export interface PosSettings {
 
   // Branding
   logoUrl: string | null;
+  stampUrl: string | null;
+
+signatureUrl: string | null;
 
   // Pembayaran
   bankName: string;
@@ -40,6 +43,9 @@ export const DEFAULT_POS_SETTINGS: Omit<
   website: null,
 
   logoUrl: null,
+  stampUrl: null,
+
+signatureUrl: null,
 
   bankName: "",
   accountNumber: "",

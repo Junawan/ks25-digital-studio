@@ -28,6 +28,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import StoreLogoUploader from "./StoreLogoUploader";
 import { storageService } from "@/shared/services/StorageService";
 import { saveSettings } from "../utils/saveSettings";
+import StoreStampUploader from "./StoreStampUploader";
+import StoreSignatureUploader from "./StoreSignatureUploader";
 
 interface Props {
   hideSaveButton?: boolean;
@@ -124,37 +126,110 @@ useImperativeHandle(ref, () => ({
 }));
 
   async function handleLogoUpload(file: File) {
-  if (!companyId) return;
+  if (!companyId || !settings) return;
 
   const logoUrl = await storageService.upload(
     `companies/${companyId}/logo`,
     file
   );
 
-  setSettings((current) =>
-    current
-      ? {
-          ...current,
-          logoUrl,
-        }
-      : current
+  await saveSettings(
+    settings,
+    setSettings,
+    (current) => ({
+      ...current,
+      logoUrl,
+    })
   );
 }
 
 async function handleLogoRemove() {
-  if (!companyId) return;
+  if (!companyId || !settings) return;
 
   await storageService.delete(
     `companies/${companyId}/logo`
   );
 
-  setSettings((current) =>
-    current
-      ? {
-          ...current,
-          logoUrl: null,
-        }
-      : current
+  await saveSettings(
+    settings,
+    setSettings,
+    (current) => ({
+      ...current,
+      logoUrl: null,
+    })
+  );
+}
+
+async function handleStampUpload(file: File) {
+  if (!companyId || !settings) return;
+
+  const stampUrl = await storageService.upload(
+    `companies/${companyId}/stamp`,
+    file
+  );
+
+  await saveSettings(
+    settings,
+    setSettings,
+    (current) => ({
+      ...current,
+      stampUrl,
+    })
+  );
+}
+
+async function handleStampRemove() {
+  if (!companyId || !settings) return;
+
+  await storageService.delete(
+    `companies/${companyId}/stamp`
+  );
+
+  await saveSettings(
+    settings,
+    setSettings,
+    (current) => ({
+      ...current,
+      stampUrl: null,
+    })
+  );
+}
+
+async function handleSignatureUpload(
+  file: File
+) {
+  if (!companyId || !settings) return;
+
+  const signatureUrl =
+    await storageService.upload(
+      `companies/${companyId}/signature`,
+      file
+    );
+
+  await saveSettings(
+    settings,
+    setSettings,
+    (current) => ({
+      ...current,
+      signatureUrl,
+    })
+  );
+}
+
+async function handleSignatureRemove() {
+  if (!companyId || !settings) return;
+
+  await storageService.delete(
+    `companies/${companyId}/signature`
+  );
+
+  await saveSettings(
+    settings,
+    setSettings,
+    (current) => ({
+      ...current,
+      signatureUrl: null,
+    })
   );
 }
 
@@ -190,6 +265,22 @@ async function handleLogoRemove() {
   disabled={saving}
   onUpload={handleLogoUpload}
   onRemove={handleLogoRemove}
+/>
+
+<StoreStampUploader
+  value={settings?.stampUrl ?? null}
+  loading={saving}
+  disabled={saving}
+  onUpload={handleStampUpload}
+  onRemove={handleStampRemove}
+/>
+
+<StoreSignatureUploader
+  value={settings?.signatureUrl ?? null}
+  loading={saving}
+  disabled={saving}
+  onUpload={handleSignatureUpload}
+  onRemove={handleSignatureRemove}
 />
 
             <div className="space-y-2">

@@ -33,6 +33,10 @@ export const posSettingsSchema = z.object({
     .nullable()
     .or(z.literal("")),
 
+    stampUrl: z.string().nullable(),
+
+signatureUrl: z.string().nullable(),
+
   bankName: z
     .string()
     .trim()
