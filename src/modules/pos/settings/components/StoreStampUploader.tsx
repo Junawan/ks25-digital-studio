@@ -19,7 +19,7 @@ export default function StoreStampUploader(
 ) {
   return (
     <ImageUploader
-      title="Logo Toko"
+      title="Stempel"
       uploadLabel={
         props.value
           ? "Ganti Logo"

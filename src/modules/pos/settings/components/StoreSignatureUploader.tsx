@@ -19,7 +19,7 @@ export default function StoreSignatureUploader(
 ) {
   return (
     <ImageUploader
-      title="Logo Toko"
+      title="Tanda Tangan"
       uploadLabel={
         props.value
           ? "Ganti Logo"
