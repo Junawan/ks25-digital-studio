@@ -71,18 +71,38 @@ margin:0;
     return;
   }
 
-  const root =
-    createRoot(rootElement);
+  const root = createRoot(rootElement);
 
-  root.render(element);
+root.render(element);
 
-  setTimeout(() => {
+// Tunggu React selesai render
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
 
-    printWindow.focus();
+    // tunggu seluruh image selesai
+    const images = Array.from(
+      printWindow.document.images
+    );
 
-    printWindow.print();
+    Promise.all(
+      images.map(
+        (image) =>
+          image.complete
+            ? Promise.resolve()
+            : new Promise<void>((resolve) => {
+                image.onload = () => resolve();
+                image.onerror = () => resolve();
+              })
+      )
+    ).then(() => {
+      printWindow.focus();
 
-    printWindow.close();
+      printWindow.print();
 
-  }, 300);
+      // sementara jangan ditutup dulu
+      // printWindow.close();
+    });
+
+  });
+});
 }

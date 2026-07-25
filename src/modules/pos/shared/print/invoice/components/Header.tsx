@@ -17,6 +17,20 @@ export default function Header({
   settings,
   transaction,
 }: Props) {
+
+    console.log("transaction", transaction);
+
+console.log("createdAt", transaction.createdAt);
+
+console.log(
+  "createdAt instanceof Date",
+  transaction.createdAt instanceof Date
+);
+
+console.log(
+  "createdAt constructor",
+  transaction.createdAt?.constructor?.name
+);
   return (
     <div className="flex justify-between border-b pb-5">
 
