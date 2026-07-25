@@ -62,6 +62,17 @@ margin:0;
 
   printWindow.document.close();
 
+  // Salin seluruh stylesheet dari halaman utama
+document
+  .querySelectorAll(
+    'link[rel="stylesheet"], style'
+  )
+  .forEach((node) => {
+    printWindow.document.head.appendChild(
+      node.cloneNode(true)
+    );
+  });
+
   const rootElement =
     printWindow.document.getElementById(
       "root"

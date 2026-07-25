@@ -32,18 +32,20 @@ console.log(
   transaction.createdAt?.constructor?.name
 );
   return (
-    <div className="flex justify-between border-b pb-5">
+    <div className="flex items-start justify-between gap-8 border-b pb-6">
 
-      <div className="flex gap-4">
+      <div className="flex flex-1 gap-4">
 
         {settings.logoUrl && (
-          <Image
-            src={settings.logoUrl}
-            alt="Logo"
-            width={72}
-            height={72}
-            className="object-contain"
-          />
+          <img
+    src={settings.logoUrl}
+    alt="Logo"
+    width={80}
+    height={80}
+    style={{
+        objectFit: "contain",
+    }}
+/>
         )}
 
         <div>
@@ -95,13 +97,13 @@ console.log(
 
       </div>
 
-      <div className="text-right">
+      <div className="w-[260px] shrink-0">
 
-        <h2 className="text-3xl font-bold tracking-wide">
+        <h2 className="text-3xl font-bold text-right">
           INVOICE
         </h2>
 
-        <div className="mt-4 space-y-2 text-sm">
+        <div className="mt-2 text-right text-sm font-medium">
 
           <div>
             <b>No</b>
@@ -109,30 +111,32 @@ console.log(
             {transaction.invoiceNumber}
           </div>
 
-          <div className="flex justify-end py-2">
+          <div className="flex justify-end my-3">
   <BarcodeView
     value={transaction.invoiceNumber}
   />
 </div>
 
-          <div>
-            <b>Tanggal</b>
-            {" : "}
-            {formatDate(transaction.createdAt)}
-          </div>
+          <table className="ml-auto text-sm">
+        <tbody>
 
-          <div>
-            <b>Kasir</b>
-            {" : "}
-            {transaction.cashierName}
-          </div>
+            <tr>
+                <td className="pr-2 font-medium">Tanggal</td>
+                <td>{formatDate(transaction.createdAt)}</td>
+            </tr>
 
-          <div>
-            <b>Kepada</b>
-            {" : "}
-            {transaction.customerName ||
-              "-"}
-          </div>
+            <tr>
+                <td className="pr-2 font-medium">Kasir</td>
+                <td>{transaction.cashierName}</td>
+            </tr>
+
+            <tr>
+                <td className="pr-2 font-medium">Kepada</td>
+                <td>{transaction.customerName || "-"}</td>
+            </tr>
+
+        </tbody>
+    </table>
 
         </div>
 

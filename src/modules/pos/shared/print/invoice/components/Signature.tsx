@@ -21,23 +21,27 @@ export default function Signature({
         <div className="relative flex h-36 items-center justify-center">
 
   {settings.stampUrl && (
-    <Image
-      src={settings.stampUrl}
-      alt="Stamp"
-      width={130}
-      height={130}
-      className="absolute object-contain opacity-25"
-    />
+    <img
+    src={settings.stampUrl}
+    alt="Logo"
+    width={80}
+    height={80}
+    style={{
+        objectFit: "contain",
+    }}
+/>
   )}
 
   {settings.signatureUrl && (
-    <Image
-      src={settings.signatureUrl}
-      alt="Signature"
-      width={160}
-      height={80}
-      className="absolute object-contain"
-    />
+    <img
+    src={settings.signatureUrl}
+    alt="Logo"
+    width={80}
+    height={80}
+    style={{
+        objectFit: "contain",
+    }}
+/>
   )}
 
 </div>

@@ -14,11 +14,11 @@ export default function Payment({
   transaction,
 }: Props) {
   return (
-    <div className="mt-10 flex justify-between gap-10">
+    <div className="mt-10 grid grid-cols-2 gap-10">
 
       {/* Informasi Pembayaran */}
 
-      <div className="flex-1">
+      <div className="rounded-lg border p-4 h-full">
 
         <h3 className="mb-3 text-base font-semibold">
           Informasi Pembayaran
@@ -72,13 +72,15 @@ export default function Payment({
               QRIS
             </div>
 
-            <Image
-              src={settings.qrisImageUrl}
-              alt="QRIS"
-              width={180}
-              height={180}
-              className="rounded border object-contain"
-            />
+            <img
+    src={settings.qrisImageUrl}
+    alt="Logo"
+    width={80}
+    height={80}
+    style={{
+        objectFit: "contain",
+    }}
+/>
 
           </div>
 
@@ -88,7 +90,7 @@ export default function Payment({
 
       {/* Detail Transaksi */}
 
-      <div className="w-[320px]">
+      <div className="rounded-lg border p-4 h-full">
 
         <h3 className="mb-3 text-base font-semibold">
           Detail Pembayaran
