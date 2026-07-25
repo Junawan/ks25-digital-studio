@@ -43,6 +43,7 @@ import PaymentDialog
 from "../components/PaymentDialog";
 import { transactionDI } from "../di/transaction";
 import { toast } from "sonner";
+import PaymentSuccessDialog from "../components/PaymentSuccessDialog";
 
 export default function TransactionPage() {
 
@@ -158,6 +159,20 @@ const [
   setCheckoutLoading,
 ] = useState(false);
 
+const [successOpen, setSuccessOpen] =
+  useState(false);
+
+const [lastTransaction, setLastTransaction] =
+  useState<{
+    invoiceNumber: string;
+    transactionDate: string;
+    total: number;
+    paymentMethod: typeof paymentMethod;
+    paidAmount: number;
+    changeAmount: number;
+    customerName: string;
+  } | null>(null);
+
 const runningRef =
   useRef(false);
 
@@ -229,6 +244,18 @@ const runningRef =
 
 }
 
+function handlePrintReceipt() {
+  toast.info("Fitur cetak struk segera hadir.");
+}
+
+function handlePrintInvoice() {
+  toast.info("Fitur invoice segera hadir.");
+}
+
+function handleNewTransaction() {
+  setSuccessOpen(false);
+}
+
 async function handleCheckout() {
 
   if (!company) {
@@ -273,12 +300,33 @@ async function handleCheckout() {
       transaction
     );
 
-    resetTransaction();
+    setLastTransaction({
+  invoiceNumber:
+    transaction.invoiceNumber,
+
+  transactionDate:
+    new Date().toLocaleString("id-ID"),
+
+  total: summary.total,
+
+  paymentMethod,
+
+  paidAmount,
+
+  changeAmount,
+
+  customerName: customer,
+});
 
 setPaymentOpen(false);
 
+setSuccessOpen(true);
+
+// reset setelah data berhasil disalin
+resetTransaction();
+
 toast.success(
-    "Transaksi berhasil."
+  "Transaksi berhasil."
 );
 
   } catch (error) {
@@ -589,6 +637,42 @@ loading={
         checkoutLoading
 }
 />
+
+{lastTransaction && (
+  <PaymentSuccessDialog
+    open={successOpen}
+    onOpenChange={setSuccessOpen}
+    transactionNumber={
+      lastTransaction.invoiceNumber
+    }
+    transactionDate={
+      lastTransaction.transactionDate
+    }
+    cashierName={cashierId}
+    customerName={
+      lastTransaction.customerName
+    }
+    total={lastTransaction.total}
+    paymentMethod={
+      lastTransaction.paymentMethod
+    }
+    paidAmount={
+      lastTransaction.paidAmount
+    }
+    changeAmount={
+      lastTransaction.changeAmount
+    }
+    onPrintReceipt={
+      handlePrintReceipt
+    }
+    onPrintInvoice={
+      handlePrintInvoice
+    }
+    onNewTransaction={
+      handleNewTransaction
+    }
+  />
+)}
 
       <VariantPickerDialog
   open={variantOpen}
