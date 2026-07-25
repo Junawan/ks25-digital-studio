@@ -7,7 +7,6 @@ import InvoiceStyles from "./InvoiceStyles";
 import Header from "./components/Header";
 import ItemsTable from "./components/ItemsTable";
 import Summary from "./components/Summary";
-import Payment from "./components/Payment";
 import Signature from "./components/Signature";
 import Footer from "./components/Footer";
 
@@ -39,11 +38,6 @@ export default function InvoiceA4({
         />
 
         <Summary
-          transaction={transaction}
-        />
-
-        <Payment
-          settings={settings}
           transaction={transaction}
         />
 
