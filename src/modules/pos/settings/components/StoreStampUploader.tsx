@@ -22,10 +22,10 @@ export default function StoreStampUploader(
       title="Stempel"
       uploadLabel={
         props.value
-          ? "Ganti Logo"
-          : "Upload Logo"
+          ? "Ganti Stempel"
+          : "Upload Stempel"
       }
-      removeLabel="Hapus Logo"
+      removeLabel="Hapus Stempel"
       {...props}
     />
   );

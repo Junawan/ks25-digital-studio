@@ -22,10 +22,10 @@ export default function StoreSignatureUploader(
       title="Tanda Tangan"
       uploadLabel={
         props.value
-          ? "Ganti Logo"
-          : "Upload Logo"
+          ? "Ganti Tanda tangan"
+          : "Upload Tanda Tangan"
       }
-      removeLabel="Hapus Logo"
+      removeLabel="Hapus Tanda Tangan"
       {...props}
     />
   );
