@@ -64,28 +64,6 @@ export default function Payment({
 
         )}
 
-        {settings.qrisImageUrl && (
-
-          <div className="mt-4">
-
-            <div className="mb-2 font-medium">
-              QRIS
-            </div>
-
-            <img
-    src={settings.qrisImageUrl}
-    alt="Logo"
-    width={80}
-    height={80}
-    style={{
-        objectFit: "contain",
-    }}
-/>
-
-          </div>
-
-        )}
-
       </div>
 
       {/* Detail Transaksi */}
