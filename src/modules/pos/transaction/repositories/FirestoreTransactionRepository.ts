@@ -15,6 +15,7 @@ import { db } from "@/core/firebase";
 
 import { Transaction } from "../types/transaction";
 import { TransactionRepository } from "./TransactionRepository";
+import { TransactionMapper } from "../mappers/TransactionMapper";
 
 export class FirestoreTransactionRepository
   implements TransactionRepository
@@ -122,8 +123,9 @@ async getByInvoiceNumber(
     return null;
   }
 
-  return snapshot.docs[0]
-    .data() as Transaction;
+  const data = snapshot.docs[0].data();
+
+return TransactionMapper.fromFirestore(data);
 
 }
 
