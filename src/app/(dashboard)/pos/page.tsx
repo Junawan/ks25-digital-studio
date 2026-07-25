@@ -82,7 +82,7 @@ const menus: Menu[] = [
       "Konfigurasi POS.",
     href: "/pos/settings",
     icon: Settings,
-    enabled: false,
+    enabled: true,
   },
 ];
 
