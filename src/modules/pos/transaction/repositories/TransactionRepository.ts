@@ -13,6 +13,11 @@ export interface TransactionRepository {
     transactionId: string
   ): Promise<Transaction | null>;
 
+  getByInvoiceNumber(
+  companyId: string,
+  invoiceNumber: string
+): Promise<Transaction | null>;
+
   delete(
     transactionId: string
   ): Promise<void>;

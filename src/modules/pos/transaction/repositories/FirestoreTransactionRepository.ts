@@ -4,6 +4,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
   orderBy,
   query,
   setDoc,
@@ -86,6 +87,43 @@ async getById(
   }
 
   return snapshot.data() as Transaction;
+
+}
+
+async getByInvoiceNumber(
+  companyId: string,
+  invoiceNumber: string
+): Promise<Transaction | null> {
+
+  const snapshot =
+    await getDocs(
+      query(
+        collection(
+          db,
+          this.collectionName
+        ),
+        where(
+          "companyId",
+          "==",
+          companyId
+        ),
+        where(
+          "invoiceNumber",
+          "==",
+          invoiceNumber
+        ),
+        limit(1)
+      )
+    );
+
+  if (
+    snapshot.empty
+  ) {
+    return null;
+  }
+
+  return snapshot.docs[0]
+    .data() as Transaction;
 
 }
 
