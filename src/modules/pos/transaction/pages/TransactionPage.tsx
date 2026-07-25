@@ -46,6 +46,7 @@ import { toast } from "sonner";
 import PaymentSuccessDialog from "../components/PaymentSuccessDialog";
 import { printReceipt } from "../../shared/print/printerReceipt";
 import { getPosSettingsUseCase } from "../../settings/di";
+import { printInvoice } from "../../shared/print/printInvoice";
 
 export default function TransactionPage() {
 
@@ -297,8 +298,40 @@ async function handlePrintReceipt() {
   }
 }
 
-function handlePrintInvoice() {
-  toast.info("Fitur invoice segera hadir.");
+async function handlePrintInvoice() {
+  if (!company || !lastTransaction) {
+    return;
+  }
+
+  try {
+    const settings = await getPosSettingsUseCase.execute(company.id);
+
+    if (!settings) {
+      toast.error("Pengaturan POS belum tersedia.");
+      return;
+    }
+
+    const transaction =
+      await transactionDI.repository.getByInvoiceNumber(
+        company.id,
+        lastTransaction.invoiceNumber
+      );
+
+    if (!transaction) {
+      toast.error("Transaksi tidak ditemukan.");
+      return;
+    }
+
+    await printInvoice({
+      company,
+      settings,
+      transaction,
+    });
+  } catch (error) {
+    console.error(error);
+
+    toast.error("Gagal mencetak invoice.");
+  }
 }
 
 function handleNewTransaction() {
