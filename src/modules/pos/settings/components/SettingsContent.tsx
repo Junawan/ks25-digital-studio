@@ -49,21 +49,25 @@ export default function SettingsContent() {
     return;
   }
 
-  const settings = store.getSettings();
+  const storeSettings = store.getSettings();
+const paymentSettings = payment.getSettings();
 
-  if (!settings) {
-    toast.error("Pengaturan belum dimuat.");
-    return;
-  }
+if (!storeSettings || !paymentSettings) {
+  toast.error("Pengaturan belum dimuat.");
+  return;
+}
 
   const updated = {
-    ...settings,
+    ...storeSettings,
 
     ...store.getValues(),
 
     ...payment.getValues(),
 
     ...receipt.getValues(),
+
+    logoUrl: storeSettings?.logoUrl ?? null,
+  qrisImageUrl: paymentSettings?.qrisImageUrl ?? null,
 
     updatedAt: new Date(),
   };

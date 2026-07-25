@@ -127,7 +127,7 @@ form.reset({
 
   useImperativeHandle(ref, () => ({
   async validate() {
-    return await form.trigger();
+    return form.trigger();
   },
 
   getValues() {
