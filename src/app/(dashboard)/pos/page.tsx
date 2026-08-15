@@ -65,9 +65,9 @@ const menus: Menu[] = [
     title: "Pemasukan lain",
     description:
       "Input data pemasukan lain.",
-    href: "#",
+    href: "/pos/income",
     icon: ChartColumn,
-    enabled: false,
+    enabled: true,
   },
   {
     title: "Pengeluaran",
