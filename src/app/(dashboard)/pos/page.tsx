@@ -11,6 +11,7 @@ import {
   Settings,
   ChevronRight,
   Wrench,
+  History,
 } from "lucide-react";
 
 import {
@@ -53,20 +54,36 @@ const menus: Menu[] = [
     enabled: true,
   },
   {
-    title: "Customer",
+    title: "Riwayat",
     description:
-      "Kelola data pelanggan.",
+      "Kelola data transaksi.",
+    href: "/pos/history",
+    icon: History,
+    enabled: true,
+  },
+  {
+    title: "Pemasukan lain",
+    description:
+      "Input data pemasukan lain.",
     href: "#",
-    icon: Users,
+    icon: ChartColumn,
     enabled: false,
   },
   {
-    title: "Supplier",
+    title: "Pengeluaran",
     description:
-      "Kelola data supplier.",
+      "Input data pengeluaran.",
     href: "#",
-    icon: Truck,
+    icon: ChartColumn,
     enabled: false,
+  },
+  {
+    title: "Kasbon",
+    description:
+      "Kelola hutang piutang.",
+    href: "/pos/debt",
+    icon: Users,
+    enabled: true,
   },
   {
     title: "Laporan",
