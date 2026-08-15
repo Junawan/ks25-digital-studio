@@ -29,6 +29,8 @@ interface Props {
   onDelete: (
     transaction: Transaction
   ) => void | Promise<void>;
+
+  printing?: boolean;
 }
 
 export default function TransactionHistoryCard({
@@ -36,6 +38,7 @@ export default function TransactionHistoryCard({
   onPrintReceipt,
   onPrintInvoice,
   onDelete,
+  printing = false,
 }: Props) {
   const totalQty =
     transaction.items.reduce(
@@ -209,43 +212,52 @@ export default function TransactionHistoryCard({
         <div className="flex flex-wrap justify-end gap-2 border-t pt-4">
 
           <Button
-            type="button"
-            variant="outline"
-            onClick={() =>
-              void onPrintReceipt(
-                transaction
-              )
-            }
-          >
-            <Printer className="mr-2 h-4 w-4" />
-            Cetak Struk
-          </Button>
+  type="button"
+  variant="outline"
+  disabled={printing}
+  onClick={() =>
+    void onPrintReceipt(
+      transaction
+    )
+  }
+>
+  <Printer className="mr-2 h-4 w-4" />
+
+  {printing
+    ? "Menyiapkan..."
+    : "Cetak Struk"}
+</Button>
 
           <Button
-            type="button"
-            variant="outline"
-            onClick={() =>
-              void onPrintInvoice(
-                transaction
-              )
-            }
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            Invoice
-          </Button>
+  type="button"
+  variant="outline"
+  disabled={printing}
+  onClick={() =>
+    void onPrintInvoice(
+      transaction
+    )
+  }
+>
+  <FileText className="mr-2 h-4 w-4" />
+
+  {printing
+    ? "Menyiapkan..."
+    : "Invoice"}
+</Button>
 
           <Button
-            type="button"
-            variant="destructive"
-            onClick={() =>
-              void onDelete(
-                transaction
-              )
-            }
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Hapus
-          </Button>
+  type="button"
+  variant="destructive"
+  disabled={printing}
+  onClick={() =>
+    void onDelete(
+      transaction
+    )
+  }
+>
+  <Trash2 className="mr-2 h-4 w-4" />
+  Hapus
+</Button>
 
         </div>
 
