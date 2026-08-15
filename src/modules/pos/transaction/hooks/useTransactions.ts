@@ -6,84 +6,92 @@ import {
   useState,
 } from "react";
 
-import { toast } from "sonner";
+import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
 import { transactionDI } from "../di/transaction";
-
 import { Transaction } from "../types/transaction";
 
-interface Props {
-  companyId: string;
-}
+export function useTransactions() {
+  const { workspace } =
+    useWorkspace();
 
-export function useTransactions({
-  companyId,
-}: Props) {
+  const companyId =
+    workspace?.company.id;
 
-  const [
-    loading,
-    setLoading,
-  ] = useState(true);
+  const [transactions, setTransactions] =
+    useState<Transaction[]>([]);
 
-  const [
-    transactions,
-    setTransactions,
-  ] = useState<Transaction[]>([]);
+  const [loading, setLoading] =
+    useState(true);
 
-  const load =
-    useCallback(async () => {
+  const [error, setError] =
+    useState<string | null>(null);
 
+  const load = useCallback(
+    async () => {
       if (!companyId) {
-
         setTransactions([]);
-
         setLoading(false);
-
         return;
-
       }
 
       setLoading(true);
+      setError(null);
 
       try {
-
         const data =
           await transactionDI
             .getTransactionsUseCase
-            .execute(
-              companyId
-            );
+            .execute(companyId);
 
         setTransactions(data);
-
-      } catch {
-
-        toast.error(
-          "Gagal memuat transaksi."
+      } catch (error) {
+        console.error(
+          "Gagal memuat transaksi:",
+          error
         );
 
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Gagal memuat transaksi."
+        );
       } finally {
-
         setLoading(false);
-
       }
-
-    }, [companyId]);
+    },
+    [companyId]
+  );
 
   useEffect(() => {
-
     void load();
-
   }, [load]);
 
+  const remove = useCallback(
+    async (
+      transactionId: string
+    ) => {
+      await transactionDI
+        .deleteTransactionUseCase
+        .execute(transactionId);
+
+      setTransactions(
+        current =>
+          current.filter(
+            transaction =>
+              transaction.transactionId !==
+              transactionId
+          )
+      );
+    },
+    []
+  );
+
   return {
-
-    loading,
-
     transactions,
-
+    loading,
+    error,
     reload: load,
-
+    remove,
   };
-
 }

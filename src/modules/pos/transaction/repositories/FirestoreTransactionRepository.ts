@@ -23,6 +23,24 @@ export class FirestoreTransactionRepository
   private readonly collectionName =
     "pos_transactions";
 
+    private mapTransaction(
+  data: Record<string, any>
+): Transaction {
+  return {
+    ...data,
+
+    createdAt:
+      data.createdAt?.toDate
+        ? data.createdAt.toDate()
+        : data.createdAt,
+
+    updatedAt:
+      data.updatedAt?.toDate
+        ? data.updatedAt.toDate()
+        : data.updatedAt,
+  } as Transaction;
+}
+
   async create(
     transaction: Transaction
   ): Promise<Transaction> {
@@ -43,7 +61,6 @@ export class FirestoreTransactionRepository
   async getAll(
   companyId: string
 ): Promise<Transaction[]> {
-
   const snapshot =
     await getDocs(
       query(
@@ -65,9 +82,10 @@ export class FirestoreTransactionRepository
 
   return snapshot.docs.map(
     (doc) =>
-      doc.data() as Transaction
+      this.mapTransaction(
+        doc.data()
+      )
   );
-
 }
 
 async getById(
@@ -95,7 +113,6 @@ async getByInvoiceNumber(
   companyId: string,
   invoiceNumber: string
 ): Promise<Transaction | null> {
-
   const snapshot =
     await getDocs(
       query(
@@ -117,16 +134,13 @@ async getByInvoiceNumber(
       )
     );
 
-  if (
-    snapshot.empty
-  ) {
+  if (snapshot.empty) {
     return null;
   }
 
-  const data = snapshot.docs[0].data();
-
-return TransactionMapper.fromFirestore(data);
-
+  return this.mapTransaction(
+    snapshot.docs[0].data()
+  );
 }
 
 async delete(
