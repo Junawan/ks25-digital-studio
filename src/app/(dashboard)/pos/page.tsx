@@ -73,9 +73,9 @@ const menus: Menu[] = [
     title: "Pengeluaran",
     description:
       "Input data pengeluaran.",
-    href: "#",
+    href: "/pos/expenses",
     icon: ChartColumn,
-    enabled: false,
+    enabled: true,
   },
   {
     title: "Kasbon",
