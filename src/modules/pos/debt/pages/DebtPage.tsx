@@ -21,18 +21,39 @@ import DebtList from "../components/DebtList";
 import type { Debt } from "../types/debt";
 import type { DebtFormInput } from "../validation/debtSchema";
 
+import PayDebtDialog from "../components/PayDebtDialog";
+import DebtDetailDialog from "../components/DebtDetailDialog";
+import DeleteDebtDialog from "../components/DeleteDebtDialog";
+
 export default function DebtPage() {
   const {
-    debts,
-    status,
-    setStatus,
-    loading,
-    error,
-    createDebt,
-  } = useDebts();
+  debts,
+  status,
+  setStatus,
+  loading,
+  error,
+  createDebt,
+  payDebt,
+  deleteDebt,
+} = useDebts();
 
   const [search, setSearch] =
     useState("");
+
+    const [selectedDebt, setSelectedDebt] =
+  useState<Debt | null>(null);
+
+const [payDialogOpen, setPayDialogOpen] =
+  useState(false);
+
+const [detailDialogOpen, setDetailDialogOpen] =
+  useState(false);
+
+const [deleteDialogOpen, setDeleteDialogOpen] =
+  useState(false);
+
+const [actionLoading, setActionLoading] =
+  useState(false);
 
   const filteredDebts =
     useMemo(() => {
@@ -91,40 +112,57 @@ export default function DebtPage() {
   }
 
   function handlePay(
-    debt: Debt
-  ) {
-    console.log(
-      "Bayar:",
-      debt
-    );
+  debt: Debt
+) {
+  setSelectedDebt(debt);
 
-    // Dialog pembayaran
-    // akan kita buat tahap berikutnya
-  }
+  setPayDialogOpen(true);
+}
 
   function handleDetail(
-    debt: Debt
-  ) {
-    console.log(
-      "Detail:",
-      debt
-    );
+  debt: Debt
+) {
+  setSelectedDebt(debt);
 
-    // Dialog detail
-    // akan kita buat tahap berikutnya
-  }
+  setDetailDialogOpen(true);
+}
 
   function handleDelete(
-    debt: Debt
-  ) {
-    console.log(
-      "Hapus:",
-      debt
-    );
+  debt: Debt
+) {
+  setSelectedDebt(debt);
 
-    // Dialog hapus
-    // akan kita buat tahap berikutnya
+  setDeleteDialogOpen(true);
+}
+
+async function handlePayment(
+  input: {
+    debtId: string;
+    amount: number;
+    note?: string | null;
+    paidAt: Date;
   }
+) {
+  try {
+    setActionLoading(true);
+
+    await payDebt(input);
+  } finally {
+    setActionLoading(false);
+  }
+}
+
+async function handleDeleteConfirm(
+  debtId: string
+) {
+  try {
+    setActionLoading(true);
+
+    await deleteDebt(debtId);
+  } finally {
+    setActionLoading(false);
+  }
+}
 
   function handleExport() {
     console.log(
@@ -136,6 +174,7 @@ export default function DebtPage() {
   }
 
   return (
+  <>
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">
@@ -264,5 +303,38 @@ export default function DebtPage() {
         </aside>
       </div>
     </div>
-  );
+      <PayDebtDialog
+      debt={selectedDebt}
+      open={payDialogOpen}
+      loading={actionLoading}
+      onClose={() => {
+        setPayDialogOpen(false);
+        setSelectedDebt(null);
+      }}
+      onSubmit={handlePayment}
+    />
+
+    <DebtDetailDialog
+      debt={selectedDebt}
+      open={detailDialogOpen}
+      onClose={() => {
+        setDetailDialogOpen(false);
+        setSelectedDebt(null);
+      }}
+    />
+
+    <DeleteDebtDialog
+      debt={selectedDebt}
+      open={deleteDialogOpen}
+      loading={actionLoading}
+      onClose={() => {
+        setDeleteDialogOpen(false);
+        setSelectedDebt(null);
+      }}
+      onConfirm={
+        handleDeleteConfirm
+      }
+    />
+  </>
+);
 }
