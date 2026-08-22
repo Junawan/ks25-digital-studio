@@ -1,9 +1,5 @@
+import DebtPage from "@/modules/pos/debt/pages/DebtPage";
+
 export default function Page() {
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">
-        Dalam Pengembangan
-      </h1>
-    </div>
-  );
+  return <DebtPage />;
 }
