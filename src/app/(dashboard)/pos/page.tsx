@@ -88,10 +88,10 @@ const menus: Menu[] = [
   {
     title: "Laporan",
     description:
-      "Analisis penjualan.",
-    href: "#",
+      "Analisis Keuangan.",
+    href: "/pos/reports",
     icon: ChartColumn,
-    enabled: false,
+    enabled: true,
   },
   {
     title: "Pengaturan",
