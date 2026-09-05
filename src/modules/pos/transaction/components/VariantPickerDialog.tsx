@@ -35,7 +35,15 @@ export default function VariantPickerDialog({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <DialogContent>
+      <DialogContent
+  className="
+    max-w-lg
+    max-h-[85vh]
+    overflow-hidden
+    flex
+    flex-col
+  "
+>
 
         <DialogHeader>
 
@@ -47,7 +55,15 @@ export default function VariantPickerDialog({
 
         </DialogHeader>
 
-        <div className="space-y-2">
+        <div
+    className="
+      flex-1
+      overflow-y-auto
+      min-h-0
+      space-y-2
+      pr-2
+    "
+  >
 
           {product?.variants.map(
             (variant) => (
