@@ -12,6 +12,7 @@ import {
   PaymentMethod,
   TransactionSummary,
 } from "../types/transaction";
+import { DraftTransaction } from "../types/draftTransaction";
 
 export function useTransaction() {
   const [cart, setCart] =
@@ -240,6 +241,62 @@ function updateQty(
   setPaymentMethod("cash");
 }
 
+function createDraftData(
+  companyId: string
+): DraftTransaction {
+  return {
+    draftId: crypto.randomUUID(),
+
+    companyId,
+
+    cashierId,
+
+    customer,
+
+    paymentMethod,
+
+    paidAmount,
+
+    discount,
+
+    cart: [...cart],
+
+    createdAt: new Date(),
+
+    updatedAt: new Date(),
+  };
+}
+
+function loadDraft(
+  draft: DraftTransaction
+) {
+  setCart(
+    draft.cart.map((item) => ({
+      ...item,
+    }))
+  );
+
+  setDiscount(
+    draft.discount
+  );
+
+  setCustomer(
+    draft.customer
+  );
+
+  setPaidAmount(
+    draft.paidAmount
+  );
+
+  setPaymentMethod(
+    draft.paymentMethod
+  );
+
+  setCashierId(
+    draft.cashierId
+  );
+}
+
   return {
   cart,
 
@@ -278,5 +335,9 @@ function updateQty(
   summary,
 
   resetTransaction,
+
+  createDraftData,
+
+  loadDraft,
 };
 }

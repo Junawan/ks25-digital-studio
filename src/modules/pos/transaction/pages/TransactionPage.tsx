@@ -47,6 +47,13 @@ import PaymentSuccessDialog from "../components/PaymentSuccessDialog";
 import { printReceipt } from "../../shared/print/printerReceipt";
 import { getPosSettingsUseCase } from "../../settings/di";
 import { printInvoice } from "../../shared/print/printInvoice";
+import { draftTransactionDI }
+from "../di/draftTransaction";
+
+import type { DraftTransaction }
+from "../types/draftTransaction";
+import DraftTransactionDialog
+from "../components/DraftTransactionDialog";
 
 export default function TransactionPage() {
 
@@ -145,6 +152,23 @@ setScannerOpen,
 const [
   paymentOpen,
   setPaymentOpen,
+] = useState(false);
+
+const [
+  draftOpen,
+  setDraftOpen,
+] = useState(false);
+
+const [
+  drafts,
+  setDrafts,
+] = useState<DraftTransaction[]>(
+  []
+);
+
+const [
+  draftsLoading,
+  setDraftsLoading,
 ] = useState(false);
 
 const [
@@ -336,6 +360,118 @@ async function handlePrintInvoice() {
 
 function handleNewTransaction() {
   setSuccessOpen(false);
+}
+
+async function handleSaveDraft() {
+
+  if (!company) {
+    return;
+  }
+
+  if (cart.length === 0) {
+    toast.error(
+      "Keranjang masih kosong."
+    );
+
+    return;
+  }
+
+  try {
+
+    const now =
+      new Date();
+
+    const draft: DraftTransaction = {
+
+      draftId:
+        crypto.randomUUID(),
+
+      companyId:
+        company.id,
+
+      cashierId,
+
+      customer,
+
+      paymentMethod,
+
+      paidAmount,
+
+      discount,
+
+      cart,
+
+      createdAt:
+        now,
+
+      updatedAt:
+        now,
+
+    };
+
+    await draftTransactionDI
+      .repository
+      .create(
+        draft
+      );
+
+    resetTransaction();
+
+    toast.success(
+      "Transaksi berhasil disimpan sebagai draft."
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      "Gagal menyimpan transaksi sebagai draft."
+    );
+
+  }
+
+}
+
+async function loadDrafts() {
+
+  if (!company) {
+    return;
+  }
+
+  try {
+
+    setDraftsLoading(
+      true
+    );
+
+    const result =
+      await draftTransactionDI
+        .repository
+        .getAll(
+          company.id
+        );
+
+    setDrafts(
+      result
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      "Gagal mengambil transaksi tersimpan."
+    );
+
+  } finally {
+
+    setDraftsLoading(
+      false
+    );
+
+  }
+
 }
 
 async function handleCheckout() {
@@ -564,6 +700,19 @@ useEffect(() => {
   pairingStartedAt,
 ]);
 
+useEffect(() => {
+
+  if (!draftOpen) {
+    return;
+  }
+
+  loadDrafts();
+
+}, [
+  draftOpen,
+  company,
+]);
+
 if (!company) {
   return null;
 }
@@ -611,6 +760,16 @@ if (!company) {
 
   }}
 />
+
+<Button
+  variant="outline"
+  className="w-full"
+  onClick={() =>
+    setDraftOpen(true)
+  }
+>
+  Transaksi Tersimpan
+</Button>
 
       <SearchResult
   products={results}
@@ -676,17 +835,34 @@ if (!company) {
 
 />
 
-<Button
-  className="w-full h-12"
-  disabled={
-    cart.length === 0
-  }
-  onClick={() =>
-    setPaymentOpen(true)
-  }
->
-  Bayar
-</Button>
+<div className="grid grid-cols-2 gap-3">
+
+  <Button
+    variant="outline"
+    className="h-12"
+    disabled={
+      cart.length === 0
+    }
+    onClick={
+      handleSaveDraft
+    }
+  >
+    Simpan sebagai Draft
+  </Button>
+
+  <Button
+    className="h-12"
+    disabled={
+      cart.length === 0
+    }
+    onClick={() =>
+      setPaymentOpen(true)
+    }
+  >
+    Bayar
+  </Button>
+
+</div>
 
 <PaymentDialog
   open={paymentOpen}
@@ -720,6 +896,31 @@ if (!company) {
 loading={
         checkoutLoading
 }
+/>
+
+<DraftTransactionDialog
+  open={draftOpen}
+  onOpenChange={
+    setDraftOpen
+  }
+  drafts={drafts}
+  loading={draftsLoading}
+  onContinue={(draft) => {
+
+    console.log(
+      "Continue draft:",
+      draft
+    );
+
+  }}
+  onDelete={(draft) => {
+
+    console.log(
+      "Delete draft:",
+      draft
+    );
+
+  }}
 />
 
 {lastTransaction && (

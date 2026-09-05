@@ -5,6 +5,8 @@ import { CheckoutUseCase } from "../usecases/CheckoutUseCase";
 import { FirestoreCashierRepository } from "@/modules/pos/cashier/repositories/FirestoreCashierRepository";
 import { GetTransactionsUseCase } from "../usecases/GetTransactionUseCase";
 import { DeleteTransactionUseCase } from "../usecases/DeleteTransactionUseCase";
+import { FirestoreDraftTransactionRepository } from "../repositories/FirestoreDraftTransactionRepository";
+
 
 const transactionRepository =
   new FirestoreTransactionRepository();
@@ -16,6 +18,9 @@ export const transactionDI = {
 
   repository:
     transactionRepository,
+
+    draftRepository:
+  new FirestoreDraftTransactionRepository(),
 
   checkoutUseCase:
     new CheckoutUseCase(
