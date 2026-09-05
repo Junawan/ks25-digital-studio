@@ -320,7 +320,7 @@ export const dashboardProducts: DashboardProduct[] = [
   longDescription:
     "KS25 POS membantu mengelola transaksi penjualan, QRIS, stok, laporan penjualan, dan operasional toko secara modern.",
 
-  version: "Coming Soon",
+  version: "1.0.0",
 
   image: "/images/modules/pos2.png",
 
@@ -346,7 +346,7 @@ export const dashboardProducts: DashboardProduct[] = [
 
   faq: [],
 
-  status: "beta",
+  status: "stable",
 
 },
 
