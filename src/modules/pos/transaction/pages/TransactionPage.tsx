@@ -94,6 +94,7 @@ const company =
   changeAmount,
 
   resetTransaction,
+  loadDraft,
 } = useTransaction();
 
 function addBarcode(
@@ -468,6 +469,88 @@ async function loadDrafts() {
 
     setDraftsLoading(
       false
+    );
+
+  }
+
+}
+
+async function handleContinueDraft(
+  draft: DraftTransaction
+) {
+
+  try {
+
+    loadDraft(
+      draft
+    );
+
+    await draftTransactionDI
+      .repository
+      .delete(
+        draft.draftId
+      );
+
+    setDraftOpen(
+      false
+    );
+
+    toast.success(
+      "Transaksi berhasil dilanjutkan."
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      "Gagal melanjutkan transaksi."
+    );
+
+  }
+
+}
+
+async function handleDeleteDraft(
+  draft: DraftTransaction
+) {
+
+  const confirmed =
+    window.confirm(
+      "Yakin ingin menghapus transaksi tersimpan ini?"
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+
+    await draftTransactionDI
+      .repository
+      .delete(
+        draft.draftId
+      );
+
+    setDrafts(
+      (currentDrafts) =>
+        currentDrafts.filter(
+          (item) =>
+            item.draftId !==
+            draft.draftId
+        )
+    );
+
+    toast.success(
+      "Transaksi tersimpan berhasil dihapus."
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      "Gagal menghapus transaksi tersimpan."
     );
 
   }
@@ -905,22 +988,12 @@ loading={
   }
   drafts={drafts}
   loading={draftsLoading}
-  onContinue={(draft) => {
-
-    console.log(
-      "Continue draft:",
-      draft
-    );
-
-  }}
-  onDelete={(draft) => {
-
-    console.log(
-      "Delete draft:",
-      draft
-    );
-
-  }}
+  onContinue={
+    handleContinueDraft
+  }
+  onDelete={
+    handleDeleteDraft
+  }
 />
 
 {lastTransaction && (
