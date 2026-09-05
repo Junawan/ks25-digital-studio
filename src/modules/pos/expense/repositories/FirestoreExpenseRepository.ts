@@ -69,6 +69,29 @@ export class FirestoreExpenseRepository
     return expense;
   }
 
+  async getAll(
+  companyId: string
+): Promise<Expense[]> {
+  const snapshot = await getDocs(
+    query(
+      collection(
+        db,
+        this.collectionName
+      ),
+      where(
+        "companyId",
+        "==",
+        companyId
+      )
+    )
+  );
+
+  return snapshot.docs.map(
+    (doc) =>
+      doc.data() as Expense
+  );
+}
+
   async getByMonth(
     companyId: string,
     year: number,

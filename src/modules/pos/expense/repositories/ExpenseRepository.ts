@@ -9,6 +9,10 @@ export interface ExpenseRepository {
     input: CreateExpenseInput
   ): Promise<Expense>;
 
+  getAll(
+  companyId: string
+): Promise<Expense[]>;
+
   getByMonth(
     companyId: string,
     year: number,
