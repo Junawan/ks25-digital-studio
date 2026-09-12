@@ -23,6 +23,10 @@ interface CheckoutInput {
 
   discount: number;
 
+  dp: number;
+
+  keterangan: string;
+
   paidAmount: number;
 
   cart: CartItem[];
@@ -57,6 +61,17 @@ export class CheckoutUseCase {
       0,
       subtotal - input.discount
     );
+
+    const dp = Math.max(
+  0,
+  input.dp || 0
+);
+
+if (dp > total) {
+  throw new Error(
+    "DP tidak boleh lebih besar dari total transaksi."
+  );
+}
 
     if (
       input.paymentMethod === "cash" &&
@@ -134,6 +149,11 @@ if (!cashier) {
 
         discount:
           input.discount,
+
+          dp,
+
+keterangan:
+  input.keterangan || "",
 
         total,
 

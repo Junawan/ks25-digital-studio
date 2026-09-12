@@ -35,6 +35,10 @@ export interface Transaction {
 
   discount: number;
 
+  dp: number;
+
+  keterangan: string;
+
   total: number;
 
   paidAmount: number;

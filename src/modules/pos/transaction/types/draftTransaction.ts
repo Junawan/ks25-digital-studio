@@ -18,6 +18,10 @@ export interface DraftTransaction {
 
   discount: number;
 
+  dp: number;
+
+  keterangan: string;
+
   cart: CartItem[];
 
   createdAt: Date;

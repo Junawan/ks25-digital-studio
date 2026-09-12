@@ -21,6 +21,12 @@ export function useTransaction() {
   const [discount, setDiscount] =
     useState(0);
 
+    const [dp, setDp] =
+  useState(0);
+
+const [keterangan, setKeterangan] =
+  useState("");
+
   const [cashierId, setCashierId] =
     useState("");
 
@@ -266,6 +272,10 @@ function updatePrice(
 
   setDiscount(0);
 
+  setDp(0);
+
+  setKeterangan("");
+
   setCustomer("");
 
   setPaidAmount(0);
@@ -291,6 +301,10 @@ function createDraftData(
 
     discount,
 
+    dp,
+
+    keterangan,
+
     cart: [...cart],
 
     createdAt: new Date(),
@@ -310,6 +324,14 @@ function loadDraft(
 
   setDiscount(
     draft.discount
+  );
+
+  setDp(
+    draft.dp ?? 0
+  );
+
+  setKeterangan(
+    draft.keterangan ?? ""
   );
 
   setCustomer(
@@ -334,6 +356,10 @@ function loadDraft(
 
   discount,
 
+  dp,
+
+  keterangan,
+
   cashierId,
 
   customer,
@@ -357,6 +383,10 @@ function loadDraft(
   updatePrice,
 
   setDiscount,
+
+  setDp,
+
+  setKeterangan,
 
   setCashierId,
 

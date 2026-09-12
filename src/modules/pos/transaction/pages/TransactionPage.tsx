@@ -80,6 +80,12 @@ const company =
   discount,
   setDiscount,
 
+  dp,
+  setDp,
+
+  keterangan,
+  setKeterangan,
+
   cashierId,
   setCashierId,
 
@@ -400,6 +406,10 @@ async function handleSaveDraft() {
       paidAmount,
 
       discount,
+      
+      dp,
+
+      keterangan,
 
       cart,
 
@@ -591,6 +601,10 @@ async function handleCheckout() {
           paymentMethod,
 
           discount,
+
+          dp,
+
+keterangan,
 
           paidAmount,
 
