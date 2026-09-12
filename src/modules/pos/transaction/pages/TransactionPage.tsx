@@ -75,6 +75,7 @@ const company =
   increaseQty,
   decreaseQty,
   updateQty,
+    updatePrice,
 
   discount,
   setDiscount,
@@ -890,6 +891,9 @@ if (!company) {
   }
   onUpdateQty={
     updateQty
+  }
+  onUpdatePrice={
+    updatePrice
   }
 />
 

@@ -194,6 +194,38 @@ function updateQty(
   );
 }
 
+function updatePrice(
+  variantId: string,
+  price: number
+) {
+  const value = Math.max(
+    0,
+    Math.floor(price)
+  );
+
+  setCart((current) =>
+    current.map((item) => {
+
+      if (
+        item.variantId !==
+        variantId
+      ) {
+        return item;
+      }
+
+      return {
+        ...item,
+
+        price: value,
+
+        subtotal:
+          value * item.qty,
+      };
+
+    })
+  );
+}
+
   const summary =
     useMemo<TransactionSummary>(() => {
       const subtotal =
@@ -321,6 +353,8 @@ function loadDraft(
   decreaseQty,
 
   updateQty,
+
+  updatePrice,
 
   setDiscount,
 

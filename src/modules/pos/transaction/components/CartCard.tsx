@@ -25,6 +25,11 @@ interface Props {
     variantId: string,
     qty: number
   ) => void;
+
+  onUpdatePrice: (
+  variantId: string,
+  price: number
+) => void;
 }
 
 export default function CartCard({
@@ -33,6 +38,7 @@ export default function CartCard({
   onIncreaseQty,
   onDecreaseQty,
   onUpdateQty,
+  onUpdatePrice,
 }: Props) {
   return (
     <div
@@ -60,6 +66,9 @@ export default function CartCard({
               onUpdateQty={
                 onUpdateQty
               }
+              onUpdatePrice={
+    onUpdatePrice
+  }
             />
           ))}
         </div>
