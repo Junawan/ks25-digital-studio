@@ -919,11 +919,22 @@ if (!company) {
   companyId={company.id}
 
   discount={discount}
+  dp={dp}
+
+  keterangan={keterangan}
   cashierId={cashierId}
   customer={customer}
 
   onDiscountChange={
     setDiscount
+  }
+
+  onDpChange={
+    setDp
+  }
+
+  onKeteranganChange={
+    setKeterangan
   }
 
   onCashierChange={
