@@ -74,6 +74,13 @@ export default function TransactionHistoryPage() {
   ] = useState("");
 
   const [
+  statusFilter,
+  setStatusFilter,
+] = useState<
+  "all" | "paid" | "unpaid" | "cancelled"
+>("all");
+
+  const [
     settings,
     setSettings,
   ] = useState<
@@ -156,80 +163,84 @@ const [
    * 4. nama variant
    */
   const filteredTransactions =
-    useMemo(() => {
+  useMemo(() => {
 
-      const keyword =
-        search
-          .trim()
-          .toLowerCase();
+    const keyword =
+      search
+        .trim()
+        .toLowerCase();
 
-      return transactions.filter(
-        (transaction) => {
+    return transactions.filter(
+      (transaction) => {
 
-          const transactionDate =
-            getDateKey(
-              transaction.createdAt
-            );
-
-          /*
-           * Filter tanggal
-           */
-          if (
-            transactionDate !==
-            selectedDate
-          ) {
-            return false;
-          }
-
-          /*
-           * Tidak ada pencarian
-           */
-          if (!keyword) {
-            return true;
-          }
-
-          /*
-           * Cari invoice
-           *
-           * Contoh:
-           * KS25-260815-143305
-           *
-           * user bisa mengetik:
-           * 4305
-           * 1433
-           * KS25
-           */
-          const invoiceMatch =
-            transaction.invoiceNumber
-              ?.toLowerCase()
-              .includes(keyword);
-
-          /*
-           * Cari nama produk / variant
-           */
-          const productMatch =
-            transaction.items.some(
-              (item) =>
-                item.productName
-                  ?.toLowerCase()
-                  .includes(keyword) ||
-                item.variantName
-                  ?.toLowerCase()
-                  .includes(keyword)
-            );
-
-          return (
-            invoiceMatch ||
-            productMatch
+        const transactionDate =
+          getDateKey(
+            transaction.createdAt
           );
-        }
-      );
 
-    }, [
-      transactions,
-      selectedDate,
-      search,
-    ]);
+        /*
+         * Filter tanggal
+         */
+        if (
+          transactionDate !==
+          selectedDate
+        ) {
+          return false;
+        }
+
+        /*
+         * Filter status
+         */
+        if (
+          statusFilter !== "all" &&
+          transaction.status !==
+            statusFilter
+        ) {
+          return false;
+        }
+
+        /*
+         * Tidak ada pencarian
+         */
+        if (!keyword) {
+          return true;
+        }
+
+        /*
+         * Cari invoice
+         */
+        const invoiceMatch =
+          transaction.invoiceNumber
+            ?.toLowerCase()
+            .includes(keyword);
+
+        /*
+         * Cari nama produk / variant
+         */
+        const productMatch =
+          transaction.items.some(
+            (item) =>
+              item.productName
+                ?.toLowerCase()
+                .includes(keyword) ||
+              item.variantName
+                ?.toLowerCase()
+                .includes(keyword)
+          );
+
+        return (
+          invoiceMatch ||
+          productMatch
+        );
+      }
+    );
+
+  }, [
+    transactions,
+    selectedDate,
+    search,
+    statusFilter,
+  ]);
 
     function handleOpenSettlement(
   transaction: Transaction
@@ -483,7 +494,7 @@ async function handleSettlement(
 
         <CardContent className="pt-6">
 
-          <div className="grid gap-4 md:grid-cols-[1fr_220px_auto]">
+          <div className="grid gap-4 md:grid-cols-[1fr_180px_180px_auto]">
 
             {/* SEARCH */}
 
@@ -542,6 +553,44 @@ async function handleSettlement(
               />
 
             </div>
+
+            <select
+  value={statusFilter}
+  onChange={(event) =>
+    setStatusFilter(
+      event.target.value as
+        | "all"
+        | "paid"
+        | "unpaid"
+        | "cancelled"
+    )
+  }
+  className="
+    h-10
+    w-full
+    rounded-md
+    border
+    bg-background
+    px-3
+    text-sm
+  "
+>
+  <option value="all">
+    Semua Status
+  </option>
+
+  <option value="paid">
+    Lunas
+  </option>
+
+  <option value="unpaid">
+    Belum Lunas
+  </option>
+
+  <option value="cancelled">
+    Dibatalkan
+  </option>
+</select>
 
             {/* HARI INI */}
 
