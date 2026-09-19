@@ -1,6 +1,11 @@
 "use client";
 
-import { Printer, FileText, Trash2 } from "lucide-react";
+import {
+  Printer,
+  FileText,
+  Trash2,
+  CreditCard,
+} from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 
@@ -30,6 +35,10 @@ interface Props {
     transaction: Transaction
   ) => void | Promise<void>;
 
+  onSettlement: (
+    transaction: Transaction
+  ) => void | Promise<void>;
+
   printing?: boolean;
 }
 
@@ -38,6 +47,7 @@ export default function TransactionHistoryCard({
   onPrintReceipt,
   onPrintInvoice,
   onDelete,
+  onSettlement,
   printing = false,
 }: Props) {
   const totalQty =
@@ -167,49 +177,160 @@ export default function TransactionHistoryCard({
 
           <div className="w-full max-w-xs space-y-1 text-sm">
 
-            <div className="flex justify-between">
-              <span>
-                Subtotal
-              </span>
+  <div className="flex justify-between">
+    <span>
+      Subtotal
+    </span>
 
-              <span>
-                {formatCurrency(
-                  transaction.subtotal
-                )}
-              </span>
-            </div>
+    <span>
+      {formatCurrency(
+        transaction.subtotal
+      )}
+    </span>
+  </div>
 
-            <div className="flex justify-between">
-              <span>
-                Diskon
-              </span>
+  <div className="flex justify-between">
+    <span>
+      Diskon
+    </span>
 
-              <span>
-                {formatCurrency(
-                  transaction.discount
-                )}
-              </span>
-            </div>
+    <span>
+      {formatCurrency(
+        transaction.discount
+      )}
+    </span>
+  </div>
 
-            <div className="flex justify-between border-t pt-2 text-base font-bold">
-              <span>
-                TOTAL
-              </span>
+  <div className="flex justify-between border-t pt-2 text-base font-bold">
+    <span>
+      TOTAL
+    </span>
 
-              <span>
-                {formatCurrency(
-                  transaction.total
-                )}
-              </span>
-            </div>
+    <span>
+      {formatCurrency(
+        transaction.total
+      )}
+    </span>
+  </div>
 
-          </div>
+  {/* DP */}
+
+  {transaction.dp > 0 && (
+    <div className="flex justify-between pt-2">
+      <span>
+        DP
+      </span>
+
+      <span>
+        {formatCurrency(
+          transaction.dp
+        )}
+      </span>
+    </div>
+  )}
+
+  {/* Sudah Dibayar */}
+
+  {transaction.paidAmount > 0 && (
+    <div className="flex justify-between">
+      <span>
+        Sudah Dibayar
+      </span>
+
+      <span>
+        {formatCurrency(
+          transaction.paidAmount
+        )}
+      </span>
+    </div>
+  )}
+
+  {/* Sisa */}
+
+  {transaction.remainingAmount > 0 && (
+    <div className="flex justify-between font-semibold">
+      <span>
+        Sisa Pembayaran
+      </span>
+
+      <span>
+        {formatCurrency(
+          transaction.remainingAmount
+        )}
+      </span>
+    </div>
+  )}
+
+</div>
 
         </div>
+
+        {/* Status Pembayaran */}
+
+<div className="flex justify-end border-t pt-4">
+
+  {transaction.status === "unpaid" ? (
+
+    <div className="
+      rounded-md
+      border
+      px-4
+      py-2
+      text-sm
+      font-bold
+    ">
+      BELUM LUNAS
+    </div>
+
+  ) : transaction.status === "paid" ? (
+
+    <div className="
+      rounded-md
+      border
+      px-4
+      py-2
+      text-sm
+      font-bold
+    ">
+      LUNAS
+    </div>
+
+  ) : (
+
+    <div className="
+      rounded-md
+      border
+      px-4
+      py-2
+      text-sm
+      font-bold
+    ">
+      DIBATALKAN
+    </div>
+
+  )}
+
+</div>
 
         {/* Tombol */}
 
         <div className="flex flex-wrap justify-end gap-2 border-t pt-4">
+
+          {transaction.status === "unpaid" && (
+  <Button
+    type="button"
+    disabled={printing}
+    onClick={() =>
+      void onSettlement(
+        transaction
+      )
+    }
+  >
+    <CreditCard className="mr-2 h-4 w-4" />
+
+    Lunasi
+  </Button>
+)}
 
           <Button
   type="button"

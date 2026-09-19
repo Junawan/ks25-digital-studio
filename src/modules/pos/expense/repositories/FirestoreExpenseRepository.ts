@@ -19,7 +19,8 @@ import {
   UpdateExpenseInput,
 } from "../types/expense";
 
-import { ExpenseRepository } from "./ExpenseRepository";
+import { ExpenseRepository }
+from "./ExpenseRepository";
 
 export class FirestoreExpenseRepository
   implements ExpenseRepository
@@ -52,9 +53,14 @@ export class FirestoreExpenseRepository
       description:
         input.description ?? "",
 
-      createdAt: now,
+      date:
+        input.date,
 
-      updatedAt: now,
+      createdAt:
+        now,
+
+      updatedAt:
+        now,
     };
 
     await setDoc(
@@ -63,40 +69,118 @@ export class FirestoreExpenseRepository
         this.collectionName,
         expenseId
       ),
-      expense
+      {
+        ...expense,
+
+        date:
+          Timestamp.fromDate(
+            input.date
+          ),
+
+        createdAt:
+          Timestamp.fromDate(
+            now
+          ),
+
+        updatedAt:
+          Timestamp.fromDate(
+            now
+          ),
+      }
     );
 
     return expense;
   }
 
   async getAll(
-  companyId: string
-): Promise<Expense[]> {
-  const snapshot = await getDocs(
-    query(
-      collection(
-        db,
-        this.collectionName
-      ),
-      where(
-        "companyId",
-        "==",
-        companyId
-      )
-    )
-  );
+    companyId: string
+  ): Promise<Expense[]> {
 
-  return snapshot.docs.map(
-    (doc) =>
-      doc.data() as Expense
-  );
-}
+    const snapshot =
+      await getDocs(
+        query(
+          collection(
+            db,
+            this.collectionName
+          ),
+
+          where(
+            "companyId",
+            "==",
+            companyId
+          )
+        )
+      );
+
+    return snapshot.docs.map(
+      (document) => {
+
+        const data =
+          document.data();
+
+        const createdAt =
+          data.createdAt
+            ?.toDate?.() ??
+          new Date();
+
+        const date =
+          data.date
+            ?.toDate?.() ??
+          createdAt;
+
+        const updatedAt =
+          data.updatedAt
+            ?.toDate?.() ??
+          createdAt;
+
+        return {
+          ...data,
+
+          date,
+
+          createdAt,
+
+          updatedAt,
+
+        } as Expense;
+      }
+    );
+  }
 
   async getByMonth(
     companyId: string,
     year: number,
     month: number
   ): Promise<Expense[]> {
+
+    /*
+     * Untuk menjaga data lama yang belum
+     * mempunyai field "date", kita ambil
+     * seluruh pengeluaran perusahaan lalu
+     * menentukan tanggal transaksi di sini.
+     *
+     * Data baru:
+     *   date
+     *
+     * Data lama:
+     *   createdAt sebagai fallback
+     */
+
+    const snapshot =
+      await getDocs(
+        query(
+          collection(
+            db,
+            this.collectionName
+          ),
+
+          where(
+            "companyId",
+            "==",
+            companyId
+          )
+        )
+      );
 
     const startDate =
       new Date(
@@ -112,62 +196,53 @@ export class FirestoreExpenseRepository
         1
       );
 
-    const snapshot =
-      await getDocs(
-        query(
-          collection(
-            db,
-            this.collectionName
-          ),
-
-          where(
-            "companyId",
-            "==",
-            companyId
-          ),
-
-          where(
-            "createdAt",
-            ">=",
-            Timestamp.fromDate(
-              startDate
-            )
-          ),
-
-          where(
-            "createdAt",
-            "<",
-            Timestamp.fromDate(
-              endDate
-            )
-          ),
-
-          orderBy(
-            "createdAt",
-            "desc"
-          )
-        )
-      );
-
-    return snapshot.docs.map(
-      (document) => {
+    return snapshot.docs
+      .map((document) => {
 
         const data =
           document.data();
 
+        const createdAt =
+          data.createdAt
+            ?.toDate?.() ??
+          new Date();
+
+        const date =
+          data.date
+            ?.toDate?.() ??
+          createdAt;
+
+        const updatedAt =
+          data.updatedAt
+            ?.toDate?.() ??
+          createdAt;
+
         return {
           ...data,
 
-          createdAt:
-            data.createdAt?.toDate?.() ??
-            new Date(),
+          date,
 
-          updatedAt:
-            data.updatedAt?.toDate?.() ??
-            new Date(),
+          createdAt,
+
+          updatedAt,
+
         } as Expense;
-      }
-    );
+      })
+      .filter((expense) => {
+
+        return (
+          expense.date >=
+            startDate &&
+          expense.date <
+            endDate
+        );
+
+      })
+      .sort(
+        (a, b) =>
+          b.date.getTime() -
+          a.date.getTime()
+      );
   }
 
   async update(
@@ -191,8 +266,15 @@ export class FirestoreExpenseRepository
         description:
           input.description ?? "",
 
+        date:
+          Timestamp.fromDate(
+            input.date
+          ),
+
         updatedAt:
-          new Date(),
+          Timestamp.fromDate(
+            new Date()
+          ),
       }
     );
   }

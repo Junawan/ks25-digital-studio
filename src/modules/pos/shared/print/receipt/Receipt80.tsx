@@ -26,6 +26,7 @@ export default function Receipt80({
         font-mono
       "
     >
+      {/* HEADER */}
       <div className="text-center">
         <h2 className="text-lg font-bold">
           {company.name}
@@ -46,6 +47,7 @@ export default function Receipt80({
 
       <hr className="my-2" />
 
+      {/* INFO TRANSAKSI */}
       <div className="space-y-1">
 
         <div className="flex justify-between">
@@ -78,6 +80,7 @@ export default function Receipt80({
 
       <hr className="my-2" />
 
+      {/* ITEMS */}
       <div className="space-y-2">
 
         {transaction.items.map(
@@ -119,6 +122,7 @@ export default function Receipt80({
 
       <hr className="my-2" />
 
+      {/* PEMBAYARAN */}
       <div className="space-y-1">
 
         <div className="flex justify-between">
@@ -154,6 +158,20 @@ export default function Receipt80({
           </span>
         </div>
 
+        {/* DP */}
+        {transaction.dp > 0 && (
+          <div className="flex justify-between">
+            <span>DP</span>
+
+            <span>
+              Rp{" "}
+              {transaction.dp.toLocaleString(
+                "id-ID"
+              )}
+            </span>
+          </div>
+        )}
+
         <div className="flex justify-between">
           <span>Metode</span>
 
@@ -167,40 +185,97 @@ export default function Receipt80({
           </span>
         </div>
 
-        {transaction.paymentMethod ===
-          "cash" && (
-          <>
-            <div className="flex justify-between">
-              <span>Diterima</span>
+        {/* TOTAL PEMBAYARAN */}
+        <div className="flex justify-between">
+          <span>Sudah Dibayar</span>
 
-              <span>
-                Rp{" "}
-                {transaction.paidAmount.toLocaleString(
-                  "id-ID"
-                )}
-              </span>
-            </div>
+          <span>
+            Rp{" "}
+            {transaction.paidAmount.toLocaleString(
+              "id-ID"
+            )}
+          </span>
+        </div>
 
-            <div className="flex justify-between font-bold">
-              <span>Kembalian</span>
+        {/* SISA PEMBAYARAN */}
+        {transaction.remainingAmount > 0 && (
+          <div className="flex justify-between font-bold">
+            <span>Sisa</span>
 
-              <span>
-                Rp{" "}
-                {transaction.changeAmount.toLocaleString(
-                  "id-ID"
-                )}
-              </span>
-            </div>
-          </>
+            <span>
+              Rp{" "}
+              {transaction.remainingAmount.toLocaleString(
+                "id-ID"
+              )}
+            </span>
+          </div>
+        )}
+
+        {/* KEMBALIAN */}
+        {transaction.changeAmount > 0 && (
+          <div className="flex justify-between font-bold">
+            <span>Kembalian</span>
+
+            <span>
+              Rp{" "}
+              {transaction.changeAmount.toLocaleString(
+                "id-ID"
+              )}
+            </span>
+          </div>
         )}
 
       </div>
 
+      {/* STATUS */}
       <hr className="my-2" />
 
+      <div className="text-center">
+
+        {transaction.status === "unpaid" && (
+          <div className="text-sm font-bold">
+            *** BELUM LUNAS ***
+          </div>
+        )}
+
+        {transaction.status === "paid" && (
+          <div className="text-sm font-bold">
+            *** LUNAS ***
+          </div>
+        )}
+
+        {transaction.status === "cancelled" && (
+          <div className="text-sm font-bold">
+            *** DIBATALKAN ***
+          </div>
+        )}
+
+      </div>
+
+      {/* KETERANGAN */}
+      {transaction.keterangan && (
+        <>
+          <hr className="my-2" />
+
+          <div>
+            <div className="font-bold">
+              Keterangan:
+            </div>
+
+            <div className="whitespace-pre-line">
+              {transaction.keterangan}
+            </div>
+          </div>
+        </>
+      )}
+
+      <hr className="my-2" />
+
+      {/* FOOTER */}
       <div className="text-center whitespace-pre-line">
         {settings.receiptFooter}
       </div>
+
     </div>
   );
 }

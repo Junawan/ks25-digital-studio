@@ -58,6 +58,24 @@ export class FirestoreTransactionRepository
     return transaction;
   }
 
+  async update(
+  transaction: Transaction
+): Promise<Transaction> {
+  await setDoc(
+    doc(
+      db,
+      this.collectionName,
+      transaction.transactionId
+    ),
+    transaction,
+    {
+      merge: true,
+    }
+  );
+
+  return transaction;
+}
+
   async getAll(
   companyId: string
 ): Promise<Transaction[]> {

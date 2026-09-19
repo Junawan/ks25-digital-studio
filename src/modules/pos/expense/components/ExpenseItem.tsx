@@ -49,15 +49,15 @@ export default function ExpenseItem({
 
         <p className="text-xs text-muted-foreground">
 
-          {expense.createdAt
-            .toLocaleDateString(
-              "id-ID",
-              {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-              }
-            )}
+          {expense.date
+  .toLocaleDateString(
+    "id-ID",
+    {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }
+  )}
 
         </p>
 

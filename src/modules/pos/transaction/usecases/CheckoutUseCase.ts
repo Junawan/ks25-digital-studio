@@ -58,11 +58,11 @@ export class CheckoutUseCase {
       );
 
     const total = Math.max(
-      0,
-      subtotal - input.discount
-    );
+  0,
+  subtotal - input.discount
+);
 
-    const dp = Math.max(
+const dp = Math.max(
   0,
   input.dp || 0
 );
@@ -73,14 +73,31 @@ if (dp > total) {
   );
 }
 
-    if (
-      input.paymentMethod === "cash" &&
-      input.paidAmount < total
-    ) {
-      throw new Error(
-        "Uang diterima kurang."
-      );
-    }
+const paymentTarget =
+  dp > 0
+    ? dp
+    : total;
+
+if (
+  input.paidAmount < paymentTarget
+) {
+  throw new Error(
+    dp > 0
+      ? "Pembayaran DP masih kurang."
+      : "Uang diterima kurang."
+  );
+}
+
+const paymentAmount =
+  input.paymentMethod === "cash"
+    ? input.paidAmount
+    : paymentTarget;
+
+const remainingAmount =
+  Math.max(
+    0,
+    total - paymentAmount
+  );
 
     const cashier =
     await this.cashierRepository
@@ -158,19 +175,23 @@ keterangan:
         total,
 
         paidAmount:
-          input.paymentMethod ===
-          "cash"
-            ? input.paidAmount
-            : total,
+  paymentAmount,
 
-        changeAmount:
-          input.paymentMethod ===
-          "cash"
-            ? input.paidAmount -
-              total
-            : 0,
+remainingAmount,
 
-        status: "paid",
+changeAmount:
+  input.paymentMethod === "cash"
+    ? Math.max(
+        0,
+        input.paidAmount -
+          paymentTarget
+      )
+    : 0,
+
+status:
+  remainingAmount > 0
+    ? "unpaid"
+    : "paid",
 
         items,
 

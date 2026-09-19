@@ -14,18 +14,32 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { Expense } from "../types/expense";
 
 interface Props {
-
   expense?: Expense | null;
 
   loading?: boolean;
 
-  onSubmit: (
-    source: string,
-    amount: number,
-    description: string
-  ) => Promise<void>;
+  onSubmit: (input: {
+    source: string;
+    amount: number;
+    description: string;
+    date: Date;
+  }) => Promise<void>;
 
   onCancelEdit?: () => void;
+}
+
+function getDateInputValue(date: Date) {
+  const year = date.getFullYear();
+
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2, "0");
+
+  const day = String(
+    date.getDate()
+  ).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
 
 export default function ExpenseForm({
@@ -34,23 +48,50 @@ export default function ExpenseForm({
   onSubmit,
   onCancelEdit,
 }: Props) {
+  const [
+    source,
+    setSource,
+  ] = useState("");
 
-  const [source, setSource] =
-    useState("");
+  const [
+    amount,
+    setAmount,
+  ] = useState("");
 
-  const [amount, setAmount] =
-    useState("");
+  const [
+    description,
+    setDescription,
+  ] = useState("");
 
-  const [description, setDescription] =
-    useState("");
+  const [
+    date,
+    setDate,
+  ] = useState(
+    getDateInputValue(
+      new Date()
+    )
+  );
+
+  const [
+    error,
+    setError,
+  ] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
-
     if (!expense) {
-
       setSource("");
       setAmount("");
       setDescription("");
+
+      setDate(
+        getDateInputValue(
+          new Date()
+        )
+      );
+
+      setError(null);
 
       return;
     }
@@ -67,95 +108,165 @@ export default function ExpenseForm({
       expense.description ?? ""
     );
 
-  }, [
-    expense,
-  ]);
+    setDate(
+      getDateInputValue(
+        new Date(expense.date)
+      )
+    );
+
+    setError(null);
+  }, [expense]);
 
   async function handleSubmit(
-    e: React.FormEvent
+    event: React.FormEvent
   ) {
+    event.preventDefault();
 
-    e.preventDefault();
+    setError(null);
+
+    if (!source.trim()) {
+      setError(
+        "Sumber pengeluaran wajib diisi."
+      );
+
+      return;
+    }
 
     const numericAmount =
       Number(amount);
 
     if (
-      !source.trim()
-    ) {
-      return;
-    }
-
-    if (
+      !Number.isFinite(
+        numericAmount
+      ) ||
       numericAmount <= 0
     ) {
+      setError(
+        "Nominal pengeluaran harus lebih dari 0."
+      );
+
       return;
     }
 
-    await onSubmit(
-      source.trim(),
-      numericAmount,
-      description.trim()
-    );
+    if (!date) {
+      setError(
+        "Tanggal wajib diisi."
+      );
+
+      return;
+    }
+
+    const [
+      year,
+      month,
+      day,
+    ] = date.split("-");
+
+    const selectedDate =
+      new Date(
+        Number(year),
+        Number(month) - 1,
+        Number(day)
+      );
+
+    await onSubmit({
+      source:
+        source.trim(),
+
+      amount:
+        numericAmount,
+
+      description:
+        description.trim(),
+
+      date:
+        selectedDate,
+    });
 
     if (!expense) {
-
       setSource("");
       setAmount("");
       setDescription("");
 
+      setDate(
+        getDateInputValue(
+          new Date()
+        )
+      );
     }
   }
 
   return (
-
     <form
       onSubmit={handleSubmit}
       className="space-y-4"
     >
+      <div className="grid gap-4 md:grid-cols-3">
 
-      <div className="space-y-2">
+        {/* SUMBER */}
 
-        <label className="text-sm font-medium">
-          Sumber Pengeluaran
-        </label>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">
+            Sumber Pengeluaran
+          </label>
 
-        <Input
-          value={source}
-          onChange={(e) =>
-            setSource(
-              e.target.value
-            )
-          }
-          placeholder="Contoh: Belanja stok, listrik, transportasi"
-          disabled={loading}
-        />
+          <Input
+            value={source}
+            onChange={(event) =>
+              setSource(
+                event.target.value
+              )
+            }
+            placeholder="Contoh: Belanja stok, listrik, transportasi"
+            disabled={loading}
+          />
+        </div>
+
+        {/* NOMINAL */}
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">
+            Nominal
+          </label>
+
+          <Input
+            type="number"
+            min="0"
+            value={amount}
+            onChange={(event) =>
+              setAmount(
+                event.target.value
+              )
+            }
+            placeholder="0"
+            disabled={loading}
+          />
+        </div>
+
+        {/* TANGGAL */}
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">
+            Tanggal
+          </label>
+
+          <Input
+            type="date"
+            value={date}
+            onChange={(event) =>
+              setDate(
+                event.target.value
+              )
+            }
+            disabled={loading}
+          />
+        </div>
 
       </div>
 
-      <div className="space-y-2">
-
-        <label className="text-sm font-medium">
-          Nominal
-        </label>
-
-        <Input
-          type="number"
-          min="0"
-          value={amount}
-          onChange={(e) =>
-            setAmount(
-              e.target.value
-            )
-          }
-          placeholder="Masukkan nominal"
-          disabled={loading}
-        />
-
-      </div>
+      {/* KETERANGAN */}
 
       <div className="space-y-2">
-
         <label className="text-sm font-medium">
           Keterangan
           <span className="ml-1 text-muted-foreground">
@@ -165,16 +276,25 @@ export default function ExpenseForm({
 
         <Textarea
           value={description}
-          onChange={(e) =>
+          onChange={(event) =>
             setDescription(
-              e.target.value
+              event.target.value
             )
           }
           placeholder="Tambahkan keterangan jika diperlukan"
           disabled={loading}
         />
-
       </div>
+
+      {/* ERROR */}
+
+      {error && (
+        <p className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
+
+      {/* BUTTON */}
 
       <div className="flex gap-2">
 
@@ -203,7 +323,6 @@ export default function ExpenseForm({
         )}
 
       </div>
-
     </form>
   );
 }

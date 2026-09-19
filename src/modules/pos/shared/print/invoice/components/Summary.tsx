@@ -14,11 +14,11 @@ export default function Summary({
   );
 
   return (
-    <div className="mt-8 flex justify-between">
+    <div className="mt-8 flex justify-between gap-10">
 
-      {/* Total Qty */}
+      {/* TOTAL QTY + STATUS */}
 
-      <div className="flex items-start">
+      <div className="flex flex-col items-start gap-4">
 
         <div className="rounded-lg border bg-slate-50 px-5 py-3">
 
@@ -32,15 +32,73 @@ export default function Summary({
 
         </div>
 
+        {/* STATUS */}
+
+        <div
+          className={`
+            rounded-lg
+            border
+            px-5
+            py-3
+            text-center
+            font-bold
+            ${
+              transaction.status === "unpaid"
+                ? "border-slate-300 bg-slate-50"
+                : transaction.status === "paid"
+                ? "border-slate-300 bg-slate-50"
+                : "border-slate-300 bg-slate-50"
+            }
+          `}
+        >
+          {transaction.status === "unpaid" && (
+            <>
+              <div className="text-xs">
+                STATUS PEMBAYARAN
+              </div>
+
+              <div className="mt-1 text-lg">
+                BELUM LUNAS
+              </div>
+            </>
+          )}
+
+          {transaction.status === "paid" && (
+            <>
+              <div className="text-xs">
+                STATUS PEMBAYARAN
+              </div>
+
+              <div className="mt-1 text-lg">
+                LUNAS
+              </div>
+            </>
+          )}
+
+          {transaction.status === "cancelled" && (
+            <>
+              <div className="text-xs">
+                STATUS TRANSAKSI
+              </div>
+
+              <div className="mt-1 text-lg">
+                DIBATALKAN
+              </div>
+            </>
+          )}
+        </div>
+
       </div>
 
-      {/* Ringkasan */}
+      {/* RINGKASAN */}
 
       <div className="w-[340px]">
 
         <table className="w-full text-sm">
 
           <tbody>
+
+            {/* SUBTOTAL */}
 
             <tr>
               <td className="py-1">
@@ -53,6 +111,8 @@ export default function Summary({
                 )}
               </td>
             </tr>
+
+            {/* DISKON */}
 
             <tr>
               <td className="py-1">
@@ -75,6 +135,8 @@ export default function Summary({
               </td>
             </tr>
 
+            {/* GRAND TOTAL */}
+
             <tr>
 
               <td className="pt-2 text-lg font-bold">
@@ -89,9 +151,87 @@ export default function Summary({
 
             </tr>
 
+            {/* DP */}
+
+            {transaction.dp > 0 && (
+              <tr>
+                <td className="pt-3">
+                  DP
+                </td>
+
+                <td className="pt-3 text-right">
+                  {formatCurrency(
+                    transaction.dp
+                  )}
+                </td>
+              </tr>
+            )}
+
+            {/* SUDAH DIBAYAR */}
+
+            <tr>
+              <td className="pt-1 font-medium">
+                Sudah Dibayar
+              </td>
+
+              <td className="pt-1 text-right font-medium">
+                {formatCurrency(
+                  transaction.paidAmount
+                )}
+              </td>
+            </tr>
+
+            {/* SISA PEMBAYARAN */}
+
+            {transaction.remainingAmount > 0 && (
+              <tr>
+                <td className="pt-1 font-bold">
+                  Sisa Pembayaran
+                </td>
+
+                <td className="pt-1 text-right font-bold">
+                  {formatCurrency(
+                    transaction.remainingAmount
+                  )}
+                </td>
+              </tr>
+            )}
+
+            {/* KEMBALIAN */}
+
+            {transaction.changeAmount > 0 && (
+              <tr>
+                <td className="pt-1 font-bold">
+                  Kembalian
+                </td>
+
+                <td className="pt-1 text-right font-bold">
+                  {formatCurrency(
+                    transaction.changeAmount
+                  )}
+                </td>
+              </tr>
+            )}
+
           </tbody>
 
         </table>
+
+        {/* KETERANGAN */}
+
+        {transaction.keterangan && (
+          <div className="mt-5 rounded-md border px-4 py-3">
+
+            <div className="text-xs font-bold uppercase">
+              Keterangan
+            </div>
+
+            <div className="mt-1 whitespace-pre-line text-sm">
+              {transaction.keterangan}
+            </div>
+
+          </div>
+        )}
 
       </div>
 

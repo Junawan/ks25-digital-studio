@@ -130,63 +130,53 @@ export default function ExpensePage() {
     month,
   });
 
-  async function handleSubmit(
-    source: string,
-    amount: number,
-    description: string
-  ) {
+  async function handleSubmit(input: {
+  source: string;
+  amount: number;
+  description: string;
+  date: Date;
+}) {
+  try {
+    setSaving(true);
 
-    try {
-
-      setSaving(true);
-
-      if (editingExpense) {
-
-        await updateExpense(
-          editingExpense.expenseId,
-          source,
-          amount,
-          description
-        );
-
-        toast.success(
-          "Pengeluaran berhasil diperbarui."
-        );
-
-        setEditingExpense(
-          null
-        );
-
-      } else {
-
-        await createExpense(
-          source,
-          amount,
-          description
-        );
-
-        toast.success(
-          "Pengeluaran berhasil ditambahkan."
-        );
-
-      }
-
-    } catch (error) {
-
-      console.error(error);
-
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Gagal menyimpan pengeluaran."
+    if (editingExpense) {
+      await updateExpense(
+        editingExpense.expenseId,
+        input.source,
+        input.amount,
+        input.description,
+        input.date
       );
 
-    } finally {
+      toast.success(
+        "Pengeluaran berhasil diperbarui."
+      );
 
-      setSaving(false);
+      setEditingExpense(null);
+    } else {
+      await createExpense(
+        input.source,
+        input.amount,
+        input.description,
+        input.date
+      );
 
+      toast.success(
+        "Pengeluaran berhasil ditambahkan."
+      );
     }
+  } catch (error) {
+    console.error(error);
+
+    toast.error(
+      error instanceof Error
+        ? error.message
+        : "Gagal menyimpan pengeluaran."
+    );
+  } finally {
+    setSaving(false);
   }
+}
 
   function handleEdit(
     expense: Expense

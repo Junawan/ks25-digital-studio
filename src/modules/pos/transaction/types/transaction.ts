@@ -43,9 +43,12 @@ export interface Transaction {
 
   paidAmount: number;
 
+  remainingAmount: number;
+
   changeAmount: number;
 
   status:
+   | "unpaid"
   | "paid"
   | "cancelled";
 

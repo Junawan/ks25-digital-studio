@@ -33,6 +33,17 @@ export class CreateExpenseUseCase {
       );
     }
 
+    if (
+      !(input.date instanceof Date) ||
+      Number.isNaN(
+        input.date.getTime()
+      )
+    ) {
+      throw new Error(
+        "Tanggal pengeluaran wajib diisi."
+      );
+    }
+
     return this.repository.create(
       input
     );

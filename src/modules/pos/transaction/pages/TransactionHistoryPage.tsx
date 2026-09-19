@@ -37,10 +37,16 @@ import TransactionHistoryCard
 import { useTransactions }
   from "../hooks/useTransactions";
 
-import { Transaction }
-  from "../types/transaction";
+  import SettlementDialog
+  from "../components/SettlementDialog";
+
+import {
+  PaymentMethod,
+  Transaction,
+} from "../types/transaction";
 import { printReceipt } from "../../shared/print/printerReceipt";
 import { printInvoice } from "../../shared/print/printInvoice";
+import { transactionDI } from "../di/transaction";
 
 export default function TransactionHistoryPage() {
 
@@ -82,6 +88,24 @@ export default function TransactionHistoryPage() {
     printingId,
     setPrintingId,
   ] = useState<string | null>(null);
+
+  const [
+  settlementOpen,
+  setSettlementOpen,
+] = useState(false);
+
+const [
+  selectedTransaction,
+  setSelectedTransaction,
+] =
+  useState<Transaction | null>(
+    null
+  );
+
+const [
+  settlementLoading,
+  setSettlementLoading,
+] = useState(false);
 
   /*
    * Load POS Settings
@@ -206,6 +230,85 @@ export default function TransactionHistoryPage() {
       selectedDate,
       search,
     ]);
+
+    function handleOpenSettlement(
+  transaction: Transaction
+) {
+  if (
+    transaction.status !==
+    "unpaid"
+  ) {
+    toast.error(
+      "Transaksi ini sudah lunas."
+    );
+
+    return;
+  }
+
+  setSelectedTransaction(
+    transaction
+  );
+
+  setSettlementOpen(true);
+}
+
+async function handleSettlement(
+  paymentMethod: PaymentMethod,
+  paidAmount: number
+) {
+  if (!selectedTransaction) {
+    return;
+  }
+
+  try {
+
+    setSettlementLoading(
+      true
+    );
+
+    await transactionDI
+      .settleTransactionUseCase
+      .execute({
+
+        transactionId:
+          selectedTransaction.transactionId,
+
+        paymentMethod,
+
+        paidAmount,
+
+      });
+
+    toast.success(
+      "Transaksi berhasil dilunasi."
+    );
+
+    setSettlementOpen(false);
+
+    setSelectedTransaction(
+      null
+    );
+
+    await reload();
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      error instanceof Error
+        ? error.message
+        : "Gagal melunasi transaksi."
+    );
+
+  } finally {
+
+    setSettlementLoading(
+      false
+    );
+
+  }
+}
 
   /*
    * Cetak struk
@@ -583,6 +686,10 @@ export default function TransactionHistoryPage() {
                     handleDelete
                   }
 
+                  onSettlement={
+    handleOpenSettlement
+  }
+
                   printing={
                     printingId ===
                     transaction.transactionId
@@ -591,6 +698,28 @@ export default function TransactionHistoryPage() {
 
               )
             )}
+
+            <SettlementDialog
+  open={
+    settlementOpen
+  }
+
+  onOpenChange={
+    setSettlementOpen
+  }
+
+  transaction={
+    selectedTransaction
+  }
+
+  onConfirm={
+    handleSettlement
+  }
+
+  loading={
+    settlementLoading
+  }
+/>
 
           </div>
         )}

@@ -54,6 +54,7 @@ import type { DraftTransaction }
 from "../types/draftTransaction";
 import DraftTransactionDialog
 from "../components/DraftTransactionDialog";
+import { PosSettings } from "@/modules/pos/settings/types/PosSettings";
 
 export default function TransactionPage() {
 
@@ -161,6 +162,9 @@ const [
   paymentOpen,
   setPaymentOpen,
 ] = useState(false);
+
+const [posSettings, setPosSettings] =
+  useState<PosSettings | null>(null);
 
 const [
   draftOpen,
@@ -749,6 +753,26 @@ console.log(
 ]);
 
 useEffect(() => {
+  async function loadPosSettings() {
+    if (!company?.id) return;
+
+    try {
+      const settings =
+        await getPosSettingsUseCase.execute(company.id);
+
+      setPosSettings(settings);
+    } catch (error) {
+      console.error(
+        "Gagal memuat pengaturan POS:",
+        error
+      );
+    }
+  }
+
+  void loadPosSettings();
+}, [company?.id]);
+
+useEffect(() => {
 
     usbScanner.start(
         addBarcode
@@ -981,33 +1005,44 @@ if (!company) {
   onOpenChange={
     setPaymentOpen
   }
-  total={summary.total}
+
+  total={
+    dp > 0
+      ? dp
+      : summary.total
+  }
+
+  dp={dp}
+
   paymentMethod={
     paymentMethod
   }
+
   paidAmount={
     paidAmount
   }
+
   changeAmount={
     changeAmount
   }
-  staticQrisUrl={
-    undefined
-  }
+
+  staticQrisUrl={posSettings?.qrisImageUrl ?? undefined}
+
   onPaymentMethodChange={
     setPaymentMethod
   }
+
   onPaidAmountChange={
     setPaidAmount
   }
 
-    onConfirm={
+  onConfirm={
     handleCheckout
-}
+  }
 
-loading={
-        checkoutLoading
-}
+  loading={
+    checkoutLoading
+  }
 />
 
 <DraftTransactionDialog

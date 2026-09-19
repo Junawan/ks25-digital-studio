@@ -9,6 +9,8 @@ export interface Expense {
 
   description: string;
 
+  date: Date;
+
   createdAt: Date;
 
   updatedAt: Date;
@@ -22,6 +24,8 @@ export interface CreateExpenseInput {
   amount: number;
 
   description?: string;
+
+  date: Date;
 }
 
 export interface UpdateExpenseInput {
@@ -30,4 +34,6 @@ export interface UpdateExpenseInput {
   amount: number;
 
   description?: string;
+
+  date: Date;
 }

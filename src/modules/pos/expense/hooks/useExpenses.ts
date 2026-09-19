@@ -23,7 +23,6 @@ export function useExpenses({
   year,
   month,
 }: UseExpensesParams) {
-
   const [expenses, setExpenses] =
     useState<Expense[]>([]);
 
@@ -32,15 +31,14 @@ export function useExpenses({
 
   const loadExpenses =
     useCallback(async () => {
-
       if (!companyId) {
         setExpenses([]);
         setLoading(false);
+
         return;
       }
 
       try {
-
         setLoading(true);
 
         const data =
@@ -53,13 +51,9 @@ export function useExpenses({
             );
 
         setExpenses(data);
-
       } finally {
-
         setLoading(false);
-
       }
-
     }, [
       companyId,
       year,
@@ -67,9 +61,7 @@ export function useExpenses({
     ]);
 
   useEffect(() => {
-
     loadExpenses();
-
   }, [
     loadExpenses,
   ]);
@@ -77,9 +69,9 @@ export function useExpenses({
   async function createExpense(
     source: string,
     amount: number,
-    description?: string
+    description: string,
+    date: Date
   ) {
-
     if (!companyId) {
       return;
     }
@@ -89,9 +81,14 @@ export function useExpenses({
         .createExpenseUseCase
         .execute({
           companyId,
+
           source,
+
           amount,
+
           description,
+
+          date,
         });
 
     setExpenses((current) => [
@@ -106,30 +103,40 @@ export function useExpenses({
     expenseId: string,
     source: string,
     amount: number,
-    description?: string
+    description: string,
+    date: Date
   ) {
-
     await expenseDI
       .updateExpenseUseCase
       .execute(
         expenseId,
         {
           source,
+
           amount,
+
           description,
+
+          date,
         }
       );
 
     setExpenses((current) =>
       current.map(
         (expense) =>
-          expense.expenseId === expenseId
+          expense.expenseId ===
+          expenseId
             ? {
                 ...expense,
+
                 source,
+
                 amount,
-                description:
-                  description ?? "",
+
+                description,
+
+                date,
+
                 updatedAt:
                   new Date(),
               }
@@ -141,7 +148,6 @@ export function useExpenses({
   async function deleteExpense(
     expenseId: string
   ) {
-
     await expenseDI
       .deleteExpenseUseCase
       .execute(
@@ -169,7 +175,6 @@ export function useExpenses({
     );
 
   return {
-
     expenses,
 
     loading,
@@ -184,6 +189,5 @@ export function useExpenses({
 
     reload:
       loadExpenses,
-
   };
 }

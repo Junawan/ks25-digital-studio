@@ -5,6 +5,10 @@ export interface TransactionRepository {
     transaction: Transaction
   ): Promise<Transaction>;
 
+  update(
+    transaction: Transaction
+  ): Promise<Transaction>;
+
   getAll(
     companyId: string
   ): Promise<Transaction[]>;

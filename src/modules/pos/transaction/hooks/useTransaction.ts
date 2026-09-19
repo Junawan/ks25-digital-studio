@@ -260,12 +260,16 @@ function updatePrice(
       discount,
     ]);
 
-  const changeAmount =
-    Math.max(
-      0,
-      paidAmount -
-        summary.total
-    );
+  const paymentTarget =
+  dp > 0
+    ? dp
+    : summary.total;
+
+const changeAmount =
+  Math.max(
+    0,
+    paidAmount - paymentTarget
+  );
 
     function resetTransaction() {
   setCart([]);

@@ -1,7 +1,10 @@
-import { UpdateExpenseInput }
-from "../types/expense";
+import {
+  UpdateExpenseInput
+} from "../types/expense";
 
-import { ExpenseRepository }
+import {
+  ExpenseRepository
+}
 from "../repositories/ExpenseRepository";
 
 export class UpdateExpenseUseCase {
@@ -29,6 +32,17 @@ export class UpdateExpenseUseCase {
     ) {
       throw new Error(
         "Nominal pengeluaran harus lebih dari 0."
+      );
+    }
+
+    if (
+      !(input.date instanceof Date) ||
+      Number.isNaN(
+        input.date.getTime()
+      )
+    ) {
+      throw new Error(
+        "Tanggal pengeluaran wajib diisi."
       );
     }
 

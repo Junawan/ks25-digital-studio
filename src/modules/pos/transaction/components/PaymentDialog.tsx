@@ -24,6 +24,8 @@ interface Props {
 
   total: number;
 
+  dp: number;
+
   paymentMethod: PaymentMethod;
 
   paidAmount: number;
@@ -49,6 +51,7 @@ export default function PaymentDialog({
   open,
   onOpenChange,
   total,
+  dp,
   paymentMethod,
   paidAmount,
   changeAmount,
@@ -77,8 +80,10 @@ export default function PaymentDialog({
         <div className="space-y-4">
           <div className="rounded-lg border bg-muted p-4 text-center">
             <p className="text-sm text-muted-foreground">
-              Total Pembayaran
-            </p>
+  {dp > 0
+    ? "Pembayaran DP"
+    : "Total Pembayaran"}
+</p>
 
             <p className="mt-1 text-3xl font-bold">
               Rp{" "}
@@ -135,8 +140,10 @@ export default function PaymentDialog({
             "cash" && (
             <div className="space-y-3">
               <label className="text-sm font-medium">
-                Uang Diterima
-              </label>
+  {dp > 0
+    ? "Uang DP Diterima"
+    : "Uang Diterima"}
+</label>
 
               <input
                 type="number"
