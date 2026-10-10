@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { onSnapshot, query, where, collection, doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { onSnapshot, query, where, collection, doc, updateDoc, deleteDoc, writeBatch, serverTimestamp } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
-import { Clipboard, ExternalLink, QrCode } from "lucide-react";
+import { Clipboard, ExternalLink, QrCode, Trash2 } from "lucide-react";
 import { db } from "@/core/firebase";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 import PageHeader from "@/modules/pos/shared/components/PageHeader";
@@ -81,6 +81,35 @@ export default function QrOrderManagementPage() {
     }
   }
 
+  async function deleteCompletedOrder(order: QrOrder) {
+    if (!window.confirm(`Hapus catatan pesanan selesai ${order.orderNumber}? Riwayat transaksi kasir tidak akan dihapus.`)) return;
+    try {
+      await deleteDoc(doc(db, "pos_qr_orders", order.orderId));
+      toast.success(`Catatan pesanan ${order.orderNumber} dihapus.`);
+    } catch (error) {
+      console.error("Gagal menghapus pesanan QR:", error);
+      toast.error("Catatan pesanan gagal dihapus.");
+    }
+  }
+
+  async function deleteAllCompletedOrders() {
+    if (!completedOrders.length) return;
+    if (!window.confirm(`Hapus semua ${completedOrders.length} catatan pesanan selesai? Riwayat transaksi kasir tetap tersimpan.`)) return;
+    try {
+      for (let index = 0; index < completedOrders.length; index += 500) {
+        const batch = writeBatch(db);
+        completedOrders.slice(index, index + 500).forEach((order) => {
+          batch.delete(doc(db, "pos_qr_orders", order.orderId));
+        });
+        await batch.commit();
+      }
+      toast.success(`${completedOrders.length} catatan pesanan selesai dihapus.`);
+    } catch (error) {
+      console.error("Gagal menghapus semua pesanan QR selesai:", error);
+      toast.error("Sebagian catatan mungkin sudah terhapus. Muat ulang halaman dan coba lagi.");
+    }
+  }
+
   if (!company) return null;
 
   const incomingOrders = orders.filter((order) => order.status === "pending");
@@ -95,14 +124,14 @@ export default function QrOrderManagementPage() {
         <div className="space-y-1 border-y py-3 text-sm">{order.items.map((item) => <div key={`${item.productId}:${item.variantId}`} className="flex justify-between gap-3"><span>{item.productName} — {item.variantName} × {item.qty}</span><span className="shrink-0">Rp {item.subtotal.toLocaleString("id-ID")}</span></div>)}</div>
         {stage === "incoming" && <div className="grid grid-cols-2 gap-2"><Button onClick={() => { void continueToPayment(order); }}>Lanjut pembayaran</Button><Button variant="outline" onClick={() => { void cancelOrder(order); }}>Tutup pesanan</Button></div>}
         {stage === "preparing" && <Button className="w-full" onClick={() => { void completeOrder(order); }}>Tandai selesai</Button>}
-        {stage === "completed" && <p className="text-sm font-medium text-green-700 dark:text-green-400">Pesanan selesai</p>}
+        {stage === "completed" && <div className="flex items-center justify-between gap-3"><p className="text-sm font-medium text-green-700 dark:text-green-400">Pesanan selesai</p><Button type="button" size="sm" variant="outline" onClick={() => { void deleteCompletedOrder(order); }}><Trash2 className="mr-2 h-4 w-4" />Hapus</Button></div>}
       </CardContent>
     </Card>;
   }
 
   function renderOrderSection(title: string, emptyText: string, sectionOrders: QrOrder[], stage: "incoming" | "preparing" | "completed") {
     return <section className="space-y-3">
-      <div className="flex items-center justify-between"><h2 className="text-lg font-semibold">{title}</h2><span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium">{sectionOrders.length}</span></div>
+      <div className="flex items-center justify-between gap-3"><h2 className="text-lg font-semibold">{title}</h2><div className="flex items-center gap-2"><span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium">{sectionOrders.length}</span>{stage === "completed" && <Button type="button" size="sm" variant="outline" onClick={() => { void deleteAllCompletedOrders(); }} disabled={!sectionOrders.length}><Trash2 className="mr-2 h-4 w-4" />Hapus semua</Button>}</div></div>
       {loading ? <Card className="p-6 text-center text-sm text-muted-foreground">Memuat pesanan...</Card> : sectionOrders.length ? sectionOrders.map((order) => renderOrder(order, stage)) : <Card className="p-6 text-center text-sm text-muted-foreground">{emptyText}</Card>}
     </section>;
   }
