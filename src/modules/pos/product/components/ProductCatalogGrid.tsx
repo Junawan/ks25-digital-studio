@@ -12,11 +12,13 @@ import EmptyState from "@/modules/pos/shared/components/EmptyState";
 interface Props {
   products: Product[];
   onAdd: (product: Product) => void;
-  onEdit: (product: Product) => void;
-  onDelete: (product: Product) => void;
+  onEdit?: (product: Product) => void;
+  onDelete?: (product: Product) => void;
+  showVariantDetails?: boolean;
+  showStock?: boolean;
 }
 
-export default function ProductCatalogGrid({ products, onAdd, onEdit, onDelete }: Props) {
+export default function ProductCatalogGrid({ products, onAdd, onEdit, onDelete, showVariantDetails = true, showStock = true }: Props) {
   if (!products.length) {
     return <EmptyState title="Belum ada produk" description="Silakan tambahkan produk atau ubah kata kunci pencarian." />;
   }
@@ -40,31 +42,31 @@ export default function ProductCatalogGrid({ products, onAdd, onEdit, onDelete }
             <div className="space-y-3 p-4">
               <div className="min-h-16">
                 <h2 className="line-clamp-2 font-semibold leading-snug" title={product.name}>{product.name}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{product.variants.length} varian{product.active ? "" : " · Nonaktif"}</p>
+                {showVariantDetails && <p className="mt-1 text-sm text-muted-foreground">{product.variants.length} varian{product.active ? "" : " · Nonaktif"}</p>}
               </div>
               <div className="space-y-2">
                 <div className="font-semibold">
                   {prices.length ? (minPrice === maxPrice ? <Currency value={minPrice} /> : <><Currency value={minPrice} /> – <Currency value={maxPrice} /></>) : "Harga belum diatur"}
                 </div>
-                <div className="flex items-center justify-between gap-2 text-sm">
+                {showStock && <div className="flex items-center justify-between gap-2 text-sm">
                   <span className="text-muted-foreground">Stok total</span>
                   <StockBadge stock={totalStock} />
-                </div>
-                <div className="space-y-1 border-t pt-2">
+                </div>}
+                {showVariantDetails && <div className="space-y-1 border-t pt-2">
                   {product.variants.map((variant) => (
                     <div key={variant.variantId} className="flex items-start justify-between gap-2 text-xs">
                       <span className="min-w-0 truncate">{variant.name}</span>
                       <span className="shrink-0 font-medium"><Currency value={variant.price} /> · Stok {variant.stock}</span>
                     </div>
                   ))}
-                </div>
+                </div>}
               </div>
-              <div className="grid grid-cols-[1fr_auto_auto] gap-2 border-t pt-3">
-                <Button onClick={() => onAdd(product)} disabled={!product.active || !product.variants.some((variant) => variant.active)}>
-                  <ShoppingCart className="mr-2 h-4 w-4" />Tambah
+              <div className={`grid gap-2 border-t pt-3 ${onEdit || onDelete ? "grid-cols-[1fr_auto_auto]" : "grid-cols-1"}`}>
+                <Button className="w-full" onClick={() => onAdd(product)} disabled={!product.active || !product.variants.some((variant) => variant.active)}>
+                  <ShoppingCart className="mr-2 h-4 w-4" />{showVariantDetails ? "Tambah" : "Pilih varian"}
                 </Button>
-                <Button variant="outline" size="icon" aria-label={`Edit ${product.name}`} onClick={() => onEdit(product)}><Pencil className="h-4 w-4" /></Button>
-                <Button variant="outline" size="icon" aria-label={`Hapus ${product.name}`} onClick={() => onDelete(product)}><Trash2 className="h-4 w-4" /></Button>
+                {onEdit && <Button variant="outline" size="icon" aria-label={`Edit ${product.name}`} onClick={() => onEdit(product)}><Pencil className="h-4 w-4" /></Button>}
+                {onDelete && <Button variant="outline" size="icon" aria-label={`Hapus ${product.name}`} onClick={() => onDelete(product)}><Trash2 className="h-4 w-4" /></Button>}
               </div>
             </div>
           </Card>
