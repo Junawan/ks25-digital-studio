@@ -41,6 +41,25 @@ function getApiError(data: Record<string, unknown>, fallback: string) {
   return typeof data.error === "string" ? data.error : fallback;
 }
 
+function isMenuData(data: Record<string, unknown>): data is Record<string, unknown> & MenuData {
+  if (typeof data.companyName !== "string" || !Array.isArray(data.products)) return false;
+  return data.products.every((product: unknown) => {
+    if (!product || typeof product !== "object") return false;
+    const candidate = product as Record<string, unknown>;
+    return typeof candidate.productId === "string"
+      && typeof candidate.name === "string"
+      && typeof candidate.imageUrl === "string"
+      && Array.isArray(candidate.variants)
+      && candidate.variants.every((variant: unknown) => {
+        if (!variant || typeof variant !== "object") return false;
+        const item = variant as Record<string, unknown>;
+        return typeof item.variantId === "string"
+          && typeof item.name === "string"
+          && typeof item.price === "number";
+      });
+  });
+}
+
 export default function CustomerQrOrderPage({ companyId }: { companyId: string }) {
   const [menu, setMenu] = useState<MenuData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -63,7 +82,8 @@ export default function CustomerQrOrderPage({ companyId }: { companyId: string }
       .then(async (response) => {
         const data = await readApiJson(response, "menu QR");
         if (!response.ok) throw new Error(getApiError(data, `Menu gagal dimuat (HTTP ${response.status}).`));
-        setMenu(data as MenuData);
+        if (!isMenuData(data)) throw new Error("Format data menu dari server tidak sesuai.");
+        setMenu(data);
       })
       .catch((error: unknown) => {
         if (error instanceof Error && error.name !== "AbortError") setMenuError(error.message);
@@ -107,6 +127,9 @@ export default function CustomerQrOrderPage({ companyId }: { companyId: string }
       });
       const data = await readApiJson(response, "pesanan QR");
       if (!response.ok) throw new Error(getApiError(data, `Pesanan gagal dikirim (HTTP ${response.status}).`));
+      if (typeof data.orderNumber !== "string" || typeof data.total !== "number") {
+        throw new Error("Format konfirmasi pesanan dari server tidak sesuai.");
+      }
       setOrderResult({ orderNumber: data.orderNumber, total: data.total });
       setCart([]);
       setCartOpen(false);
