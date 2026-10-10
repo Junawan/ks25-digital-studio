@@ -14,6 +14,20 @@ interface MenuProduct { productId: string; name: string; imageUrl: string; varia
 interface MenuData { companyName: string; products: MenuProduct[] }
 interface CartEntry extends MenuVariant { productId: string; productName: string; quantity: number }
 
+async function readApiJson(response: Response, endpointName: string) {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!contentType.includes("application/json")) {
+    if (response.redirected) {
+      throw new Error(`Permintaan ${endpointName} dialihkan ke halaman lain. Pastikan halaman menu QR dan API publik tidak dibatasi login/proteksi deployment.`);
+    }
+    if (response.status === 404) {
+      throw new Error(`Endpoint ${endpointName} tidak ditemukan (404). Deploy versi terbaru aplikasi agar route API Order by QR tersedia.`);
+    }
+    throw new Error(`Endpoint ${endpointName} mengembalikan halaman HTML, bukan data menu (HTTP ${response.status}). Periksa deployment Vercel dan log Function API.`);
+  }
+  return response.json();
+}
+
 export default function CustomerQrOrderPage({ companyId }: { companyId: string }) {
   const [menu, setMenu] = useState<MenuData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,7 +44,7 @@ export default function CustomerQrOrderPage({ companyId }: { companyId: string }
     const controller = new AbortController();
     fetch(`/api/public/pos/${encodeURIComponent(companyId)}/menu`, { signal: controller.signal })
       .then(async (response) => {
-        const data = await response.json();
+        const data = await readApiJson(response, "menu QR");
         if (!response.ok) throw new Error(data.error ?? "Menu gagal dimuat.");
         setMenu(data as MenuData);
       })
@@ -74,7 +88,7 @@ export default function CustomerQrOrderPage({ companyId }: { companyId: string }
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ customerName, phone, items: cart.map((item) => ({ productId: item.productId, variantId: item.variantId, quantity: item.quantity })) }),
       });
-      const data = await response.json();
+      const data = await readApiJson(response, "pesanan QR");
       if (!response.ok) throw new Error(data.error ?? "Pesanan gagal dikirim.");
       setOrderResult({ orderNumber: data.orderNumber, total: data.total });
       setCart([]);
