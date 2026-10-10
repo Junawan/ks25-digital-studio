@@ -1,7 +1,5 @@
 import { App, cert, getApp, getApps, initializeApp } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
-import { getStorage } from "firebase-admin/storage";
 
 let cachedApp: App | undefined;
 
@@ -57,7 +55,8 @@ function getAdminApp(): App {
 
 // Keep Admin SDK initialization lazy so merely importing an API route during
 // Next.js build does not parse service-account keys or initialize OpenSSL.
-export function getAdminAuth() {
+export async function getAdminAuth() {
+  const { getAuth } = await import("firebase-admin/auth");
   return getAuth(getAdminApp());
 }
 
@@ -65,6 +64,7 @@ export function getAdminDb() {
   return getFirestore(getAdminApp());
 }
 
-export function getAdminStorage() {
+export async function getAdminStorage() {
+  const { getStorage } = await import("firebase-admin/storage");
   return getStorage(getAdminApp());
 }
