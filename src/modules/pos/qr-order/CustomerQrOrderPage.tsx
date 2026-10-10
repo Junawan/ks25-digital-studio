@@ -13,6 +13,8 @@ interface MenuVariant { variantId: string; name: string; price: number }
 interface MenuProduct { productId: string; name: string; imageUrl: string; variants: MenuVariant[] }
 interface MenuData { companyName: string; products: MenuProduct[] }
 interface CartEntry extends MenuVariant { productId: string; productName: string; quantity: number }
+type TrackedOrderStatus = "pending" | "preparing" | "completed" | "cancelled";
+interface OrderResult { orderId: string; orderNumber: string; total: number; status: TrackedOrderStatus }
 
 async function readApiJson(response: Response, endpointName: string) {
   const contentType = response.headers.get("content-type") ?? "";
@@ -72,7 +74,28 @@ export default function CustomerQrOrderPage({ companyId }: { companyId: string }
   const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [orderResult, setOrderResult] = useState<{ orderNumber: string; total: number } | null>(null);
+  const [orderResult, setOrderResult] = useState<OrderResult | null>(null);
+
+  useEffect(() => {
+    if (!orderResult?.orderId) return;
+    let active = true;
+    const refreshStatus = async () => {
+      try {
+        const response = await fetch(`/api/public/pos/${encodeURIComponent(companyId)}/orders/${encodeURIComponent(orderResult.orderId)}`, { cache: "no-store" });
+        const data = await readApiJson(response, "tracking pesanan");
+        if (!response.ok) throw new Error(getApiError(data, "Status pesanan tidak dapat diperbarui."));
+        if (active && typeof data.status === "string" && ["pending", "preparing", "accepted", "completed", "cancelled"].includes(data.status)) {
+          setOrderResult((current) => current ? { ...current, status: data.status === "accepted" ? "preparing" : data.status as TrackedOrderStatus } : current);
+        }
+      } catch (error) {
+        // Status terakhir tetap ditampilkan jika ponsel sementara kehilangan koneksi.
+        console.warn("Tracking pesanan QR belum dapat diperbarui:", error);
+      }
+    };
+    void refreshStatus();
+    const intervalId = window.setInterval(() => { void refreshStatus(); }, 5000);
+    return () => { active = false; window.clearInterval(intervalId); };
+  }, [companyId, orderResult?.orderId]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -127,10 +150,10 @@ export default function CustomerQrOrderPage({ companyId }: { companyId: string }
       });
       const data = await readApiJson(response, "pesanan QR");
       if (!response.ok) throw new Error(getApiError(data, `Pesanan gagal dikirim (HTTP ${response.status}).`));
-      if (typeof data.orderNumber !== "string" || typeof data.total !== "number") {
+      if (typeof data.orderId !== "string" || typeof data.orderNumber !== "string" || typeof data.total !== "number") {
         throw new Error("Format konfirmasi pesanan dari server tidak sesuai.");
       }
-      setOrderResult({ orderNumber: data.orderNumber, total: data.total });
+      setOrderResult({ orderId: data.orderId, orderNumber: data.orderNumber, total: data.total, status: "pending" });
       setCart([]);
       setCartOpen(false);
       toast.success("Pesanan telah dikirim ke kasir.");
@@ -151,7 +174,21 @@ export default function CustomerQrOrderPage({ companyId }: { companyId: string }
         <Button variant="outline" onClick={() => setCartOpen(true)}><ShoppingCart className="mr-2 h-4 w-4" />Keranjang ({cartQuantity})</Button>
       </header>
 
-      {orderResult && <Card className="border-green-300 bg-green-50 p-4 dark:bg-green-950"><h2 className="font-semibold text-green-800 dark:text-green-200">Pesanan terkirim</h2><p className="mt-1 text-sm">Nomor pesanan: <strong>{orderResult.orderNumber}</strong></p><p className="text-sm">Total: Rp {orderResult.total.toLocaleString("id-ID")}</p><p className="mt-1 text-xs text-muted-foreground">Tunjukkan nomor ini kepada kasir untuk membantu pencocokan pesanan.</p></Card>}
+      {orderResult && <Card className="border-green-300 bg-green-50 p-4 dark:bg-green-950">
+        <h2 className="font-semibold text-green-800 dark:text-green-200">Pesanan terkirim</h2>
+        <p className="mt-1 text-sm">Nomor pesanan: <strong>{orderResult.orderNumber}</strong></p>
+        <p className="text-sm">Total: Rp {orderResult.total.toLocaleString("id-ID")}</p>
+        <p className="mt-2 rounded-md border border-green-300 bg-white/70 p-2 text-sm font-medium text-green-900 dark:bg-black/10 dark:text-green-100">Silakan tunjukkan nomor pesanan ini dan lakukan pembayaran di kasir.</p>
+        {orderResult.status === "cancelled" ? <p className="mt-4 rounded-md bg-red-100 p-3 text-sm font-semibold text-red-800 dark:bg-red-950 dark:text-red-200">Pesanan ditutup oleh kasir. Silakan hubungi kasir untuk informasi lebih lanjut.</p> : <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+          {[{ id: "pending", label: "Pesanan masuk" }, { id: "preparing", label: "Disiapkan" }, { id: "completed", label: "Selesai" }].map((step, index) => {
+            const currentIndex = orderResult.status === "pending" ? 0 : orderResult.status === "preparing" ? 1 : 2;
+            const reached = index <= currentIndex;
+            return <div key={step.id} className={`rounded-md border p-2 text-xs ${reached ? "border-green-500 bg-green-100 font-semibold text-green-900 dark:bg-green-900 dark:text-green-100" : "text-muted-foreground"}`}>
+              <span className="mx-auto mb-1 flex h-5 w-5 items-center justify-center rounded-full border text-[10px]">{reached ? "✓" : index + 1}</span>{step.label}
+            </div>;
+          })}
+        </div>}
+      </Card>}
 
       {loading ? <div className="py-20 text-center text-sm text-muted-foreground">Memuat menu...</div> : menuError ? <Card className="border-destructive/40 p-5">
         <h2 className="font-semibold text-destructive">Menu belum dapat dimuat</h2>

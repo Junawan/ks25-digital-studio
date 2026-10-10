@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { onSnapshot, orderBy, query, where, collection, doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { onSnapshot, query, where, collection, doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
-import { Clipboard, ExternalLink, QrCode, ShoppingBag } from "lucide-react";
+import { Clipboard, ExternalLink, QrCode } from "lucide-react";
 import { db } from "@/core/firebase";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 import PageHeader from "@/modules/pos/shared/components/PageHeader";
@@ -31,14 +31,14 @@ export default function QrOrderManagementPage() {
     const ordersQuery = query(
       collection(db, "pos_qr_orders"),
       where("companyId", "==", company.id),
-      where("status", "==", "pending"),
-      orderBy("createdAt", "desc")
     );
     return onSnapshot(ordersQuery, (snapshot) => {
-      setOrders(snapshot.docs.map((item) => {
+      const nextOrders = snapshot.docs.map((item) => {
         const data = item.data();
         return { ...data, orderId: item.id, createdAt: data.createdAt?.toDate?.() ?? new Date() } as QrOrder;
-      }));
+      });
+      nextOrders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      setOrders(nextOrders);
       setLoading(false);
     }, (error) => {
       console.error("Gagal memantau pesanan QR:", error);
@@ -47,17 +47,27 @@ export default function QrOrderManagementPage() {
     });
   }, [company?.id]);
 
-  async function acceptOrder(order: QrOrder) {
+  async function continueToPayment(order: QrOrder) {
     const items: CartItem[] = order.items.map((item) => ({ ...item, hsCode: "" }));
     const payload = { items, customerName: order.customerName, phone: order.phone, orderNumber: order.orderNumber };
     try {
       sessionStorage.setItem("pos-qr-incoming-order", JSON.stringify(payload));
-      await updateDoc(doc(db, "pos_qr_orders", order.orderId), { status: "accepted", acceptedAt: serverTimestamp(), updatedAt: serverTimestamp() });
+      await updateDoc(doc(db, "pos_qr_orders", order.orderId), { status: "preparing", acceptedAt: serverTimestamp(), updatedAt: serverTimestamp() });
       router.push("/pos/transactions");
     } catch (error) {
       sessionStorage.removeItem("pos-qr-incoming-order");
       console.error("Gagal menerima pesanan QR:", error);
       toast.error("Pesanan belum dapat diteruskan ke kasir.");
+    }
+  }
+
+  async function completeOrder(order: QrOrder) {
+    try {
+      await updateDoc(doc(db, "pos_qr_orders", order.orderId), { status: "completed", completedAt: serverTimestamp(), updatedAt: serverTimestamp() });
+      toast.success(`Pesanan ${order.orderNumber} selesai.`);
+    } catch (error) {
+      console.error("Gagal menyelesaikan pesanan QR:", error);
+      toast.error("Status pesanan belum dapat diperbarui.");
     }
   }
 
@@ -72,6 +82,30 @@ export default function QrOrderManagementPage() {
   }
 
   if (!company) return null;
+
+  const incomingOrders = orders.filter((order) => order.status === "pending");
+  const preparingOrders = orders.filter((order) => order.status === "preparing" || order.status === "accepted");
+  const completedOrders = orders.filter((order) => order.status === "completed");
+
+  function renderOrder(order: QrOrder, stage: "incoming" | "preparing" | "completed") {
+    return <Card key={order.orderId}>
+      <CardContent className="space-y-3 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-2"><div><p className="font-semibold">{order.orderNumber}</p><p className="text-sm text-muted-foreground">{order.createdAt.toLocaleString("id-ID")}</p></div><p className="font-semibold">Rp {order.total.toLocaleString("id-ID")}</p></div>
+        {(order.customerName || order.phone) && <p className="text-sm">{order.customerName || "Pelanggan"}{order.phone ? ` · ${order.phone}` : ""}</p>}
+        <div className="space-y-1 border-y py-3 text-sm">{order.items.map((item) => <div key={`${item.productId}:${item.variantId}`} className="flex justify-between gap-3"><span>{item.productName} — {item.variantName} × {item.qty}</span><span className="shrink-0">Rp {item.subtotal.toLocaleString("id-ID")}</span></div>)}</div>
+        {stage === "incoming" && <div className="grid grid-cols-2 gap-2"><Button onClick={() => { void continueToPayment(order); }}>Lanjut pembayaran</Button><Button variant="outline" onClick={() => { void cancelOrder(order); }}>Tutup pesanan</Button></div>}
+        {stage === "preparing" && <Button className="w-full" onClick={() => { void completeOrder(order); }}>Tandai selesai</Button>}
+        {stage === "completed" && <p className="text-sm font-medium text-green-700 dark:text-green-400">Pesanan selesai</p>}
+      </CardContent>
+    </Card>;
+  }
+
+  function renderOrderSection(title: string, emptyText: string, sectionOrders: QrOrder[], stage: "incoming" | "preparing" | "completed") {
+    return <section className="space-y-3">
+      <div className="flex items-center justify-between"><h2 className="text-lg font-semibold">{title}</h2><span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium">{sectionOrders.length}</span></div>
+      {loading ? <Card className="p-6 text-center text-sm text-muted-foreground">Memuat pesanan...</Card> : sectionOrders.length ? sectionOrders.map((order) => renderOrder(order, stage)) : <Card className="p-6 text-center text-sm text-muted-foreground">{emptyText}</Card>}
+    </section>;
+  }
 
   return <div className="space-y-6">
     <PageHeader title="Order by QR" description="Pelanggan scan QR untuk melihat menu dan mengirim pesanan ke kasir." />
@@ -90,16 +124,10 @@ export default function QrOrderManagementPage() {
         </CardContent>
       </Card>
 
-      <section className="space-y-4">
-        <div className="flex items-center justify-between"><h2 className="text-lg font-semibold">Pesanan masuk</h2><span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium">{orders.length} menunggu</span></div>
-        {loading ? <Card className="p-8 text-center text-sm text-muted-foreground">Memuat pesanan...</Card> : orders.length === 0 ? <Card className="flex min-h-48 flex-col items-center justify-center p-6 text-center"><ShoppingBag className="mb-3 h-8 w-8 text-muted-foreground" /><p className="font-medium">Belum ada pesanan QR</p><p className="mt-1 text-sm text-muted-foreground">Pesanan pelanggan akan muncul otomatis di sini.</p></Card> : orders.map((order) => <Card key={order.orderId}>
-          <CardContent className="space-y-3 p-4">
-            <div className="flex flex-wrap items-start justify-between gap-2"><div><p className="font-semibold">{order.orderNumber}</p><p className="text-sm text-muted-foreground">{order.createdAt.toLocaleString("id-ID")}</p></div><p className="font-semibold">Rp {order.total.toLocaleString("id-ID")}</p></div>
-            {(order.customerName || order.phone) && <p className="text-sm">{order.customerName || "Pelanggan"}{order.phone ? ` · ${order.phone}` : ""}</p>}
-            <div className="space-y-1 border-y py-3 text-sm">{order.items.map((item) => <div key={`${item.productId}:${item.variantId}`} className="flex justify-between gap-3"><span>{item.productName} — {item.variantName} × {item.qty}</span><span className="shrink-0">Rp {item.subtotal.toLocaleString("id-ID")}</span></div>)}</div>
-            <div className="grid grid-cols-2 gap-2"><Button onClick={() => { void acceptOrder(order); }}>Terima &amp; lanjut ke kasir</Button><Button variant="outline" onClick={() => { void cancelOrder(order); }}>Tutup pesanan</Button></div>
-          </CardContent>
-        </Card>)}
+      <section className="space-y-6">
+        {renderOrderSection("Pesanan masuk", "Belum ada pesanan baru.", incomingOrders, "incoming")}
+        {renderOrderSection("Diproses / disiapkan", "Belum ada pesanan yang sedang disiapkan.", preparingOrders, "preparing")}
+        {renderOrderSection("Pesanan selesai", "Belum ada pesanan selesai.", completedOrders, "completed")}
       </section>
     </div>
     <style>{`@media print { body * { visibility: hidden !important; } #qr-menu-print, #qr-menu-print * { visibility: visible !important; } #qr-menu-print { position: absolute !important; inset: 0 auto auto 0 !important; width: 100% !important; border: 0 !important; box-shadow: none !important; } }`}</style>

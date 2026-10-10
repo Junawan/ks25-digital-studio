@@ -17,6 +17,6 @@ export interface QrOrder {
   phone: string;
   items: QrOrderItem[];
   total: number;
-  status: "pending" | "accepted" | "cancelled";
+  status: "pending" | "accepted" | "preparing" | "completed" | "cancelled";
   createdAt: Date;
 }

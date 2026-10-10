@@ -79,7 +79,7 @@ export async function POST(request: Request, context: { params: Promise<{ compan
       updatedAt: now,
     });
 
-    return Response.json({ orderId: orderRef.id, orderNumber, total }, { status: 201 });
+    return Response.json({ orderId: orderRef.id, orderNumber, total, status: "pending" }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Pesanan gagal dikirim.";
     console.error("Gagal membuat pesanan QR:", error);
