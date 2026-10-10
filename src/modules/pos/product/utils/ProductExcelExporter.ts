@@ -10,6 +10,7 @@ export class ProductExcelExporter {
       product.variants.forEach((variant) => {
         rows.push({
           "Nama Produk": product.name,
+          "HS Code": product.hsCode ?? "",
           "Nama Varian": variant.name,
           Barcode: variant.barcode,
           "Harga Jual": variant.price,

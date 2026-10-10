@@ -31,6 +31,10 @@ export function useProductForm({
     defaultValues: {
   name: product?.name ?? "",
 
+      hsCode: product?.hsCode ?? "",
+      imageUrl: product?.imageUrl ?? "",
+      imagePath: product?.imagePath ?? "",
+
   active: product?.active ?? true,
 
   variants:
@@ -60,6 +64,9 @@ export function useProductForm({
   if (product) {
     form.reset({
       name: product.name,
+      hsCode: product.hsCode ?? "",
+      imageUrl: product.imageUrl ?? "",
+      imagePath: product.imagePath ?? "",
       active: product.active,
       variants: product.variants.map((variant) => ({
         variantId: variant.variantId,
@@ -73,6 +80,9 @@ export function useProductForm({
   } else {
     form.reset({
       name: "",
+      hsCode: "",
+      imageUrl: "",
+      imagePath: "",
       active: true,
       variants: [
         {
@@ -94,6 +104,9 @@ export function useProductForm({
         const input: CreateProductInput = {
   companyId,
   name: values.name,
+  hsCode: values.hsCode ?? "",
+  imageUrl: values.imageUrl ?? "",
+  imagePath: values.imagePath ?? "",
   active: values.active,
   variants: values.variants.map((variant) => ({
     ...variant,
@@ -109,6 +122,10 @@ toast.success("Produk berhasil ditambahkan");
         product.productId,
         {
           name: values.name,
+
+          hsCode: values.hsCode ?? "",
+          imageUrl: values.imageUrl ?? "",
+          imagePath: values.imagePath ?? "",
 
           active: values.active,
 

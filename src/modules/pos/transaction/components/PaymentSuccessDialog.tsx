@@ -1,8 +1,10 @@
 "use client";
 
+
 import {
   CheckCircle2,
   FileText,
+  Package,
   Plus,
   Printer,
   X,
@@ -48,6 +50,8 @@ interface Props {
 
   onPrintInvoice: () => void;
 
+  onPrintPackingList: () => void;
+
   onNewTransaction: () => void;
 }
 
@@ -64,6 +68,7 @@ export default function PaymentSuccessDialog({
   changeAmount,
   onPrintReceipt,
   onPrintInvoice,
+  onPrintPackingList,
   onNewTransaction,
 }: Props) {
   return (
@@ -179,7 +184,7 @@ export default function PaymentSuccessDialog({
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
 
             <Button
               type="button"
@@ -199,6 +204,16 @@ export default function PaymentSuccessDialog({
               <FileText className="mr-2 h-4 w-4" />
 
               Invoice
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onPrintPackingList}
+            >
+              <Package className="mr-2 h-4 w-4" />
+
+              Packing List
             </Button>
 
           </div>

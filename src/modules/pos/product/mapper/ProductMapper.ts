@@ -18,6 +18,9 @@ export class ProductMapper {
   return {
     companyId: input.companyId,
     name: input.name,
+    hsCode: input.hsCode?.trim() ?? "",
+    imageUrl: input.imageUrl?.trim() ?? "",
+    imagePath: input.imagePath?.trim() ?? "",
     nameLower: ProductNormalizer.normalizeName(input.name),
     active: input.active,
 
@@ -47,6 +50,7 @@ export class ProductMapper {
   static toUpdate(input: UpdateProductInput) {
     return {
       ...input,
+      hsCode: input.hsCode?.trim() ?? "",
       updatedAt: serverTimestamp(),
     };
   }
@@ -68,6 +72,11 @@ export class ProductMapper {
       companyId: data.companyId,
 
       name: data.name,
+
+      hsCode: data.hsCode ?? "",
+
+      imageUrl: data.imageUrl ?? "",
+      imagePath: data.imagePath ?? "",
 
       variants: (data.variants ?? []).map(
         (variant: any) => ({

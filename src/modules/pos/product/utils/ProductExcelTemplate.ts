@@ -5,6 +5,7 @@ export class ProductExcelTemplate {
     const rows = [
       {
         "Nama Produk": "Aqua",
+        "HS Code": "",
         "Nama Varian": "600 ml",
         Barcode: "8991234567890",
         "Harga Jual": 3500,
@@ -13,6 +14,7 @@ export class ProductExcelTemplate {
       },
       {
         "Nama Produk": "Aqua",
+        "HS Code": "",
         "Nama Varian": "1500 ml",
         Barcode: "8991234567891",
         "Harga Jual": 7000,
@@ -21,6 +23,7 @@ export class ProductExcelTemplate {
       },
       {
         "Nama Produk": "Brownies",
+        "HS Code": "",
         "Nama Varian": "Original",
         Barcode: "",
         "Harga Jual": 25000,

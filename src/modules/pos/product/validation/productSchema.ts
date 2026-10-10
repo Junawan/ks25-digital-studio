@@ -17,6 +17,11 @@ export const variantSchema = z.object({
 export const productSchema = z.object({
   name: z.string().trim().min(1),
 
+  hsCode: z.string().trim().optional(),
+
+  imageUrl: z.string().trim().optional(),
+  imagePath: z.string().trim().optional(),
+
   active: z.boolean(),
 
   variants: z.array(variantSchema).min(1),

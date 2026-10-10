@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Wrench,
   History,
+  QrCode,
 } from "lucide-react";
 
 import {
@@ -51,6 +52,13 @@ const menus: Menu[] = [
       "Kasir dan penjualan.",
     href: "/pos/transactions",
     icon: ShoppingCart,
+    enabled: true,
+  },
+  {
+    title: "Order by QR",
+    description: "Tampilkan QR menu dan kelola pesanan pelanggan.",
+    href: "/pos/order-by-qr",
+    icon: QrCode,
     enabled: true,
   },
   {

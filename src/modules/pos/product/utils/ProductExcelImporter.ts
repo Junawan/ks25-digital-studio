@@ -26,6 +26,9 @@ export class ProductExcelImporter {
       const productName =
         String(item["Nama Produk"] ?? "").trim();
 
+      const hsCode =
+        String(item["HS Code"] ?? item["Kode HS"] ?? "").trim();
+
       const variantName =
         String(item["Nama Varian"] ?? "").trim();
 
@@ -76,6 +79,7 @@ export class ProductExcelImporter {
 
       rows.push({
         productName,
+        hsCode,
         variantName,
         barcode,
         price,

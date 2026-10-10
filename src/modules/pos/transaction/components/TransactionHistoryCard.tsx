@@ -5,6 +5,7 @@ import {
   FileText,
   Trash2,
   CreditCard,
+  Package,
 } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -31,6 +32,10 @@ interface Props {
     transaction: Transaction
   ) => void | Promise<void>;
 
+  onPrintPackingList: (
+    transaction: Transaction
+  ) => void | Promise<void>;
+
   onDelete: (
     transaction: Transaction
   ) => void | Promise<void>;
@@ -46,6 +51,7 @@ export default function TransactionHistoryCard({
   transaction,
   onPrintReceipt,
   onPrintInvoice,
+  onPrintPackingList,
   onDelete,
   onSettlement,
   printing = false,
@@ -364,6 +370,17 @@ export default function TransactionHistoryCard({
   {printing
     ? "Menyiapkan..."
     : "Invoice"}
+</Button>
+
+          <Button
+  type="button"
+  variant="outline"
+  disabled={printing}
+  onClick={() => void onPrintPackingList(transaction)}
+>
+  <Package className="mr-2 h-4 w-4" />
+
+  Packing List
 </Button>
 
           <Button

@@ -5,6 +5,8 @@ export interface CartItem {
 
   productName: string;
 
+  hsCode?: string;
+
   variantName: string;
 
   barcode: string;
@@ -65,6 +67,8 @@ export interface TransactionItem {
   variantId: string;
 
   productName: string;
+
+  hsCode?: string;
 
   variantName: string;
 

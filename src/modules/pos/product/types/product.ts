@@ -28,6 +28,11 @@ export interface Product {
    */
   name: string;
 
+  hsCode?: string;
+
+  imageUrl?: string;
+  imagePath?: string;
+
   variants: ProductVariant[];
 
   active: boolean;
@@ -41,6 +46,11 @@ export interface CreateProductInput {
 
   name: string;
 
+  hsCode?: string;
+
+  imageUrl?: string;
+  imagePath?: string;
+
   active: boolean;
 
   variants: ProductVariantForm[];
@@ -48,6 +58,11 @@ export interface CreateProductInput {
 
 export interface UpdateProductInput {
   name: string;
+
+  hsCode?: string;
+
+  imageUrl?: string;
+  imagePath?: string;
 
   active: boolean;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import {
   Product,
@@ -44,6 +44,22 @@ const [keterangan, setKeterangan] =
   const [paidAmount, setPaidAmount] =
     useState(0);
 
+  const addCartItems = useCallback((items: CartItem[]) => {
+    setCart((current) => {
+      const merged = [...current];
+      for (const incoming of items) {
+        const index = merged.findIndex((item) => item.variantId === incoming.variantId);
+        if (index >= 0) {
+          const qty = merged[index].qty + incoming.qty;
+          merged[index] = { ...merged[index], qty, subtotal: qty * merged[index].price };
+        } else {
+          merged.push({ ...incoming });
+        }
+      }
+      return merged;
+    });
+  }, []);
+
   function addVariant(
     product: Product,
     variant: ProductVariant
@@ -82,6 +98,9 @@ const [keterangan, setKeterangan] =
 
           productName:
             product.name,
+
+          hsCode:
+            product.hsCode ?? "",
 
           variantName:
             variant.name,
@@ -375,6 +394,8 @@ function loadDraft(
   changeAmount,
 
   addVariant,
+
+  addCartItems,
 
   removeItem,
 

@@ -1,6 +1,8 @@
 export interface ProductImportRow {
   productName: string;
 
+  hsCode?: string;
+
   variantName: string;
 
   barcode: string;

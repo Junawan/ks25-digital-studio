@@ -47,6 +47,13 @@ import PaymentSuccessDialog from "../components/PaymentSuccessDialog";
 import { printReceipt } from "../../shared/print/printerReceipt";
 import { getPosSettingsUseCase } from "../../settings/di";
 import { printInvoice } from "../../shared/print/printInvoice";
+import type { CommercialInvoiceDetails } from "../../shared/print/printInvoice";
+import type { CartItem, Transaction } from "../types/transaction";
+import CommercialInvoiceOptionsDialog from "../../shared/print/CommercialInvoiceOptionsDialog";
+import PackingListOptionsDialog from "../../shared/print/PackingListOptionsDialog";
+import { printPackingList } from "../../shared/print/printPackingList";
+import type { PackingListDetails } from "../../shared/print/printPackingList";
+import { resolveTransactionHsCodes } from "../../shared/print/resolveTransactionHsCodes";
 import { draftTransactionDI }
 from "../di/draftTransaction";
 
@@ -71,6 +78,7 @@ const company =
   cart,
   summary,
   addVariant,
+  addCartItems,
   removeItem,
 
   increaseQty,
@@ -104,6 +112,43 @@ const company =
   resetTransaction,
   loadDraft,
 } = useTransaction();
+
+useEffect(() => {
+  const key = "pos-product-catalog-cart";
+  const stored = sessionStorage.getItem(key);
+  if (!stored) return;
+  sessionStorage.removeItem(key);
+  try {
+    const items = JSON.parse(stored) as CartItem[];
+    if (Array.isArray(items) && items.length) {
+      addCartItems(items);
+      toast.success("Produk dari katalog ditambahkan ke transaksi.");
+    }
+  } catch (error) {
+    console.error("Keranjang katalog tidak dapat dibaca:", error);
+    toast.error("Keranjang katalog tidak dapat dimuat.");
+  }
+}, [addCartItems]);
+
+useEffect(() => {
+  const key = "pos-qr-incoming-order";
+  const stored = sessionStorage.getItem(key);
+  if (!stored) return;
+  sessionStorage.removeItem(key);
+  try {
+    const incoming = JSON.parse(stored) as { items?: CartItem[]; customerName?: string; phone?: string; orderNumber?: string };
+    if (!Array.isArray(incoming.items) || !incoming.items.length) return;
+    addCartItems(incoming.items);
+    const name = incoming.customerName?.trim() ?? "";
+    const phone = incoming.phone?.trim() ?? "";
+    if (name || phone) setCustomer([name, phone].filter(Boolean).join(" · "));
+    if (incoming.orderNumber) setKeterangan(`Pesanan QR ${incoming.orderNumber}`);
+    toast.success(`Pesanan QR ${incoming.orderNumber ?? ""} dimuat ke transaksi.`);
+  } catch (error) {
+    console.error("Pesanan QR tidak dapat dibaca:", error);
+    toast.error("Pesanan QR tidak dapat dimuat ke kasir.");
+  }
+}, [addCartItems, setCustomer, setKeterangan]);
 
 function addBarcode(
   barcode: string
@@ -212,6 +257,10 @@ const [lastTransaction, setLastTransaction] =
     cashierName: string,
     customerName: string;
   } | null>(null);
+const [invoiceChoiceTransaction, setInvoiceChoiceTransaction] =
+  useState<Transaction | null>(null);
+const [packingListTransaction, setPackingListTransaction] =
+  useState<Transaction | null>(null);
 
 const runningRef =
   useRef(false);
@@ -340,13 +389,6 @@ async function handlePrintInvoice() {
   }
 
   try {
-    const settings = await getPosSettingsUseCase.execute(company.id);
-
-    if (!settings) {
-      toast.error("Pengaturan POS belum tersedia.");
-      return;
-    }
-
     const transaction =
       await transactionDI.repository.getByInvoiceNumber(
         company.id,
@@ -358,15 +400,55 @@ async function handlePrintInvoice() {
       return;
     }
 
-    await printInvoice({
-      company,
-      settings,
-      transaction,
-    });
+    setInvoiceChoiceTransaction(await resolveTransactionHsCodes(transaction));
   } catch (error) {
     console.error(error);
 
     toast.error("Gagal mencetak invoice.");
+  }
+}
+
+async function handlePrintSelectedInvoice(type: "domestic" | "commercial", details?: CommercialInvoiceDetails) {
+  if (!company || !invoiceChoiceTransaction) return;
+  try {
+    const settings = await getPosSettingsUseCase.execute(company.id);
+    if (!settings) {
+      toast.error("Pengaturan POS belum tersedia.");
+      return;
+    }
+    await printInvoice({ company, settings, transaction: invoiceChoiceTransaction }, type === "commercial" ? details : undefined);
+  } catch (error) {
+    console.error(error);
+    toast.error("Gagal mencetak invoice.");
+  } finally {
+    setInvoiceChoiceTransaction(null);
+  }
+}
+
+async function handlePreparePackingList() {
+  if (!company || !lastTransaction) return;
+  try {
+    const transaction = await transactionDI.repository.getByInvoiceNumber(company.id, lastTransaction.invoiceNumber);
+    if (!transaction) {
+      toast.error("Transaksi tidak ditemukan.");
+      return;
+    }
+    setPackingListTransaction(await resolveTransactionHsCodes(transaction));
+  } catch (error) {
+    console.error(error);
+    toast.error("Gagal menyiapkan Packing List.");
+  }
+}
+
+async function handlePrintPackingList(details: PackingListDetails) {
+  if (!company || !packingListTransaction) return;
+  try {
+    await printPackingList({ company, transaction: packingListTransaction, details });
+  } catch (error) {
+    console.error(error);
+    toast.error(error instanceof Error ? error.message : "Gagal mencetak Packing List.");
+  } finally {
+    setPackingListTransaction(null);
   }
 }
 
@@ -1090,11 +1172,26 @@ if (!company) {
     onPrintInvoice={
       handlePrintInvoice
     }
+    onPrintPackingList={handlePreparePackingList}
     onNewTransaction={
       handleNewTransaction
     }
   />
 )}
+
+<CommercialInvoiceOptionsDialog
+  open={invoiceChoiceTransaction !== null}
+  onOpenChange={(open) => { if (!open) setInvoiceChoiceTransaction(null); }}
+  transaction={invoiceChoiceTransaction}
+  onSelect={(type, details) => { void handlePrintSelectedInvoice(type, details); }}
+/>
+
+<PackingListOptionsDialog
+  open={packingListTransaction !== null}
+  onOpenChange={(open) => { if (!open) setPackingListTransaction(null); }}
+  transaction={packingListTransaction}
+  onPrint={(details) => { void handlePrintPackingList(details); }}
+/>
 
       <VariantPickerDialog
   open={variantOpen}

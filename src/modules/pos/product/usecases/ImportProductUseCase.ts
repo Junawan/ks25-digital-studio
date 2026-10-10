@@ -33,9 +33,15 @@ let current = 0;
         grouped.set(key, {
           companyId,
           name: key,
+          hsCode: row.hsCode ?? "",
           active: row.active,
           variants: [],
         });
+      }
+
+      const groupedProduct = grouped.get(key)!;
+      if (!groupedProduct.hsCode && row.hsCode?.trim()) {
+        groupedProduct.hsCode = row.hsCode.trim();
       }
 
       grouped.get(key)!.variants.push({

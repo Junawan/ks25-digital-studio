@@ -78,7 +78,7 @@ export default function ProductImportDialog({
             </DialogTitle>
 
             <DialogDescription>
-              Upload file Excel sesuai template.
+              Upload file Excel sesuai template. Kolom HS Code opsional dan akan disimpan per produk.
             </DialogDescription>
           </DialogHeader>
 

@@ -47,6 +47,12 @@ import {
 import { printReceipt } from "../../shared/print/printerReceipt";
 import { printInvoice } from "../../shared/print/printInvoice";
 import { transactionDI } from "../di/transaction";
+import CommercialInvoiceOptionsDialog from "../../shared/print/CommercialInvoiceOptionsDialog";
+import type { CommercialInvoiceDetails } from "../../shared/print/printInvoice";
+import PackingListOptionsDialog from "../../shared/print/PackingListOptionsDialog";
+import { printPackingList } from "../../shared/print/printPackingList";
+import type { PackingListDetails } from "../../shared/print/printPackingList";
+import { resolveTransactionHsCodes } from "../../shared/print/resolveTransactionHsCodes";
 
 export default function TransactionHistoryPage() {
 
@@ -95,6 +101,9 @@ export default function TransactionHistoryPage() {
     printingId,
     setPrintingId,
   ] = useState<string | null>(null);
+
+  const [invoiceTransaction, setInvoiceTransaction] = useState<Transaction | null>(null);
+  const [packingListTransaction, setPackingListTransaction] = useState<Transaction | null>(null);
 
   const [
   settlementOpen,
@@ -378,8 +387,9 @@ async function handleSettlement(
   /*
    * Cetak invoice
    */
-  async function handlePrintInvoice(
-    transaction: Transaction
+  async function printSelectedInvoice(
+    transaction: Transaction,
+    details?: CommercialInvoiceDetails
   ) {
 
     if (!workspace?.company) {
@@ -409,7 +419,7 @@ async function handleSettlement(
         settings,
 
         transaction,
-      });
+      }, details);
 
     } catch (error) {
 
@@ -427,6 +437,40 @@ async function handleSettlement(
 
     }
 
+  }
+
+  async function handlePrintInvoice(transaction: Transaction) {
+    try {
+      setInvoiceTransaction(await resolveTransactionHsCodes(transaction));
+    } catch (error) {
+      console.error(error);
+      toast.error("Gagal memuat HS code produk.");
+    }
+  }
+
+  async function handlePreparePackingList(transaction: Transaction) {
+    try {
+      setPackingListTransaction(await resolveTransactionHsCodes(transaction));
+    } catch (error) {
+      console.error(error);
+      toast.error("Gagal memuat HS code produk.");
+    }
+  }
+
+  async function handlePrintPackingList(details: PackingListDetails) {
+    const transaction = packingListTransaction;
+    const company = workspace?.company;
+    if (!transaction || !company) return;
+    try {
+      setPrintingId(transaction.transactionId);
+      await printPackingList({ company, transaction, details });
+    } catch (error) {
+      console.error(error);
+      toast.error(error instanceof Error ? error.message : "Gagal mencetak Packing List.");
+    } finally {
+      setPrintingId(null);
+      setPackingListTransaction(null);
+    }
   }
 
   /*
@@ -731,6 +775,8 @@ async function handleSettlement(
                     handlePrintInvoice
                   }
 
+                  onPrintPackingList={handlePreparePackingList}
+
                   onDelete={
                     handleDelete
                   }
@@ -769,6 +815,25 @@ async function handleSettlement(
     settlementLoading
   }
 />
+
+      <CommercialInvoiceOptionsDialog
+        open={invoiceTransaction !== null}
+        onOpenChange={(open) => { if (!open) setInvoiceTransaction(null); }}
+        transaction={invoiceTransaction}
+        onSelect={(type, details) => {
+          if (!invoiceTransaction) return;
+          const transaction = invoiceTransaction;
+          setInvoiceTransaction(null);
+          void printSelectedInvoice(transaction, type === "commercial" ? details : undefined);
+        }}
+      />
+
+      <PackingListOptionsDialog
+        open={packingListTransaction !== null}
+        onOpenChange={(open) => { if (!open) setPackingListTransaction(null); }}
+        transaction={packingListTransaction}
+        onPrint={(details) => { void handlePrintPackingList(details); }}
+      />
 
           </div>
         )}

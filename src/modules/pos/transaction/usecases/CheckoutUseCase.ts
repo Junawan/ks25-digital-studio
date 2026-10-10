@@ -122,6 +122,9 @@ if (!cashier) {
         productName:
           item.productName,
 
+        hsCode:
+          item.hsCode ?? "",
+
         variantName:
           item.variantName,
 
