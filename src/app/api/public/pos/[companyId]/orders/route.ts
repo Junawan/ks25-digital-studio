@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { adminDb } from "@/core/firebase/admin";
+import { getAdminDb } from "@/core/firebase/admin";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 interface RequestedItem {
   productId: string;
@@ -16,6 +17,7 @@ export async function POST(request: Request, context: { params: Promise<{ compan
   }
 
   try {
+    const adminDb = getAdminDb();
     const { companyId } = await context.params;
     const body = await request.json() as { items?: RequestedItem[]; customerName?: string; phone?: string };
     if (!Array.isArray(body.items) || body.items.length < 1 || body.items.length > 50) {

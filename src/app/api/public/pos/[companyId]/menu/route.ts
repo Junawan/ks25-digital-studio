@@ -1,9 +1,11 @@
-import { adminDb } from "@/core/firebase/admin";
+import { getAdminDb } from "@/core/firebase/admin";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function GET(_request: Request, context: { params: Promise<{ companyId: string }> }) {
   try {
+    const adminDb = getAdminDb();
     const { companyId } = await context.params;
     const company = await adminDb.collection("companies").doc(companyId).get();
     if (!company.exists) return Response.json({ error: "Toko tidak ditemukan." }, { status: 404 });
