@@ -16,21 +16,36 @@ interface CartEntry extends MenuVariant { productId: string; productName: string
 
 async function readApiJson(response: Response, endpointName: string) {
   const contentType = response.headers.get("content-type") ?? "";
-  if (!contentType.includes("application/json")) {
-    if (response.redirected) {
-      throw new Error(`Permintaan ${endpointName} dialihkan ke halaman lain. Pastikan halaman menu QR dan API publik tidak dibatasi login/proteksi deployment.`);
-    }
-    if (response.status === 404) {
-      throw new Error(`Endpoint ${endpointName} tidak ditemukan (404). Deploy versi terbaru aplikasi agar route API Order by QR tersedia.`);
-    }
-    throw new Error(`Endpoint ${endpointName} mengembalikan halaman HTML, bukan data menu (HTTP ${response.status}). Periksa deployment Vercel dan log Function API.`);
+  const responseText = await response.text();
+  let data: Record<string, unknown>;
+  try {
+    data = JSON.parse(responseText) as Record<string, unknown>;
+  } catch {
+    const title = responseText.match(/<title[^>]*>(.*?)<\/title>/i)?.[1]?.trim();
+    const detail = response.redirected
+      ? "Permintaan dialihkan. Periksa Vercel Deployment Protection atau middleware autentikasi."
+      : response.status === 404
+        ? "Route API belum tersedia pada deployment ini. Deploy commit yang menyertakan route API Order by QR."
+        : response.status === 401 || response.status === 403
+          ? "Akses API ditolak. Periksa proteksi deployment atau middleware."
+          : "Periksa log Function API pada Vercel untuk penyebab respons HTML ini.";
+    throw new Error(`${endpointName}: HTTP ${response.status}; ${detail}${title ? ` Judul respons: ${title}.` : ""} URL: ${response.url}`);
   }
-  return response.json();
+  if (!contentType.includes("application/json")) {
+    throw new Error(`${endpointName}: server mengirim tipe konten ${contentType || "tidak diketahui"}. URL: ${response.url}`);
+  }
+  return data;
+}
+
+function getApiError(data: Record<string, unknown>, fallback: string) {
+  return typeof data.error === "string" ? data.error : fallback;
 }
 
 export default function CustomerQrOrderPage({ companyId }: { companyId: string }) {
   const [menu, setMenu] = useState<MenuData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [menuError, setMenuError] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
   const [cart, setCart] = useState<CartEntry[]>([]);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [selectedQuantities, setSelectedQuantities] = useState<Record<string, number>>({});
@@ -42,18 +57,20 @@ export default function CustomerQrOrderPage({ companyId }: { companyId: string }
 
   useEffect(() => {
     const controller = new AbortController();
+    setLoading(true);
+    setMenuError("");
     fetch(`/api/public/pos/${encodeURIComponent(companyId)}/menu`, { signal: controller.signal })
       .then(async (response) => {
         const data = await readApiJson(response, "menu QR");
-        if (!response.ok) throw new Error(data.error ?? "Menu gagal dimuat.");
+        if (!response.ok) throw new Error(getApiError(data, `Menu gagal dimuat (HTTP ${response.status}).`));
         setMenu(data as MenuData);
       })
       .catch((error: unknown) => {
-        if (error instanceof Error && error.name !== "AbortError") toast.error(error.message);
+        if (error instanceof Error && error.name !== "AbortError") setMenuError(error.message);
       })
       .finally(() => setLoading(false));
     return () => controller.abort();
-  }, [companyId]);
+  }, [companyId, reloadKey]);
 
   const cartQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
@@ -89,7 +106,7 @@ export default function CustomerQrOrderPage({ companyId }: { companyId: string }
         body: JSON.stringify({ customerName, phone, items: cart.map((item) => ({ productId: item.productId, variantId: item.variantId, quantity: item.quantity })) }),
       });
       const data = await readApiJson(response, "pesanan QR");
-      if (!response.ok) throw new Error(data.error ?? "Pesanan gagal dikirim.");
+      if (!response.ok) throw new Error(getApiError(data, `Pesanan gagal dikirim (HTTP ${response.status}).`));
       setOrderResult({ orderNumber: data.orderNumber, total: data.total });
       setCart([]);
       setCartOpen(false);
@@ -113,7 +130,11 @@ export default function CustomerQrOrderPage({ companyId }: { companyId: string }
 
       {orderResult && <Card className="border-green-300 bg-green-50 p-4 dark:bg-green-950"><h2 className="font-semibold text-green-800 dark:text-green-200">Pesanan terkirim</h2><p className="mt-1 text-sm">Nomor pesanan: <strong>{orderResult.orderNumber}</strong></p><p className="text-sm">Total: Rp {orderResult.total.toLocaleString("id-ID")}</p><p className="mt-1 text-xs text-muted-foreground">Tunjukkan nomor ini kepada kasir untuk membantu pencocokan pesanan.</p></Card>}
 
-      {loading ? <div className="py-20 text-center text-sm text-muted-foreground">Memuat menu...</div> : !menu?.products.length ? <Card className="p-10 text-center text-sm text-muted-foreground">Belum ada produk yang tersedia.</Card> : (
+      {loading ? <div className="py-20 text-center text-sm text-muted-foreground">Memuat menu...</div> : menuError ? <Card className="border-destructive/40 p-5">
+        <h2 className="font-semibold text-destructive">Menu belum dapat dimuat</h2>
+        <p className="mt-2 break-words text-sm">{menuError}</p>
+        <Button className="mt-4" variant="outline" onClick={() => setReloadKey((value) => value + 1)}>Coba lagi</Button>
+      </Card> : !menu?.products.length ? <Card className="p-10 text-center text-sm text-muted-foreground">Belum ada produk yang tersedia.</Card> : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {menu.products.map((product) => {
             const selected = product.variants.find((variant) => variant.variantId === selectedVariants[product.productId]) ?? product.variants[0];
