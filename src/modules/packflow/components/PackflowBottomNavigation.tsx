@@ -1,14 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Archive, Clock3, ClipboardList, LayoutDashboard, Package } from "lucide-react";
+import { Archive, ClipboardList, LayoutDashboard, Package, Search, ScanLine } from "lucide-react";
 
 const menus = [
   { title: "Ringkasan", section: "overview", icon: LayoutDashboard },
-  { title: "Resi aktif", section: "items", icon: Package },
-  { title: "Pending", section: "pending", icon: Clock3 },
+  { title: "Input", section: "input", icon: ScanLine },
+  { title: "Ready", section: "ready", icon: Package },
+  { title: "Cari", section: "search", icon: Search },
   { title: "Riwayat", section: "history", icon: Archive },
   { title: "Barang", section: "supplies", icon: ClipboardList },
 ];
@@ -23,14 +23,14 @@ export default function PackflowBottomNavigation() {
   }, []);
   if (!pathname.startsWith("/packflow")) return null;
 
-  return <nav aria-label="Navigasi PackFlow" className="fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
-    <div className="mx-auto grid max-w-screen-lg grid-cols-5">
-      {menus.map(({ title, section, icon: Icon }, index) => {
+  return <nav aria-label="Navigasi PackFlow" className="fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+    <div className="mx-auto grid max-w-screen-lg grid-cols-6">
+      {menus.map(({ title, section, icon: Icon }) => {
         const active = current === section;
-        return <Link key={`${section}-${index}`} href="/packflow" onClick={() => { setCurrent(section); window.dispatchEvent(new CustomEvent("packflow:navigate", { detail: section })); }} aria-current={active ? "page" : undefined} className="flex flex-col items-center justify-center py-2">
-          <span className={`flex h-10 w-10 items-center justify-center rounded-full ${active ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}><Icon className="h-5 w-5"/></span>
-          <span className={`mt-1 text-[10px] ${active ? "font-semibold text-primary" : "text-muted-foreground"}`}>{title}</span>
-        </Link>;
+        return <button key={section} type="button" onClick={() => { setCurrent(section); window.dispatchEvent(new CustomEvent("packflow:navigate", { detail: section })); }} aria-current={active ? "page" : undefined} className="flex flex-col items-center justify-center py-1.5">
+          <span className={`flex h-9 w-9 items-center justify-center rounded-full ${active ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}><Icon className="h-4 w-4"/></span>
+          <span className={`mt-0.5 text-[10px] ${active ? "font-semibold text-primary" : "text-muted-foreground"}`}>{title}</span>
+        </button>;
       })}
     </div>
   </nav>;
