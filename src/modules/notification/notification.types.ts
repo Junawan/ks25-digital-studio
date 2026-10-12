@@ -6,6 +6,7 @@ export type NotificationAudience =
 export type NotificationModule =
   | "subscription"
   | "live-assistant"
+  | "packflow"
   | "system";
 
 export type NotificationType =
@@ -15,6 +16,7 @@ export type NotificationType =
   | "ai"
   | "import"
   | "welcome"
+  | "supply-request"
   | "update";
 
 export type NotificationPriority =

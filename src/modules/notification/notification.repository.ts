@@ -17,6 +17,25 @@ import type { Notification } from "./notification.types";
 
 export class NotificationRepository {
 
+  async createForCompany(
+    companyId: string,
+    receiverId: string,
+    notification: Omit<Notification, "notificationId" | "receiverId" | "receiverType" | "companyId" | "createdAt" | "isRead">,
+  ) {
+    const notificationRef = doc(collection(db, "notifications"));
+    await setDoc(notificationRef, {
+      ...notification,
+      notificationId: notificationRef.id,
+      companyId,
+      receiverId,
+      receiverType: "user",
+      isRead: false,
+      createdAt: new Date(),
+    } satisfies Notification);
+
+    return 1;
+  }
+
   async create(
   notification: Notification
 ) {

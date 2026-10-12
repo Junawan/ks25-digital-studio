@@ -4,9 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } fro
 import { Archive, Check, ClipboardList, Clock3, LayoutDashboard, Package, Plus, Search, ScanLine, Trash2 } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
-import { useCurrentUser } from "@/modules/user/use-current-user";
 import { packflowRepository } from "@/modules/packflow/packflow.repository";
 import type { PackflowHistoryRecord, PackflowRecord, SupplyRequest } from "@/modules/packflow/packflow.types";
+import { notificationService } from "@/modules/notification/notification.service";
+import { useActiveEmployee } from "@/modules/employee-profile/EmployeeIdentityProvider";
 import { BarcodeService } from "@/modules/pos/shared/barcode/services/BarcodeService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -49,8 +50,9 @@ function isScanSection(section: Section): section is ScanSection {
 
 export default function PackflowPage() {
   const { workspace, loading: workspaceLoading } = useWorkspace();
-  const user = useCurrentUser();
+  const { employee } = useActiveEmployee();
   const company = workspace?.company;
+  const employeeName = employee?.fullName || "Karyawan";
   const [section, setSection] = useState<Section>("overview");
   const [items, setItems] = useState<PackflowRecord[]>([]);
   const [pending, setPending] = useState<PackflowRecord[]>([]);
@@ -105,9 +107,9 @@ export default function PackflowPage() {
     setBusy(true);
     setNotice("");
     try {
-      await action();
+      const result = await action();
       await refresh();
-      setNotice(message);
+      setNotice(typeof result === "string" ? result : message);
     } catch (error) {
       console.error(error);
       setNotice("Perubahan gagal disimpan. Silakan coba lagi.");
@@ -278,13 +280,36 @@ export default function PackflowPage() {
   async function submitSupply(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!company?.id || !supplyName.trim()) return;
-    await perform(() => packflowRepository.addRequest({
-      companyId: company.id,
-      itemName: supplyName.trim(),
-      requester: user?.fullName ?? "Pengguna",
-      date: new Date().toLocaleDateString("sv-SE"),
-      status: "menunggu",
-    }), "Permintaan barang terkirim.");
+    if (!employee?.fullName.trim() || !employee.nik.trim()) {
+      setNotice("Identitas karyawan belum aktif. Masuk kembali menggunakan NIK dan PIN.");
+      return;
+    }
+    const itemName = supplyName.trim();
+    await perform(async () => {
+      const requestRef = await packflowRepository.addRequest({
+        companyId: company.id,
+        itemName,
+        requester: employeeName,
+        requesterNik: employee.nik,
+        date: new Date().toLocaleDateString("sv-SE"),
+        status: "menunggu",
+      });
+      try {
+        await notificationService.createForCompany(company.id, workspace!.user.userId, {
+          module: "packflow",
+          type: "supply-request",
+          priority: "normal",
+          title: "Permintaan barang baru",
+          message: `${employeeName} meminta ${itemName} (NIK ${employee.nik}).`,
+          actionUrl: "/packflow",
+          sourceId: requestRef.id,
+        });
+        return "Permintaan barang terkirim. Notifikasi muncul di akun perusahaan dan tersinkron ke perangkat yang login dengan akun tersebut.";
+      } catch (error) {
+        console.error("Supply request notification failed:", error);
+        return "Permintaan barang terkirim, tetapi notifikasi belum dapat dikirim.";
+      }
+    }, "Permintaan barang terkirim.");
     setSupplyName("");
   }
 
@@ -360,11 +385,11 @@ export default function PackflowPage() {
     </div>}
 
     {section === "history" && <Panel>
-      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><div><h2 className="text-lg font-semibold">Riwayat resi</h2><p className="text-sm text-muted-foreground">Filter tanggal untuk melihat paket yang selesai diproses.</p></div><div className="flex items-center gap-2"><Input aria-label="Filter tanggal riwayat" type="date" value={historyDate} onChange={(event) => setHistoryDate(event.target.value)} className="w-auto"/>{historyDate && <Button variant="ghost" size="sm" onClick={() => setHistoryDate("")}>Hapus filter</Button>}</div></div>
+      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><div><h2 className="text-lg font-semibold">Riwayat resi</h2><p className="text-sm text-muted-foreground">Filter tanggal untuk melihat paket yang selesai diproses.</p></div><div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center"><Input aria-label="Filter tanggal riwayat" type="date" value={historyDate} onChange={(event) => setHistoryDate(event.target.value)} className="w-full min-w-[240px] max-w-full sm:w-[220px]"/>{historyDate && <Button variant="ghost" size="sm" className="self-start sm:self-auto" onClick={() => setHistoryDate("")}>Hapus filter</Button>}</div></div>
       <div className="mt-4 divide-y">{filteredHistory.map((entry) => <div id={`packflow-history-${entry.id}`} key={entry.id} className={`flex justify-between gap-3 py-3 ${highlightHistoryId === entry.id ? "rounded-lg bg-yellow-100 px-3 ring-2 ring-yellow-400" : ""}`}><div><p className="font-medium">{entry.barcode}</p><p className="text-xs text-muted-foreground">{entry.date}</p></div><span className="text-sm text-muted-foreground">{entry.time}</span></div>)}{filteredHistory.length === 0 && <p className="py-10 text-center text-sm text-muted-foreground">{historyDate ? "Tidak ada resi pada tanggal tersebut." : "Belum ada riwayat."}</p>}</div>
     </Panel>}
 
-    {section === "supplies" && <div className="space-y-5"><Panel><h2 className="font-semibold">Buat permintaan barang</h2><form onSubmit={submitSupply} className="mt-3 flex flex-col gap-2 sm:flex-row"><Input value={supplyName} onChange={(event) => setSupplyName(event.target.value)} placeholder="Nama barang yang dibutuhkan"/><Button disabled={busy || !supplyName.trim()}>Kirim permintaan</Button></form></Panel><Panel><h2 className="font-semibold">Daftar permintaan</h2><div className="mt-3 divide-y">{requests.map((entry) => <div key={entry.id} className="flex flex-wrap items-center justify-between gap-3 py-3"><div><p className="font-medium">{entry.itemName}</p><p className="text-xs text-muted-foreground">{entry.requester} · {entry.date}</p></div><div className="flex items-center gap-2"><StatusPill>{entry.status}</StatusPill>{entry.status === "menunggu" && <Button size="sm" variant="outline" onClick={() => perform(() => packflowRepository.updateRequestStatus(entry.id, "diproses"), "Status diperbarui.")}>Proses</Button>}{entry.status === "diproses" && <Button size="sm" onClick={() => perform(() => packflowRepository.updateRequestStatus(entry.id, "ready"), "Barang ditandai siap.")}>Tandai siap</Button>}{entry.status === "ready" && <Button size="icon-sm" variant="ghost" aria-label="Hapus permintaan" onClick={() => perform(() => packflowRepository.removeRequest(entry.id), "Permintaan dihapus.")}><Trash2 className="h-4 w-4"/></Button>}</div></div>)}{requests.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Belum ada permintaan barang.</p>}</div></Panel></div>}
+    {section === "supplies" && <div className="space-y-5"><Panel><h2 className="font-semibold">Buat permintaan barang</h2><form onSubmit={submitSupply} className="mt-3 flex flex-col gap-2 sm:flex-row"><Input value={supplyName} onChange={(event) => setSupplyName(event.target.value)} placeholder="Nama barang yang dibutuhkan"/><Button disabled={busy || !supplyName.trim() || !employee?.nik}>Kirim permintaan</Button></form><p className="mt-2 text-xs text-muted-foreground">Dikirim oleh {employee?.nik ? `${employeeName} · NIK ${employee.nik}` : "Masuk dengan PIN karyawan untuk membuat permintaan."}</p></Panel><Panel><h2 className="font-semibold">Daftar permintaan</h2><div className="mt-3 divide-y">{requests.map((entry) => <div key={entry.id} className="flex flex-wrap items-center justify-between gap-3 py-3"><div><p className="font-medium">{entry.itemName}</p><p className="text-xs text-muted-foreground">{entry.requester}{entry.requesterNik ? ` · NIK ${entry.requesterNik}` : ""} · {entry.date}</p></div><div className="flex items-center gap-2"><StatusPill>{entry.status}</StatusPill>{entry.status === "menunggu" && <Button size="sm" variant="outline" onClick={() => perform(() => packflowRepository.updateRequestStatus(entry.id, "diproses"), "Status diperbarui.")}>Proses</Button>}{entry.status === "diproses" && <Button size="sm" onClick={() => perform(() => packflowRepository.updateRequestStatus(entry.id, "ready"), "Barang ditandai siap.")}>Tandai Selesai</Button>}{entry.status === "ready" && <Button size="icon-sm" variant="ghost" aria-label="Hapus permintaan" onClick={() => perform(() => packflowRepository.removeRequest(entry.id), "Permintaan dihapus.")}><Trash2 className="h-4 w-4"/></Button>}</div></div>)}{requests.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Belum ada permintaan barang.</p>}</div></Panel></div>}
     {duplicateWarning && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" role="presentation"><section role="alertdialog" aria-modal="true" aria-labelledby="packflow-duplicate-title" className="w-full max-w-md rounded-2xl border bg-card p-5 shadow-xl"><h2 id="packflow-duplicate-title" className="text-lg font-semibold">{duplicateWarning.kind === "active" ? "Resi sudah ada, sedang diproses kemas" : "Resi sudah dikemas"}</h2><p className="mt-2 text-sm text-muted-foreground">Nomor resi <strong className="text-foreground">{duplicateWarning.barcode}</strong> tidak ditambahkan lagi.</p><div className="mt-3 rounded-lg border-2 border-yellow-400 bg-yellow-100 p-3 text-sm text-yellow-950"><p className="font-semibold">Posisi: {duplicateWarning.kind === "active" ? "Resi aktif" : "Riwayat"}</p><p className="mt-1">{duplicateWarning.kind === "active" ? `Diinput ${duplicateWarning.timestamp}` : `Selesai ${duplicateWarning.date} · ${duplicateWarning.time}`}</p></div><div className="mt-5 flex justify-end gap-2"><Button variant="outline" onClick={() => setDuplicateWarning(null)}>Tutup</Button><Button onClick={() => { if (duplicateWarning.kind === "history") { setHistoryDate(""); setHighlightHistoryId(duplicateWarning.id); selectSection("history"); } else { selectSection("input"); requestAnimationFrame(() => document.getElementById(`packflow-active-${duplicateWarning.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" })); } setDuplicateWarning(null); }}>Tampilkan posisi</Button></div></section></div>}
   </div>;
 }

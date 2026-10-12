@@ -22,6 +22,7 @@ export interface SupplyRequest {
   companyId: string;
   itemName: string;
   requester: string;
+  requesterNik?: string;
   date: string;
   status: PackflowStatus;
   createdAt: Date;

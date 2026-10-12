@@ -19,7 +19,13 @@ export class AuthService {
   }
 
   async logout() {
-    return this.repository.logout();
+    await this.repository.logout();
+    if (typeof window !== "undefined") {
+      for (let index = window.sessionStorage.length - 1; index >= 0; index -= 1) {
+        const key = window.sessionStorage.key(index);
+        if (key?.startsWith("ks25:active-employee:")) window.sessionStorage.removeItem(key);
+      }
+    }
   }
 
   async resetPassword(input: ResetPasswordInput) {

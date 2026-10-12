@@ -4,6 +4,14 @@ import type { Notification } from "./notification.types";
 
 export class NotificationService {
 
+  async createForCompany(
+    companyId: string,
+    receiverId: string,
+    notification: Parameters<typeof notificationRepository.createForCompany>[2],
+  ) {
+    return notificationRepository.createForCompany(companyId, receiverId, notification);
+  }
+
   async create(
     notification: Notification
   ) {

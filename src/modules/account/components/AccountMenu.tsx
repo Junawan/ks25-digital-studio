@@ -6,6 +6,7 @@ import { authService } from "@/core/auth/auth.service";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
 import { Button } from "@/components/ui/button";
+import { useActiveEmployee } from "@/modules/employee-profile/EmployeeIdentityProvider";
 
 import { ShieldCheck, UserRoundX, } from "lucide-react";
 
@@ -25,6 +26,8 @@ export default function AccountMenu({
 
   const { workspace } =
     useWorkspace();
+
+  const { employee, switchEmployee } = useActiveEmployee();
 
   if (!open || !workspace) {
     return null;
@@ -54,7 +57,7 @@ export default function AccountMenu({
           text-white
           "
         >
-          {user.fullName
+          {(employee?.fullName || user.fullName)
             .charAt(0)
             .toUpperCase()}
         </div>
@@ -62,8 +65,10 @@ export default function AccountMenu({
         <div>
 
           <div className="font-semibold">
-            {user.fullName}
+            {employee?.fullName || user.fullName}
           </div>
+
+          {employee?.nik && <div className="text-xs text-muted-foreground">NIK {employee.nik}</div>}
 
           <div className="text-sm text-muted-foreground">
             {company.name}
@@ -71,6 +76,12 @@ export default function AccountMenu({
 
         </div>
 
+      </div>
+
+      <div className="mt-5 rounded-xl border p-3">
+        <p className="text-sm font-semibold">Profil karyawan aktif</p>
+        <p className="mt-1 text-xs text-muted-foreground">Gunakan Ganti karyawan sebelum perangkat ini dipakai karyawan lain.</p>
+        <Button variant="outline" className="mt-3 w-full" onClick={() => { onClose(); switchEmployee(); }}>Ganti karyawan</Button>
       </div>
 
       <div className="mt-6 space-y-3">
@@ -208,6 +219,8 @@ export default function AccountMenu({
           left-0
           right-0
           z-[60]
+          max-h-[85dvh]
+          overflow-y-auto
           rounded-t-3xl
           bg-background
           p-6
@@ -238,6 +251,8 @@ export default function AccountMenu({
           top-20
           z-[60]
           w-80
+          max-h-[85dvh]
+          overflow-y-auto
           rounded-2xl
           border
           bg-background

@@ -7,6 +7,7 @@ import { Sparkles, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
+import { useActiveEmployee } from "@/modules/employee-profile/EmployeeIdentityProvider";
 
 import { dashboardProducts } from "../dashboard.data";
 
@@ -16,6 +17,8 @@ export default function DashboardHero() {
 
   const { workspace } =
     useWorkspace();
+
+  const { employee } = useActiveEmployee();
 
   if (!workspace) {
     return null;
@@ -93,7 +96,7 @@ export default function DashboardHero() {
 
             {" "}
 
-            {workspace.user.fullName}
+            {employee?.fullName || workspace.user.fullName}
             👋
 
           </h1>
