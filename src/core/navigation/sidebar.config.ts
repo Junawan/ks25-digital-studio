@@ -36,6 +36,12 @@ export const sidebarItems: SidebarItem[] = [
   },
 
   {
+    title: "PackFlow",
+    href: "/packflow",
+    moduleId: "packflow",
+  },
+
+  {
     title: "Digital Invitation",
     href: "/digital-invitation",
     moduleId: "digital-invitation",

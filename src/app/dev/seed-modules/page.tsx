@@ -21,6 +21,13 @@ const modules = [
     category: "business",
   },
   {
+    moduleId: "packflow",
+    name: "KS25 PackFlow",
+    description: "Pemindaian resi dan monitoring proses packing",
+    icon: "package-check",
+    category: "business",
+  },
+  {
     moduleId: "digital-invitation",
     name: "Digital Invitation",
     description: "Platform Undangan Digital",

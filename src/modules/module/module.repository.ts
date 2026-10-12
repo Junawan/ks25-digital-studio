@@ -16,7 +16,7 @@ export class ModuleRepository {
         collection(db, "modules")
       );
 
-    return snapshot.docs.map((doc) => {
+    const installedInMarketplace = snapshot.docs.map((doc) => {
 
       const data = doc.data();
 
@@ -49,6 +49,24 @@ export class ModuleRepository {
       } as Module;
 
     });
+
+    // PackFlow is part of the application catalog, so it remains installable
+    // for existing workspaces even before the optional module seeder runs.
+    if (!installedInMarketplace.some((item) => item.moduleId === "packflow")) {
+      installedInMarketplace.push({
+        moduleId: "packflow",
+        code: "PACKFLOW",
+        name: "KS25 PackFlow",
+        description: "Pemindaian resi dan monitoring proses packing",
+        icon: "package-check",
+        category: "business",
+        active: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+
+    return installedInMarketplace;
 
   }
 

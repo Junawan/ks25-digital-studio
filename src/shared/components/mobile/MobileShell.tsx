@@ -11,6 +11,7 @@ from "@/shared/navigation/RootBottomNavigation";
 import LiveAssistantBottomNavigation
 from "@/modules/live-assistant/components/LiveAssistantBottomNavigation";
 import PosBottomNavigation from "@/modules/pos/shared/components/PosBottomNavigation";
+import PackflowBottomNavigation from "@/modules/packflow/components/PackflowBottomNavigation";
 
 interface Props {
   children: ReactNode;
@@ -35,6 +36,8 @@ const isPresenter =
   pathname.startsWith(
     "/pos"
   );
+
+  const isPackflow = pathname.startsWith("/packflow");
 
   return (
 
@@ -76,6 +79,10 @@ isPresenter
 
     <PosBottomNavigation />
 
+  ) : isPackflow ? (
+
+    <PackflowBottomNavigation />
+
   ) : (
 
     <RootBottomNavigation />
@@ -90,6 +97,7 @@ isPresenter
 }
 
 function getTitle(pathname: string) {
+  if (pathname.startsWith("/packflow")) return "KS25 PackFlow";
   if (pathname.includes("/marketplace")) {
     return "Marketplace";
   }

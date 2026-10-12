@@ -479,12 +479,12 @@ export const dashboardProducts: DashboardProduct[] = [
   name: "KS25 PackFlow",
 
   description:
-    "Scanner resi dan monitoring packing.",
+    "Pemindaian resi dan monitoring proses packing.",
 
   longDescription:
-    "KS25 PackFlow membantu proses packing pesanan dengan scanner resi, monitoring status packing, dan mencegah resi ganda.",
+    "KS25 PackFlow membantu tim mengelola resi masuk, proses packing, riwayat paket, dan permintaan barang dalam satu dashboard perusahaan.",
 
-  version: "Coming Soon",
+  version: "1.0.0",
 
   image: "/images/modules/packflow2.png",
 
@@ -498,19 +498,35 @@ export const dashboardProducts: DashboardProduct[] = [
 
   color: "from-cyan-500 to-sky-500",
 
-  ready: false,
+  ready: true,
 
-  route: "#",
+  route: "/packflow",
 
-  features: [],
+  features: [
+    { icon: "📦", title: "Kelola Resi", description: "Catat, cari, dan pantau resi aktif serta daftar paket pending." },
+    { icon: "🔎", title: "Pencarian Cepat", description: "Temukan resi berdasarkan barcode dengan scanner atau input keyboard." },
+    { icon: "🧾", title: "Riwayat Pemrosesan", description: "Simpan jejak resi yang selesai diproses berdasarkan tanggal." },
+    { icon: "🛒", title: "Permintaan Barang", description: "Ajukan kebutuhan operasional dan pantau status pemenuhannya." },
+  ],
 
-  workflows: [],
+  workflows: [
+    { title: "Catat Resi", description: "Pindai dengan scanner barcode atau ketik kode untuk menambah resi." },
+    { title: "Proses Paket", description: "Tinjau daftar pending lalu tandai paket yang telah selesai." },
+    { title: "Pantau Riwayat", description: "Cari kembali resi selesai berdasarkan barcode atau tanggal." },
+    { title: "Kelola Operasional", description: "Kirim permintaan barang dan pantau proses pemenuhannya." },
+  ],
 
-  tutorials: [],
+  tutorials: [
+    { title: "Memulai PackFlow", description: "Buka menu Resi Aktif untuk mulai mencatat barang masuk." },
+    { title: "Memproses Resi", description: "Gunakan menu Pending untuk mencatat penyelesaian packing." },
+  ],
 
-  faq: [],
+  faq: [
+    { question: "Apakah PackFlow bisa dipakai dengan scanner barcode?", answer: "Ya. Input resi menerima scanner barcode USB/Bluetooth yang bertindak sebagai keyboard, dan kode juga dapat diketik manual." },
+    { question: "Apakah data dibagikan antar anggota perusahaan?", answer: "Data PackFlow tersimpan berdasarkan perusahaan yang sedang aktif di KS25 Digital Studio." },
+  ],
 
-  status: "coming-soon",
+  status: "stable",
 
 },
 

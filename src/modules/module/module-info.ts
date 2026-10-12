@@ -24,6 +24,12 @@ export const MODULE_INFO: Record<string, ModuleInfo> = {
     route: "/pos",
   },
 
+  packflow: {
+    name: "KS25 PackFlow",
+    description: "Pemindaian resi dan monitoring proses packing",
+    route: "/packflow",
+  },
+
   "online-store": {
     name: "Online Store",
     description: "Website Toko Online",
