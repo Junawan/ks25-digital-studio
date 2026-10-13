@@ -30,6 +30,12 @@ export const MODULE_INFO: Record<string, ModuleInfo> = {
     route: "/packflow",
   },
 
+  attendance: {
+    name: "KS25 Absensi",
+    description: "Absensi selfie, informasi perusahaan, dan pengajuan cuti",
+    route: "/attendance",
+  },
+
   "online-store": {
     name: "Online Store",
     description: "Website Toko Online",

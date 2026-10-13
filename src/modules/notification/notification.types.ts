@@ -7,6 +7,7 @@ export type NotificationModule =
   | "subscription"
   | "live-assistant"
   | "packflow"
+  | "attendance"
   | "system";
 
 export type NotificationType =

@@ -42,6 +42,12 @@ export const sidebarItems: SidebarItem[] = [
   },
 
   {
+    title: "KS25 Absensi",
+    href: "/attendance",
+    moduleId: "attendance",
+  },
+
+  {
     title: "Digital Invitation",
     href: "/digital-invitation",
     moduleId: "digital-invitation",

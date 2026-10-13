@@ -394,15 +394,15 @@ export const dashboardProducts: DashboardProduct[] = [
   {
   moduleId: "attendance",
 
-  name: "KS25 Attendance",
+  name: "KS25 Absensi",
 
   description:
     "Absensi karyawan berbasis cloud.",
 
   longDescription:
-    "KS25 Attendance memudahkan pencatatan kehadiran, izin, cuti, dan laporan absensi secara realtime.",
+    "KS25 Absensi memudahkan pencatatan kehadiran selfie, cuti, informasi, dan laporan absensi secara realtime.",
 
-  version: "Coming Soon",
+  version: "1.0.0",
 
   image: "/images/modules/attendance2.png",
 
@@ -416,9 +416,9 @@ export const dashboardProducts: DashboardProduct[] = [
 
   color: "from-orange-500 to-amber-500",
 
-  ready: false,
+  ready: true,
 
-  route: "#",
+  route: "/attendance",
 
   features: [],
 
@@ -428,7 +428,7 @@ export const dashboardProducts: DashboardProduct[] = [
 
   faq: [],
 
-  status: "coming-soon",
+  status: "stable",
 
 },
 

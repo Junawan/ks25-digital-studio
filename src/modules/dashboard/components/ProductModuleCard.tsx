@@ -83,6 +83,8 @@ function getModuleRoute(
 
     case "packflow":
       return "/packflow";
+    case "attendance":
+      return "/attendance";
 
     default:
       return "/";
@@ -103,6 +105,8 @@ function getModuleIcon(
 
     case "packflow":
       return "packflow";
+    case "attendance":
+      return "attendance";
 
     default:
       return "live_assistant";

@@ -66,6 +66,15 @@ export class ModuleRepository {
       });
     }
 
+    if (!installedInMarketplace.some((item) => item.moduleId === "attendance")) {
+      installedInMarketplace.push({
+        moduleId: "attendance", code: "ATTENDANCE", name: "KS25 Absensi",
+        description: "Absensi selfie, informasi perusahaan, dan pengajuan cuti",
+        icon: "calendar-check", category: "business", active: true,
+        createdAt: new Date(), updatedAt: new Date(),
+      });
+    }
+
     return installedInMarketplace;
 
   }

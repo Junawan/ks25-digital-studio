@@ -38,6 +38,7 @@ const isPresenter =
   );
 
   const isPackflow = pathname.startsWith("/packflow");
+  const isAttendance = pathname.startsWith("/attendance");
 
   return (
 
@@ -49,7 +50,7 @@ text-black
 "
 >
 
-{!isPresenter && (
+{!isPresenter && !isAttendance && (
 
 <MobileHeader
 title={title}
@@ -69,7 +70,7 @@ isPresenter
 
 </main>
 
-{!isPresenter && (
+{!isPresenter && !isAttendance && (
 
   isLiveAssistant ? (
 
@@ -98,6 +99,7 @@ isPresenter
 
 function getTitle(pathname: string) {
   if (pathname.startsWith("/packflow")) return "KS25 PackFlow";
+  if (pathname.startsWith("/attendance")) return "KS25 Absensi";
   if (pathname.includes("/marketplace")) {
     return "Marketplace";
   }
