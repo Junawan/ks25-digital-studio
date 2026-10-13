@@ -14,6 +14,12 @@ const profileId = (companyId: string, nik: string) => encodeURIComponent(`${comp
 const localDate = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
 export const attendanceRepository = {
+  async employee(companyId: string, nik: string): Promise<AttendanceEmployee | null> {
+    const snapshot = await getDoc(doc(db, COLLECTIONS.employees, profileId(companyId, nik)));
+    if (!snapshot.exists()) return null;
+    const data = snapshot.data();
+    return { fullName: String(data.fullName ?? "Karyawan"), nik: String(data.nik ?? normalized(nik)), hireDate: typeof data.hireDate === "string" ? data.hireDate : "" };
+  },
   async employees(companyId: string): Promise<AttendanceEmployee[]> {
     const snapshot = await getDocs(query(collection(db, COLLECTIONS.employees), where("companyId", "==", companyId)));
     return snapshot.docs.map((entry) => ({ fullName: String(entry.data().fullName ?? "Karyawan"), nik: String(entry.data().nik ?? ""), hireDate: typeof entry.data().hireDate === "string" ? entry.data().hireDate : "" }));
