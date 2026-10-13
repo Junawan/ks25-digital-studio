@@ -7,6 +7,7 @@ import {
 } from "next/navigation";
 
 import { BarcodeService } from "@/modules/pos/shared/barcode/services/BarcodeService";
+import { X } from "lucide-react";
 
 import { scannerDI } from "@/modules/pos/shared/scanner/di/scanner";
 import { beep } from "../../utils/beep";
@@ -63,6 +64,7 @@ const runningRef =
       });
 
     if (!barcode) {
+      router.replace("/dashboard");
       return;
     }
 
@@ -155,6 +157,8 @@ const runningRef =
   setLoading(false);
 
   setStatus("ready");
+
+  router.replace("/dashboard");
 
   return;
 
@@ -299,10 +303,22 @@ if (!paired) {
 
     <div
       className="
+      relative
       space-y-6
       p-6
       "
     >
+
+      <Button
+        type="button"
+        size="icon"
+        variant="outline"
+        aria-label="Tutup scanner dan kembali ke Dashboard"
+        className="absolute right-4 top-4"
+        onClick={() => router.replace("/dashboard")}
+      >
+        <X className="h-4 w-4" />
+      </Button>
 
       <p
         className="
@@ -335,9 +351,21 @@ if (!paired) {
   return (
     <div className="mx-auto max-w-md space-y-6 p-6">
 
-      <h1 className="text-2xl font-bold">
-        Scanner
-      </h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">Scanner</h1>
+        <Button
+          type="button"
+          size="icon"
+          variant="outline"
+          aria-label="Tutup scanner dan kembali ke Dashboard"
+          onClick={() => {
+            runningRef.current = false;
+            router.replace("/dashboard");
+          }}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
 
       <p
 className="
@@ -399,7 +427,7 @@ font-medium
     runningRef.current =
       false;
 
-    router.back();
+    router.replace("/dashboard");
 
   }}
 >

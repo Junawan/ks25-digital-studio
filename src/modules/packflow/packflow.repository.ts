@@ -31,6 +31,15 @@ export const packflowRepository = {
   requests: (companyId: string) => list<SupplyRequest>(COLLECTIONS.requests, companyId),
   addItem: (companyId: string, barcode: string) => addDoc(collection(db, COLLECTIONS.items), { companyId, barcode, timestamp: new Date().toLocaleString("id-ID"), createdAt: new Date() }),
   addPending: (companyId: string, barcode: string) => addDoc(collection(db, COLLECTIONS.pending), { companyId, barcode, timestamp: new Date().toLocaleString("id-ID"), createdAt: new Date() }),
+  removeAllItems: async (companyId: string) => {
+    const snapshot = await getDocs(query(collection(db, COLLECTIONS.items), where("companyId", "==", companyId)));
+    for (let offset = 0; offset < snapshot.docs.length; offset += 500) {
+      const batch = writeBatch(db);
+      snapshot.docs.slice(offset, offset + 500).forEach((entry) => batch.delete(entry.ref));
+      await batch.commit();
+    }
+    return snapshot.size;
+  },
   removeItem: (id: string) => deleteDoc(doc(db, COLLECTIONS.items, id)),
   processItem: (companyId: string, item: PackflowRecord) => moveToHistory(companyId, item, "items"),
   processPending: (companyId: string, item: PackflowRecord) => moveToHistory(companyId, item, "pending"),

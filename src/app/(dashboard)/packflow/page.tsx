@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
-import { Archive, Check, ClipboardList, Clock3, LayoutDashboard, Package, Plus, Search, ScanLine, Trash2 } from "lucide-react";
+import { Archive, Check, ClipboardList, Clock3, LayoutDashboard, Package, Plus, Search, ScanLine, Trash2, X } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 import { packflowRepository } from "@/modules/packflow/packflow.repository";
@@ -16,14 +16,16 @@ type Section = "overview" | "input" | "ready" | "search" | "pending" | "history"
 type ScanSection = Extract<Section, "input" | "ready" | "search" | "pending">;
 type SearchResult =
   | { kind: "active"; barcode: string; timestamp: string; id: string }
+  | { kind: "pending"; barcode: string; timestamp: string; id: string }
   | { kind: "history"; barcode: string; date: string; time: string; id: string }
   | { kind: "not-found"; barcode: string };
 type DuplicateWarning =
   | { kind: "active"; barcode: string; id: string; timestamp: string }
+  | { kind: "pending"; barcode: string; id: string; timestamp: string }
   | { kind: "history"; barcode: string; id: string; date: string; time: string };
 
 const webMenu: { id: Section; title: string; icon: typeof Package }[] = [
-  { id: "overview", title: "Ringkasan", icon: LayoutDashboard },
+  { id: "overview", title: "Dashboard", icon: LayoutDashboard },
   { id: "input", title: "Input", icon: ScanLine },
   { id: "ready", title: "Ready", icon: Check },
   { id: "search", title: "Cari", icon: Search },
@@ -67,6 +69,7 @@ export default function PackflowPage() {
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
   const [duplicateWarning, setDuplicateWarning] = useState<DuplicateWarning | null>(null);
   const [highlightActiveId, setHighlightActiveId] = useState<string | null>(null);
+  const [highlightPendingId, setHighlightPendingId] = useState<string | null>(null);
   const [highlightHistoryId, setHighlightHistoryId] = useState<string | null>(null);
   const [historyDate, setHistoryDate] = useState("");
   const [supplyName, setSupplyName] = useState("");
@@ -133,6 +136,12 @@ export default function PackflowPage() {
         setScannerMessage("");
         return;
       }
+      const pendingDuplicate = pending.find((item) => item.barcode.toLowerCase() === barcode.toLowerCase());
+      if (pendingDuplicate) {
+        setHighlightPendingId(pendingDuplicate.id);
+        setDuplicateWarning({ kind: "pending", barcode: pendingDuplicate.barcode, id: pendingDuplicate.id, timestamp: pendingDuplicate.timestamp });
+        return;
+      }
       const packedDuplicate = history.find((item) => item.barcode.toLowerCase() === barcode.toLowerCase());
       if (packedDuplicate) {
         setDuplicateWarning({ kind: "history", barcode: packedDuplicate.barcode, id: packedDuplicate.id, date: packedDuplicate.date, time: packedDuplicate.time });
@@ -145,8 +154,21 @@ export default function PackflowPage() {
     }
 
     if (target === "pending") {
-      if (pending.some((item) => item.barcode.toLowerCase() === barcode.toLowerCase())) {
-        setScannerMessage("Resi ini sudah ada di daftar pending.");
+      const activeDuplicate = items.find((item) => item.barcode.toLowerCase() === barcode.toLowerCase());
+      if (activeDuplicate) {
+        setHighlightActiveId(activeDuplicate.id);
+        setDuplicateWarning({ kind: "active", barcode: activeDuplicate.barcode, id: activeDuplicate.id, timestamp: activeDuplicate.timestamp });
+        return;
+      }
+      const packedDuplicate = history.find((item) => item.barcode.toLowerCase() === barcode.toLowerCase());
+      if (packedDuplicate) {
+        setDuplicateWarning({ kind: "history", barcode: packedDuplicate.barcode, id: packedDuplicate.id, date: packedDuplicate.date, time: packedDuplicate.time });
+        return;
+      }
+      const pendingDuplicate = pending.find((item) => item.barcode.toLowerCase() === barcode.toLowerCase());
+      if (pendingDuplicate) {
+        setHighlightPendingId(pendingDuplicate.id);
+        setDuplicateWarning({ kind: "pending", barcode: pendingDuplicate.barcode, id: pendingDuplicate.id, timestamp: pendingDuplicate.timestamp });
         return;
       }
       await perform(() => packflowRepository.addPending(company.id, barcode), "Resi ditambahkan ke daftar pending.");
@@ -156,12 +178,20 @@ export default function PackflowPage() {
 
     if (target === "ready") {
       const activeItem = items.find((item) => item.barcode.toLowerCase() === barcode.toLowerCase());
-      if (!activeItem) {
-        setScannerMessage("Resi tidak ditemukan di daftar aktif. Paket tidak dipindahkan.");
+      const pendingItem = pending.find((item) => item.barcode.toLowerCase() === barcode.toLowerCase());
+      if (activeItem) {
+        await perform(() => packflowRepository.processItem(company.id, activeItem), "Resi dipindahkan ke riwayat.");
+        setScannerMessage("Paket selesai dikemas dan dipindahkan ke riwayat.");
         return;
       }
-      await perform(() => packflowRepository.processItem(company.id, activeItem), "Resi dipindahkan ke riwayat.");
-      setScannerMessage("Paket selesai dikemas dan dipindahkan ke riwayat.");
+      if (pendingItem) {
+        await perform(() => packflowRepository.processPending(company.id, pendingItem), "Resi pending selesai dikemas dan dipindahkan ke riwayat.");
+        setScannerMessage("Paket pending selesai dikemas dan dipindahkan ke riwayat.");
+        return;
+      }
+      setScannerMessage(history.some((item) => item.barcode.toLowerCase() === barcode.toLowerCase())
+        ? "Resi ini sudah berada di riwayat."
+        : "Resi tidak ditemukan di daftar aktif atau pending. Paket tidak dipindahkan.");
       return;
     }
 
@@ -169,12 +199,21 @@ export default function PackflowPage() {
     if (activeItem) {
       setSearchResult({ kind: "active", barcode: activeItem.barcode, timestamp: activeItem.timestamp, id: activeItem.id });
       setSection("search");
+      window.dispatchEvent(new CustomEvent("packflow:section-changed", { detail: "search" }));
+      return;
+    }
+    const pendingItem = pending.find((item) => item.barcode.toLowerCase() === barcode.toLowerCase());
+    if (pendingItem) {
+      setSearchResult({ kind: "pending", barcode: pendingItem.barcode, timestamp: pendingItem.timestamp, id: pendingItem.id });
+      setSection("search");
+      window.dispatchEvent(new CustomEvent("packflow:section-changed", { detail: "search" }));
       return;
     }
     const historyItem = history.find((item) => item.barcode.toLowerCase() === barcode.toLowerCase());
     if (historyItem) {
       setSearchResult({ kind: "history", barcode: historyItem.barcode, date: historyItem.date, time: historyItem.time, id: historyItem.id });
       setSection("search");
+      window.dispatchEvent(new CustomEvent("packflow:section-changed", { detail: "search" }));
       return;
     }
     setSearchResult({ kind: "not-found", barcode });
@@ -186,7 +225,10 @@ export default function PackflowPage() {
     try {
       const result = await new BarcodeService().scan({ mode: "single", vibrate: true });
       if (result) await processBarcode(result.text, target);
-      else setScannerMessage("Pemindaian dibatalkan.");
+      else {
+        setScannerMessage("Pemindaian dibatalkan.");
+        selectSection("overview");
+      }
     } catch (error) {
       console.error(error);
       setCameraError(error instanceof Error ? error.message : "Kamera tidak dapat dibuka.");
@@ -200,13 +242,14 @@ export default function PackflowPage() {
     else setCameraOpen(true);
   }
 
-  function selectSection(next: Section) {
+  function selectSection(next: Section, openScan = true) {
     setSection(next);
+    window.dispatchEvent(new CustomEvent("packflow:section-changed", { detail: next }));
     setNotice("");
     setScannerMessage("");
     setCameraError("");
     if (next !== "search") setSearchResult(null);
-    if (isScanSection(next)) {
+    if (openScan && isScanSection(next)) {
       openScanner(next);
     } else {
       setCameraOpen(false);
@@ -268,6 +311,11 @@ export default function PackflowPage() {
   }, [searchResult]);
 
   useEffect(() => {
+    if (!highlightPendingId) return;
+    requestAnimationFrame(() => document.getElementById(`packflow-pending-${highlightPendingId}`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
+  }, [highlightPendingId, section]);
+
+  useEffect(() => {
     if (!highlightHistoryId) return;
     requestAnimationFrame(() => document.getElementById(`packflow-history-${highlightHistoryId}`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
   }, [highlightHistoryId, section]);
@@ -275,6 +323,15 @@ export default function PackflowPage() {
   function submitScanner(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (isScanSection(section)) void processBarcode(scannerValue, section);
+  }
+
+  function clearAllActiveItems() {
+    if (!company?.id || items.length === 0 || busy) return;
+    const confirmed = window.confirm(`Hapus semua ${items.length} resi aktif? Data yang dihapus tidak dapat dipulihkan.`);
+    if (confirmed) {
+      void perform(() => packflowRepository.removeAllItems(company.id), "Semua resi aktif berhasil dihapus.");
+      setHighlightActiveId(null);
+    }
   }
 
   async function submitSupply(event: FormEvent<HTMLFormElement>) {
@@ -355,7 +412,7 @@ export default function PackflowPage() {
           <div className="mt-4 flex flex-wrap gap-2"><Button onClick={() => selectSection("input")}><ScanLine className="mr-2 h-4 w-4"/>Input resi</Button><Button variant="outline" onClick={() => selectSection("pending")}>Pending ({pending.length})</Button><Button variant="outline" onClick={() => selectSection("ready")}>Pindahkan ke riwayat</Button></div>
         </Panel>
         <Panel>
-          <div className="flex items-start justify-between gap-3"><div><h2 className="font-semibold">Resi sedang diproses</h2><p className="mt-1 text-sm text-muted-foreground">Resi yang diinput akan tampil di sini sampai discan di Ready.</p></div><Button size="sm" onClick={() => selectSection("input")}><ScanLine className="mr-2 h-4 w-4"/>Input resi</Button></div>
+          <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="font-semibold">Resi sedang diproses</h2><p className="mt-1 text-sm text-muted-foreground">Resi yang diinput akan tampil di sini sampai discan di Ready.</p></div><div className="flex flex-wrap gap-2"><Button size="sm" onClick={() => selectSection("input")}><ScanLine className="mr-2 h-4 w-4"/>Input resi</Button><Button size="sm" variant="destructive" disabled={busy || items.length === 0} onClick={clearAllActiveItems}><Trash2 className="mr-2 h-4 w-4"/>Hapus semua resi aktif</Button></div></div>
           <div className="mt-3 max-h-96 divide-y overflow-y-auto">{items.map((item) => <div key={item.id} className="flex flex-wrap items-center justify-between gap-2 py-3"><span className="font-medium">{item.barcode}</span><span className="text-xs text-muted-foreground">Diinput {item.timestamp}</span></div>)}{items.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Belum ada resi aktif. Tekan Input resi untuk mulai scan.</p>}</div>
         </Panel>
       </div>
@@ -372,16 +429,16 @@ export default function PackflowPage() {
         </form>
         {scannerMessage && <p role="status" className="mt-3 text-sm font-medium text-primary">{scannerMessage}</p>}
         {cameraError && <p role="alert" className="mt-3 text-sm text-destructive">{cameraError}</p>}
-        {cameraOpen && !Capacitor.isNativePlatform() && <div className="mt-4 overflow-hidden rounded-xl border bg-black"><video ref={videoRef} autoPlay muted playsInline className="max-h-[55vh] w-full object-contain"/><p className="p-3 text-center text-sm text-white">Arahkan kamera ke barcode resi.</p><Button className="m-3 mt-0" variant="secondary" onClick={() => setCameraOpen(false)}>Tutup kamera</Button></div>}
+        {cameraOpen && !Capacitor.isNativePlatform() && <div className="relative mt-4 overflow-hidden rounded-xl border bg-black"><Button type="button" size="icon" variant="secondary" aria-label="Tutup pemindai dan kembali ke Dashboard" className="absolute right-3 top-3 z-10" onClick={() => selectSection("overview")}><X className="h-4 w-4"/></Button><video ref={videoRef} autoPlay muted playsInline className="max-h-[55vh] w-full object-contain"/><p className="p-3 text-center text-sm text-white">Arahkan kamera ke barcode resi.</p></div>}
       </Panel>
 
-      {section === "input" && <Panel><div className="flex items-center justify-between gap-3"><div><h3 className="font-semibold">Resi aktif</h3><p className="text-sm text-muted-foreground">{items.length} paket menunggu proses.</p></div><Button variant="outline" size="sm" onClick={() => selectSection("ready")}>Scan paket ready</Button></div><div className="mt-4 divide-y">{items.map((item) => <div id={`packflow-active-${item.id}`} key={item.id} className={`flex items-center justify-between gap-3 py-3 ${highlightActiveId === item.id ? "rounded-lg bg-yellow-100 px-3 ring-2 ring-yellow-400" : ""}`}><div><p className="font-medium">{item.barcode}</p><p className="text-xs text-muted-foreground">Masuk {item.timestamp}</p></div><Button size="sm" variant="ghost" onClick={() => perform(() => packflowRepository.removeItem(item.id), "Resi dihapus dari daftar aktif.")}><Trash2 className="mr-2 h-4 w-4"/>Hapus</Button></div>)}{items.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Belum ada resi aktif.</p>}</div></Panel>}
+      {section === "input" && <Panel><div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-semibold">Resi aktif</h3><p className="text-sm text-muted-foreground">{items.length} paket menunggu proses.</p></div><div className="flex flex-wrap gap-2"><Button variant="outline" size="sm" onClick={() => selectSection("ready")}>Scan paket ready</Button><Button variant="destructive" size="sm" disabled={busy || items.length === 0} onClick={clearAllActiveItems}><Trash2 className="mr-2 h-4 w-4"/>Hapus semua resi aktif</Button></div></div><div className="mt-4 divide-y">{items.map((item) => <div id={`packflow-active-${item.id}`} key={item.id} className={`flex items-center justify-between gap-3 py-3 ${highlightActiveId === item.id ? "rounded-lg bg-yellow-100 px-3 ring-2 ring-yellow-400" : ""}`}><div><p className="font-medium">{item.barcode}</p><p className="text-xs text-muted-foreground">Masuk {item.timestamp}</p></div><Button size="sm" variant="ghost" onClick={() => perform(() => packflowRepository.removeItem(item.id), "Resi dihapus dari daftar aktif.")}><Trash2 className="mr-2 h-4 w-4"/>Hapus</Button></div>)}{items.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Belum ada resi aktif.</p>}</div></Panel>}
 
-      {section === "ready" && <Panel><h3 className="font-semibold">Paket yang dapat diselesaikan</h3><p className="mt-1 text-sm text-muted-foreground">Scan salah satu resi aktif untuk memindahkannya ke riwayat.</p><div className="mt-4 divide-y">{items.slice(0, 8).map((item) => <div key={item.id} className="flex items-center justify-between gap-3 py-3"><div><p className="font-medium">{item.barcode}</p><p className="text-xs text-muted-foreground">Masuk {item.timestamp}</p></div><Button size="sm" disabled={busy} onClick={() => company.id && perform(() => packflowRepository.processItem(company.id, item), "Resi dipindahkan ke riwayat.")}><Check className="mr-2 h-4 w-4"/>Selesai</Button></div>)}{items.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Tidak ada resi aktif untuk diproses.</p>}</div></Panel>}
+      {section === "ready" && <Panel><div className="flex flex-wrap items-start justify-between gap-3"><div><h3 className="font-semibold">Paket yang dapat diselesaikan</h3><p className="mt-1 text-sm text-muted-foreground">Scan resi aktif atau pending untuk memindahkannya ke riwayat.</p></div><Button variant="destructive" size="sm" disabled={busy || items.length === 0} onClick={clearAllActiveItems}><Trash2 className="mr-2 h-4 w-4"/>Hapus semua resi aktif</Button></div><div className="mt-4 divide-y">{items.slice(0, 8).map((item) => <div key={item.id} className="flex items-center justify-between gap-3 py-3"><div><p className="font-medium">{item.barcode}</p><p className="text-xs text-muted-foreground">Masuk {item.timestamp}</p></div><Button size="sm" disabled={busy} onClick={() => company.id && perform(() => packflowRepository.processItem(company.id, item), "Resi dipindahkan ke riwayat.")}><Check className="mr-2 h-4 w-4"/>Selesai</Button></div>)}{pending.map((item) => <div key={`pending-${item.id}`} className="flex items-center justify-between gap-3 py-3"><div><p className="font-medium">{item.barcode}</p><p className="text-xs text-muted-foreground">Pending sejak {item.timestamp}</p></div><Button size="sm" disabled={busy} onClick={() => company.id && perform(() => packflowRepository.processPending(company.id, item), "Resi pending dipindahkan ke riwayat.")}><Check className="mr-2 h-4 w-4"/>Selesai</Button></div>)}{items.length === 0 && pending.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Tidak ada resi aktif atau pending untuk diproses.</p>}</div></Panel>}
 
-      {section === "search" && <Panel><h3 className="font-semibold">Hasil pencarian</h3>{!searchResult && <p className="mt-2 text-sm text-muted-foreground">Hasil scan akan menunjukkan lokasi resi di sini.</p>}{searchResult?.kind === "not-found" && <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">Resi <strong>{searchResult.barcode}</strong> tidak ditemukan di resi aktif maupun riwayat.</p>}{searchResult?.kind === "active" && <div id="packflow-search-hit" className="mt-3 rounded-xl border-2 border-yellow-400 bg-yellow-100 p-4 text-yellow-950 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wide">Posisi: Resi aktif</p><p className="mt-1 text-xl font-bold">{searchResult.barcode}</p><p className="mt-1 text-sm">Masuk {searchResult.timestamp}</p></div>}{searchResult?.kind === "history" && <div id="packflow-search-hit" className="mt-3 rounded-xl border-2 border-yellow-400 bg-yellow-100 p-4 text-yellow-950 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wide">Posisi: Riwayat</p><p className="mt-1 text-xl font-bold">{searchResult.barcode}</p><p className="mt-1 text-sm">Selesai {searchResult.date} · {searchResult.time}</p></div>}</Panel>}
+      {section === "search" && <Panel><h3 className="font-semibold">Hasil pencarian</h3>{!searchResult && <p className="mt-2 text-sm text-muted-foreground">Hasil scan akan menunjukkan lokasi resi di sini.</p>}{searchResult?.kind === "not-found" && <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">Resi <strong>{searchResult.barcode}</strong> tidak ditemukan di resi aktif, pending, maupun riwayat.</p>}{searchResult?.kind === "active" && <div id="packflow-search-hit" className="mt-3 rounded-xl border-2 border-yellow-400 bg-yellow-100 p-4 text-yellow-950 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wide">Posisi: Resi aktif</p><p className="mt-1 text-xl font-bold">{searchResult.barcode}</p><p className="mt-1 text-sm">Masuk {searchResult.timestamp}</p></div>}{searchResult?.kind === "pending" && <div id="packflow-search-hit" className="mt-3 rounded-xl border-2 border-yellow-400 bg-yellow-100 p-4 text-yellow-950 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wide">Posisi: Pending</p><p className="mt-1 text-xl font-bold">{searchResult.barcode}</p><p className="mt-1 text-sm">Dicatat {searchResult.timestamp}</p></div>}{searchResult?.kind === "history" && <div id="packflow-search-hit" className="mt-3 rounded-xl border-2 border-yellow-400 bg-yellow-100 p-4 text-yellow-950 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wide">Posisi: Riwayat</p><p className="mt-1 text-xl font-bold">{searchResult.barcode}</p><p className="mt-1 text-sm">Selesai {searchResult.date} · {searchResult.time}</p></div>}</Panel>}
 
-      {section === "pending" && <Panel><div><h3 className="font-semibold">Daftar pending</h3><p className="text-sm text-muted-foreground">{pending.length} resi belum berhasil dikemas.</p></div><div className="mt-4 divide-y">{pending.map((item) => <div key={item.id} className="flex items-center justify-between gap-3 py-3"><div><p className="font-medium">{item.barcode}</p><p className="text-xs text-muted-foreground">Dicatat {item.timestamp}</p></div><Button size="sm" variant="outline" onClick={() => perform(() => packflowRepository.removePending(item.id), "Resi dihapus dari pending.")}><Trash2 className="mr-2 h-4 w-4"/>Hapus</Button></div>)}{pending.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Belum ada resi pending.</p>}</div></Panel>}
+      {section === "pending" && <Panel><div><h3 className="font-semibold">Daftar pending</h3><p className="text-sm text-muted-foreground">{pending.length} resi belum berhasil dikemas.</p></div><div className="mt-4 divide-y">{pending.map((item) => <div id={`packflow-pending-${item.id}`} key={item.id} className={`flex items-center justify-between gap-3 py-3 ${highlightPendingId === item.id ? "rounded-lg bg-yellow-100 px-3 ring-2 ring-yellow-400" : ""}`}><div><p className="font-medium">{item.barcode}</p><p className="text-xs text-muted-foreground">Dicatat {item.timestamp}</p></div><Button size="sm" variant="outline" onClick={() => perform(() => packflowRepository.removePending(item.id), "Resi dihapus dari pending.")}><Trash2 className="mr-2 h-4 w-4"/>Hapus</Button></div>)}{pending.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Belum ada resi pending.</p>}</div></Panel>}
     </div>}
 
     {section === "history" && <Panel>
@@ -390,6 +447,6 @@ export default function PackflowPage() {
     </Panel>}
 
     {section === "supplies" && <div className="space-y-5"><Panel><h2 className="font-semibold">Buat permintaan barang</h2><form onSubmit={submitSupply} className="mt-3 flex flex-col gap-2 sm:flex-row"><Input value={supplyName} onChange={(event) => setSupplyName(event.target.value)} placeholder="Nama barang yang dibutuhkan"/><Button disabled={busy || !supplyName.trim() || !employee?.nik}>Kirim permintaan</Button></form><p className="mt-2 text-xs text-muted-foreground">Dikirim oleh {employee?.nik ? `${employeeName} · NIK ${employee.nik}` : "Masuk dengan PIN karyawan untuk membuat permintaan."}</p></Panel><Panel><h2 className="font-semibold">Daftar permintaan</h2><div className="mt-3 divide-y">{requests.map((entry) => <div key={entry.id} className="flex flex-wrap items-center justify-between gap-3 py-3"><div><p className="font-medium">{entry.itemName}</p><p className="text-xs text-muted-foreground">{entry.requester}{entry.requesterNik ? ` · NIK ${entry.requesterNik}` : ""} · {entry.date}</p></div><div className="flex items-center gap-2"><StatusPill>{entry.status}</StatusPill>{entry.status === "menunggu" && <Button size="sm" variant="outline" onClick={() => perform(() => packflowRepository.updateRequestStatus(entry.id, "diproses"), "Status diperbarui.")}>Proses</Button>}{entry.status === "diproses" && <Button size="sm" onClick={() => perform(() => packflowRepository.updateRequestStatus(entry.id, "ready"), "Barang ditandai siap.")}>Tandai Selesai</Button>}{entry.status === "ready" && <Button size="icon-sm" variant="ghost" aria-label="Hapus permintaan" onClick={() => perform(() => packflowRepository.removeRequest(entry.id), "Permintaan dihapus.")}><Trash2 className="h-4 w-4"/></Button>}</div></div>)}{requests.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Belum ada permintaan barang.</p>}</div></Panel></div>}
-    {duplicateWarning && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" role="presentation"><section role="alertdialog" aria-modal="true" aria-labelledby="packflow-duplicate-title" className="w-full max-w-md rounded-2xl border bg-card p-5 shadow-xl"><h2 id="packflow-duplicate-title" className="text-lg font-semibold">{duplicateWarning.kind === "active" ? "Resi sudah ada, sedang diproses kemas" : "Resi sudah dikemas"}</h2><p className="mt-2 text-sm text-muted-foreground">Nomor resi <strong className="text-foreground">{duplicateWarning.barcode}</strong> tidak ditambahkan lagi.</p><div className="mt-3 rounded-lg border-2 border-yellow-400 bg-yellow-100 p-3 text-sm text-yellow-950"><p className="font-semibold">Posisi: {duplicateWarning.kind === "active" ? "Resi aktif" : "Riwayat"}</p><p className="mt-1">{duplicateWarning.kind === "active" ? `Diinput ${duplicateWarning.timestamp}` : `Selesai ${duplicateWarning.date} · ${duplicateWarning.time}`}</p></div><div className="mt-5 flex justify-end gap-2"><Button variant="outline" onClick={() => setDuplicateWarning(null)}>Tutup</Button><Button onClick={() => { if (duplicateWarning.kind === "history") { setHistoryDate(""); setHighlightHistoryId(duplicateWarning.id); selectSection("history"); } else { selectSection("input"); requestAnimationFrame(() => document.getElementById(`packflow-active-${duplicateWarning.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" })); } setDuplicateWarning(null); }}>Tampilkan posisi</Button></div></section></div>}
+    {duplicateWarning && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" role="presentation"><section role="alertdialog" aria-modal="true" aria-labelledby="packflow-duplicate-title" className="w-full max-w-md rounded-2xl border bg-card p-5 shadow-xl"><h2 id="packflow-duplicate-title" className="text-lg font-semibold">{duplicateWarning.kind === "active" ? "Resi sudah ada, sedang diproses kemas" : duplicateWarning.kind === "pending" ? "Resi sudah ada di daftar pending" : "Resi sudah dikemas"}</h2><p className="mt-2 text-sm text-muted-foreground">Nomor resi <strong className="text-foreground">{duplicateWarning.barcode}</strong> tidak ditambahkan lagi.</p><div className="mt-3 rounded-lg border-2 border-yellow-400 bg-yellow-100 p-3 text-sm text-yellow-950"><p className="font-semibold">Posisi: {duplicateWarning.kind === "active" ? "Resi aktif" : duplicateWarning.kind === "pending" ? "Pending" : "Riwayat"}</p><p className="mt-1">{duplicateWarning.kind === "active" || duplicateWarning.kind === "pending" ? `Dicatat ${duplicateWarning.timestamp}` : `Selesai ${duplicateWarning.date} · ${duplicateWarning.time}`}</p></div><div className="mt-5 flex justify-end gap-2"><Button variant="outline" onClick={() => setDuplicateWarning(null)}>Tutup</Button><Button onClick={() => { if (duplicateWarning.kind === "history") { setHistoryDate(""); setHighlightHistoryId(duplicateWarning.id); selectSection("history", false); } else if (duplicateWarning.kind === "pending") { setHighlightPendingId(duplicateWarning.id); selectSection("pending", false); } else { selectSection("input", false); setHighlightActiveId(duplicateWarning.id); requestAnimationFrame(() => document.getElementById(`packflow-active-${duplicateWarning.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" })); } setDuplicateWarning(null); }}>Tampilkan posisi</Button></div></section></div>}
   </div>;
 }

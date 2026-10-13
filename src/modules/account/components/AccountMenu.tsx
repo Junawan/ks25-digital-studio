@@ -81,7 +81,7 @@ export default function AccountMenu({
       <div className="mt-5 rounded-xl border p-3">
         <p className="text-sm font-semibold">Profil karyawan aktif</p>
         <p className="mt-1 text-xs text-muted-foreground">Gunakan Ganti karyawan sebelum perangkat ini dipakai karyawan lain.</p>
-        <Button variant="outline" className="mt-3 w-full" onClick={() => { onClose(); switchEmployee(); }}>Ganti karyawan</Button>
+        <Button type="button" variant="outline" className="mt-3 w-full" onClick={() => { switchEmployee(); onClose(); }}>Ganti karyawan</Button>
       </div>
 
       <div className="mt-6 space-y-3">

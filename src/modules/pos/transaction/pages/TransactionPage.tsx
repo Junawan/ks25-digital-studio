@@ -43,6 +43,7 @@ import PaymentDialog
 from "../components/PaymentDialog";
 import { transactionDI } from "../di/transaction";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import PaymentSuccessDialog from "../components/PaymentSuccessDialog";
 import { printReceipt } from "../../shared/print/printerReceipt";
 import { getPosSettingsUseCase } from "../../settings/di";
@@ -64,6 +65,8 @@ from "../components/DraftTransactionDialog";
 import { PosSettings } from "@/modules/pos/settings/types/PosSettings";
 
 export default function TransactionPage() {
+
+  const router = useRouter();
 
   const { workspace } =
   useWorkspace();
@@ -301,6 +304,8 @@ const runningRef =
       setAndroidScanning(
         false
       );
+
+      router.replace("/dashboard");
 
       return;
 

@@ -78,13 +78,32 @@ function EmployeeIdentityGate({
       <section className="w-full max-w-md space-y-5 rounded-2xl border bg-card p-6 shadow-lg">
         <header>
           <p className="text-sm font-medium text-primary">{companyName}</p>
-          <h1 className="mt-1 text-2xl font-bold">{mode === "login" ? "Identitas karyawan" : "Daftarkan karyawan"}</h1>
+          <h1 className="mt-1 text-2xl font-bold">Pilih karyawan</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {mode === "login"
-              ? "Masukkan NIK dan PIN untuk menggunakan akun perusahaan sebagai karyawan."
-              : "Nama dan NIK disimpan untuk perusahaan ini. Gunakan PIN 6 angka."}
+              ? "Masuk dengan NIK dan PIN karyawan yang sudah terdaftar, atau tambahkan karyawan baru."
+              : "Tambahkan profil karyawan baru untuk perusahaan ini. Profil dapat dipilih di perangkat ini kapan saja."}
           </p>
         </header>
+
+        <div className="grid grid-cols-2 gap-2 rounded-xl bg-muted p-1">
+          <button
+            type="button"
+            aria-pressed={mode === "login"}
+            className={`rounded-lg px-3 py-2.5 text-sm font-medium transition ${mode === "login" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+            onClick={() => { setMode("login"); setMessage(""); }}
+          >
+            Pilih karyawan
+          </button>
+          <button
+            type="button"
+            aria-pressed={mode === "register"}
+            className={`rounded-lg px-3 py-2.5 text-sm font-medium transition ${mode === "register" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+            onClick={() => { setMode("register"); setMessage(""); }}
+          >
+            Tambah karyawan
+          </button>
+        </div>
 
         <form onSubmit={submit} className="space-y-4">
           {mode === "register" && (
@@ -113,17 +132,6 @@ function EmployeeIdentityGate({
           </Button>
         </form>
 
-        <div className="border-t pt-4 text-center text-sm">
-          {mode === "login" ? (
-            <button type="button" className="font-medium text-primary hover:underline" onClick={() => { setMode("register"); setMessage(""); }}>
-              Karyawan baru atau belum memiliki PIN?
-            </button>
-          ) : (
-            <button type="button" className="font-medium text-primary hover:underline" onClick={() => { setMode("login"); setMessage(""); }}>
-              Kembali ke masuk karyawan
-            </button>
-          )}
-        </div>
       </section>
     </main>
   );
@@ -132,6 +140,7 @@ function EmployeeIdentityGate({
 export function EmployeeIdentityProvider({ children }: { children: ReactNode }) {
   const { workspace, loading: workspaceLoading } = useWorkspace();
   const [employee, setEmployee] = useState<EmployeeProfile | null>(null);
+  const [requiresSelection, setRequiresSelection] = useState(true);
   const [isReady, setIsReady] = useState(false);
   const companyId = workspace?.company.id;
   const userId = workspace?.user.userId;
@@ -139,17 +148,22 @@ export function EmployeeIdentityProvider({ children }: { children: ReactNode }) 
 
   useEffect(() => {
     if (workspaceLoading) return;
+    setIsReady(false);
     if (!sessionKey) {
       setEmployee(null);
+      setRequiresSelection(true);
       setIsReady(true);
       return;
     }
     try {
       const value = window.sessionStorage.getItem(sessionKey);
-      setEmployee(value ? JSON.parse(value) as EmployeeProfile : null);
+      const activeEmployee = value ? JSON.parse(value) as EmployeeProfile : null;
+      setEmployee(activeEmployee);
+      setRequiresSelection(!activeEmployee);
     } catch (error) {
       console.error("Employee session could not be loaded:", error);
       setEmployee(null);
+      setRequiresSelection(true);
     }
     setIsReady(true);
   }, [sessionKey, workspaceLoading]);
@@ -158,11 +172,19 @@ export function EmployeeIdentityProvider({ children }: { children: ReactNode }) 
     if (!sessionKey) return;
     window.sessionStorage.setItem(sessionKey, JSON.stringify(profile));
     setEmployee(profile);
+    setRequiresSelection(false);
   }, [sessionKey]);
 
   const switchEmployee = useCallback(() => {
-    if (sessionKey) window.sessionStorage.removeItem(sessionKey);
+    if (sessionKey) {
+      try {
+        window.sessionStorage.removeItem(sessionKey);
+      } catch (error) {
+        console.error("Employee session could not be cleared:", error);
+      }
+    }
     setEmployee(null);
+    setRequiresSelection(true);
   }, [sessionKey]);
 
   const value = useMemo(() => ({ employee, isReady, switchEmployee }), [employee, isReady, switchEmployee]);
@@ -171,13 +193,13 @@ export function EmployeeIdentityProvider({ children }: { children: ReactNode }) 
     return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">Memeriksa sesi karyawan...</div>;
   }
 
-  if (!workspace || workspace.user.isSystemAdmin) {
+  if (!workspace) {
     return <EmployeeIdentityContext.Provider value={value}>{children}</EmployeeIdentityContext.Provider>;
   }
 
   return (
     <EmployeeIdentityContext.Provider value={value}>
-      {employee
+      {employee && !requiresSelection
         ? children
         : <EmployeeIdentityGate companyId={workspace.company.id} companyName={workspace.company.name} activate={activate} />}
     </EmployeeIdentityContext.Provider>
