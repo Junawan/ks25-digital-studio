@@ -19,12 +19,24 @@ export const attendanceRepository = {
     return snapshot.docs.map((entry) => ({ fullName: String(entry.data().fullName ?? "Karyawan"), nik: String(entry.data().nik ?? ""), hireDate: typeof entry.data().hireDate === "string" ? entry.data().hireDate : "" }));
   },
   async today(companyId: string, date = localDate()): Promise<AttendanceRecord[]> {
-    const snapshot = await getDocs(query(collection(db, COLLECTIONS.records), where("companyId", "==", companyId), where("date", "==", date)));
-    return fromSnapshot<AttendanceRecord>(snapshot);
+    try {
+      const snapshot = await getDocs(query(collection(db, COLLECTIONS.records), where("companyId", "==", companyId), where("date", "==", date)));
+      return fromSnapshot<AttendanceRecord>(snapshot);
+    } catch {
+      const snapshot = await getDocs(query(collection(db, COLLECTIONS.records), where("companyId", "==", companyId)));
+      return fromSnapshot<AttendanceRecord>(snapshot).filter((record) => record.date === date);
+    }
   },
   async history(companyId: string, nik: string, start: string, end: string): Promise<AttendanceRecord[]> {
-    const snapshot = await getDocs(query(collection(db, COLLECTIONS.records), where("companyId", "==", companyId), where("employeeNik", "==", normalized(nik)), where("date", ">=", start), where("date", "<=", end), orderBy("date", "desc")));
-    return fromSnapshot<AttendanceRecord>(snapshot);
+    try {
+      const snapshot = await getDocs(query(collection(db, COLLECTIONS.records), where("companyId", "==", companyId), where("employeeNik", "==", normalized(nik)), where("date", ">=", start), where("date", "<=", end), orderBy("date", "desc")));
+      return fromSnapshot<AttendanceRecord>(snapshot);
+    } catch {
+      const snapshot = await getDocs(query(collection(db, COLLECTIONS.records), where("companyId", "==", companyId)));
+      return fromSnapshot<AttendanceRecord>(snapshot)
+        .filter((record) => record.employeeNik === normalized(nik) && record.date >= start && record.date <= end)
+        .sort((a, b) => b.date.localeCompare(a.date));
+    }
   },
   async punch(companyId: string, employee: AttendanceEmployee, date: string, punch: AttendancePunch) {
     const ref = doc(db, COLLECTIONS.records, recordId(companyId, date, employee.nik));
@@ -44,14 +56,26 @@ export const attendanceRepository = {
     return getDownloadURL(target);
   },
   async articles(companyId: string): Promise<AttendanceArticle[]> {
-    const snapshot = await getDocs(query(collection(db, COLLECTIONS.articles), where("companyId", "==", companyId), orderBy("createdAt", "desc")));
-    return fromSnapshot<AttendanceArticle>(snapshot);
+    try {
+      const snapshot = await getDocs(query(collection(db, COLLECTIONS.articles), where("companyId", "==", companyId), orderBy("createdAt", "desc")));
+      return fromSnapshot<AttendanceArticle>(snapshot);
+    } catch {
+      const snapshot = await getDocs(query(collection(db, COLLECTIONS.articles), where("companyId", "==", companyId)));
+      return fromSnapshot<AttendanceArticle>(snapshot).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    }
   },
   addArticle: (companyId: string, title: string, body: string, author: string) => addDoc(collection(db, COLLECTIONS.articles), { companyId, title, body, author, createdAt: new Date() }),
   async leaveRequests(companyId: string, employeeNik?: string): Promise<LeaveRequest[]> {
-    const constraints = employeeNik ? [where("companyId", "==", companyId), where("employeeNik", "==", normalized(employeeNik))] : [where("companyId", "==", companyId)];
-    const snapshot = await getDocs(query(collection(db, COLLECTIONS.leave), ...constraints, orderBy("createdAt", "desc")));
-    return fromSnapshot<LeaveRequest>(snapshot);
+    try {
+      const constraints = employeeNik ? [where("companyId", "==", companyId), where("employeeNik", "==", normalized(employeeNik))] : [where("companyId", "==", companyId)];
+      const snapshot = await getDocs(query(collection(db, COLLECTIONS.leave), ...constraints, orderBy("createdAt", "desc")));
+      return fromSnapshot<LeaveRequest>(snapshot);
+    } catch {
+      const snapshot = await getDocs(query(collection(db, COLLECTIONS.leave), where("companyId", "==", companyId)));
+      return fromSnapshot<LeaveRequest>(snapshot)
+        .filter((request) => !employeeNik || request.employeeNik === normalized(employeeNik))
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    }
   },
   addLeave: (data: Omit<LeaveRequest, "id" | "createdAt">) => addDoc(collection(db, COLLECTIONS.leave), { ...data, employeeNik: normalized(data.employeeNik), createdAt: new Date() }),
   updateLeaveStatus: (id: string, status: LeaveStatus) => updateDoc(doc(db, COLLECTIONS.leave, id), { status, updatedAt: new Date() }),

@@ -16,11 +16,6 @@ export const sidebarItems: SidebarItem[] = [
     title: "My Apps",
     href: "/my-apps",
   },
-  {
-    title: "Settings",
-    href: "/settings",
-  },
-
   // Installed Modules
 
   {

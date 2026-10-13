@@ -40,6 +40,7 @@ function EmployeeIdentityGate({
   const [mode, setMode] = useState<"login" | "register">("login");
   const [nik, setNik] = useState("");
   const [fullName, setFullName] = useState("");
+  const [hireDate, setHireDate] = useState("");
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [busy, setBusy] = useState(false);
@@ -64,7 +65,7 @@ function EmployeeIdentityGate({
         setMessage("Konfirmasi PIN belum sama.");
         return;
       }
-      const employee = await registerEmployeeProfile(companyId, { fullName, nik, pin });
+      const employee = await registerEmployeeProfile(companyId, { fullName, nik, pin, hireDate });
       activate(employee);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Identitas karyawan gagal diproses.");
@@ -112,6 +113,13 @@ function EmployeeIdentityGate({
               <Input autoComplete="name" autoCapitalize="characters" value={fullName} onChange={(event) => setFullName(event.target.value.toLocaleUpperCase("id-ID"))} placeholder="NAMA LENGKAP" required />
             </label>
           )}
+          {mode === "register" && (
+            <label className="block space-y-1.5 text-sm font-medium">
+              <span>Tanggal mulai bekerja</span>
+              <Input type="date" value={hireDate} onChange={(event) => setHireDate(event.target.value)} required />
+              <span className="block text-xs font-normal text-muted-foreground">Tanggal ini dipakai bersama untuk perhitungan hak cuti di modul KS25.</span>
+            </label>
+          )}
           <label className="block space-y-1.5 text-sm font-medium">
             <span>NIK karyawan</span>
             <Input autoComplete="off" autoCapitalize="characters" value={nik} onChange={(event) => setNik(event.target.value.toLocaleUpperCase("id-ID"))} placeholder="MASUKKAN NIK" required />
@@ -156,8 +164,11 @@ export function EmployeeIdentityProvider({ children }: { children: ReactNode }) 
       return;
     }
     try {
-      const value = window.sessionStorage.getItem(sessionKey);
+      const value = window.localStorage.getItem(sessionKey) ?? window.sessionStorage.getItem(sessionKey);
       const activeEmployee = value ? JSON.parse(value) as EmployeeProfile : null;
+      if (activeEmployee && !window.localStorage.getItem(sessionKey)) {
+        window.localStorage.setItem(sessionKey, JSON.stringify(activeEmployee));
+      }
       setEmployee(activeEmployee);
       setRequiresSelection(!activeEmployee);
     } catch (error) {
@@ -170,7 +181,7 @@ export function EmployeeIdentityProvider({ children }: { children: ReactNode }) 
 
   const activate = useCallback((profile: EmployeeProfile) => {
     if (!sessionKey) return;
-    window.sessionStorage.setItem(sessionKey, JSON.stringify(profile));
+    window.localStorage.setItem(sessionKey, JSON.stringify(profile));
     setEmployee(profile);
     setRequiresSelection(false);
   }, [sessionKey]);
@@ -178,6 +189,7 @@ export function EmployeeIdentityProvider({ children }: { children: ReactNode }) 
   const switchEmployee = useCallback(() => {
     if (sessionKey) {
       try {
+        window.localStorage.removeItem(sessionKey);
         window.sessionStorage.removeItem(sessionKey);
       } catch (error) {
         console.error("Employee session could not be cleared:", error);

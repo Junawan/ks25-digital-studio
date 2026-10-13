@@ -40,6 +40,7 @@ function employeeFromData(data: Record<string, unknown>): EmployeeProfile {
   return {
     fullName: typeof data.fullName === "string" ? data.fullName : "",
     nik: typeof data.nik === "string" ? data.nik : "",
+    hireDate: typeof data.hireDate === "string" ? data.hireDate : "",
   };
 }
 
@@ -50,12 +51,13 @@ export async function getEmployeeProfile(companyId: string, nik: string) {
 
 export async function registerEmployeeProfile(
   companyId: string,
-  input: EmployeeProfile & { pin: string },
+  input: EmployeeProfile & { pin: string; hireDate: string },
 ): Promise<EmployeeProfile> {
   const normalizedNik = normalizeNik(input.nik);
   const normalizedName = input.fullName.trim().toLocaleUpperCase("id-ID");
   if (!normalizedName) throw new Error("Nama karyawan wajib diisi.");
   if (!normalizedNik) throw new Error("NIK wajib diisi.");
+  if (!input.hireDate) throw new Error("Tanggal mulai bekerja wajib diisi.");
   if (!isValidPin(input.pin)) throw new Error("PIN harus terdiri dari 6 angka.");
 
   const salt = crypto.getRandomValues(new Uint8Array(new ArrayBuffer(16)));
@@ -71,12 +73,13 @@ export async function registerEmployeeProfile(
 
     const existing = snapshot.exists() ? employeeFromData(snapshot.data()) : null;
     const employee = existing?.fullName
-      ? { fullName: existing.fullName.toLocaleUpperCase("id-ID"), nik: normalizedNik }
-      : { fullName: normalizedName, nik: normalizedNik };
+      ? { fullName: existing.fullName.toLocaleUpperCase("id-ID"), nik: normalizedNik, hireDate: input.hireDate }
+      : { fullName: normalizedName, nik: normalizedNik, hireDate: input.hireDate };
     const now = new Date();
     transaction.set(ref, {
       companyId,
       ...employee,
+      hireDate: input.hireDate,
       pinHash,
       pinSalt: saltHex,
       pinIterations: PIN_ITERATIONS,
