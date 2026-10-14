@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useNotifications } from "../hooks/useNotifications";
 
 import { notificationService } from "../notification.service";
+import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
 import {
   getNotificationIcon,
@@ -31,6 +32,7 @@ export default function NotificationDrawer({
 }: Props) {
 
   const router = useRouter();
+  const { workspace } = useWorkspace();
 
   const {
 
@@ -196,7 +198,8 @@ export default function NotificationDrawer({
 
     await notificationService.markAsRead(
 
-      notification.notificationId
+      notification.notificationId,
+      workspace?.user.userId,
 
     );
 

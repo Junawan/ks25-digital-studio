@@ -1,4 +1,5 @@
 import {
+  arrayUnion,
   collection,
   doc,
   getDoc,
@@ -11,11 +12,45 @@ import {
   where,
 } from "firebase/firestore";
 
-import { db } from "@/core/firebase";
+import { auth, db } from "@/core/firebase";
 
 import type { Notification } from "./notification.types";
 
+async function requestRemoteDelivery(notificationId: string) {
+  try {
+    const user = auth.currentUser;
+    if (!user) return;
+    const token = await user.getIdToken();
+    const response = await fetch("/api/notifications/push", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ notificationId }),
+    });
+    if (!response.ok) console.warn("Push notification delivery was not accepted:", response.status);
+  } catch (error) {
+    console.warn("Push notification delivery could not be requested:", error);
+  }
+}
+
 export class NotificationRepository {
+
+  async broadcastCompany(
+    companyId: string,
+    notification: Omit<Notification, "notificationId" | "receiverId" | "receiverType" | "companyId" | "createdAt" | "isRead" | "readBy">,
+  ) {
+    const notificationRef = doc(collection(db, "notifications"));
+    await setDoc(notificationRef, {
+      ...notification,
+      notificationId: notificationRef.id,
+      companyId,
+      receiverId: null,
+      receiverType: "company",
+      isRead: false,
+      readBy: [],
+      createdAt: new Date(),
+    } satisfies Notification);
+    await requestRemoteDelivery(notificationRef.id);
+  }
 
   async createForCompany(
     companyId: string,
@@ -32,6 +67,7 @@ export class NotificationRepository {
       isRead: false,
       createdAt: new Date(),
     } satisfies Notification);
+    await requestRemoteDelivery(notificationRef.id);
 
     return 1;
   }
@@ -51,6 +87,7 @@ export class NotificationRepository {
     notification
 
   );
+  await requestRemoteDelivery(notification.notificationId);
 
 }
 
@@ -292,26 +329,14 @@ async getUserUnreadCount(
 
   }
 
-  async markAsRead(
-    notificationId: string
-  ) {
-
-    await updateDoc(
-
-      doc(
-        db,
-        "notifications",
-        notificationId
-      ),
-
-      {
-
-        isRead: true,
-
-      }
-
-    );
-
+  async markAsRead(notificationId: string, userId?: string) {
+    const reference = doc(db, "notifications", notificationId);
+    const snapshot = await getDoc(reference);
+    if (snapshot.data()?.receiverType === "company" && userId) {
+      await updateDoc(reference, { readBy: arrayUnion(userId) });
+    } else {
+      await updateDoc(reference, { isRead: true });
+    }
   }
 
 }

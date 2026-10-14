@@ -4,6 +4,13 @@ import type { Notification } from "./notification.types";
 
 export class NotificationService {
 
+  async broadcastCompany(
+    companyId: string,
+    notification: Parameters<typeof notificationRepository.broadcastCompany>[1],
+  ) {
+    return notificationRepository.broadcastCompany(companyId, notification);
+  }
+
   async createForCompany(
     companyId: string,
     receiverId: string,
@@ -92,11 +99,10 @@ async getUnreadCount(
     );
   }
 
-  async markAsRead(
-    notificationId: string
-  ) {
+  async markAsRead(notificationId: string, userId?: string) {
     return notificationRepository.markAsRead(
-      notificationId
+      notificationId,
+      userId,
     );
   }
 

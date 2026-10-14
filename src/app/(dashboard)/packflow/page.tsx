@@ -8,6 +8,7 @@ import { packflowRepository } from "@/modules/packflow/packflow.repository";
 import type { PackflowHistoryRecord, PackflowRecord, SupplyRequest } from "@/modules/packflow/packflow.types";
 import { notificationService } from "@/modules/notification/notification.service";
 import { useActiveEmployee } from "@/modules/employee-profile/EmployeeIdentityProvider";
+import { attendanceRepository } from "@/modules/attendance/attendance.repository";
 import { BarcodeService } from "@/modules/pos/shared/barcode/services/BarcodeService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -100,6 +101,16 @@ export default function PackflowPage() {
   }, [company?.id]);
 
   useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    const onScannerInstallProgress = (event: Event) => {
+      const progress = (event as CustomEvent<{ state: number; progress: number }>).detail;
+      if (progress.state === 4) setCameraError("");
+      else if (progress.state === 5 || progress.state === 3) setCameraError("Modul pemindai Google gagal dipasang. Periksa Google Play Services dan koneksi internet, lalu coba lagi.");
+      else setCameraError(`Menyiapkan modul pemindai Google… ${Math.round(progress.progress)}%`);
+    };
+    window.addEventListener("packflow:scanner-install-progress", onScannerInstallProgress);
+    return () => window.removeEventListener("packflow:scanner-install-progress", onScannerInstallProgress);
+  }, []);
 
   const filteredHistory = useMemo(
     () => history.filter((record) => !historyDate || record.date === historyDate),
@@ -352,7 +363,14 @@ export default function PackflowPage() {
         status: "menunggu",
       });
       try {
-        await notificationService.createForCompany(company.id, workspace!.user.userId, {
+        let notificationReceiver = workspace!.company.ownerId;
+        try {
+          const adminPin = await attendanceRepository.adminPin(company.id);
+          notificationReceiver = String(adminPin.data()?.createdBy || notificationReceiver);
+        } catch (error) {
+          console.warn("Admin PIN recipient unavailable, using company owner:", error);
+        }
+        await notificationService.createForCompany(company.id, notificationReceiver, {
           module: "packflow",
           type: "supply-request",
           priority: "normal",
@@ -361,7 +379,7 @@ export default function PackflowPage() {
           actionUrl: "/packflow",
           sourceId: requestRef.id,
         });
-        return "Permintaan barang terkirim. Notifikasi muncul di akun perusahaan dan tersinkron ke perangkat yang login dengan akun tersebut.";
+        return "Permintaan barang terkirim dan notifikasi dikirim ke pembuat PIN admin atau owner perusahaan.";
       } catch (error) {
         console.error("Supply request notification failed:", error);
         return "Permintaan barang terkirim, tetapi notifikasi belum dapat dikirim.";

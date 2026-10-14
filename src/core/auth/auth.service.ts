@@ -1,4 +1,5 @@
 import { FirebaseAuthRepository } from "./firebase-auth.repository";
+import { removePushDevice } from "@/modules/notification/push-device.repository";
 import type {
   LoginInput,
   RegisterInput,
@@ -20,6 +21,15 @@ export class AuthService {
 
   async logout() {
     if (typeof window !== "undefined") {
+      const pushToken = window.localStorage.getItem("ks25:push-token");
+      if (pushToken) {
+        try {
+          await removePushDevice(pushToken);
+        } catch (error) {
+          console.warn("Push device registration could not be removed during logout:", error);
+        }
+        window.localStorage.removeItem("ks25:push-token");
+      }
       for (let index = window.localStorage.length - 1; index >= 0; index -= 1) {
         const key = window.localStorage.key(index);
         if (key?.startsWith("ks25:active-employee:")) window.localStorage.removeItem(key);

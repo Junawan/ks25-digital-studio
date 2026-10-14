@@ -22,6 +22,17 @@ export interface AttendanceEmployee {
   fullName: string;
   nik: string;
   hireDate?: string;
+  workLocationId?: string;
+}
+
+export interface AttendanceWorkLocation {
+  id: string;
+  companyId: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  radiusMeters: number;
+  createdAt: Date;
 }
 
 export interface AttendanceArticle {

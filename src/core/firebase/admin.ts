@@ -64,6 +64,11 @@ export function getAdminDb() {
   return getFirestore(getAdminApp());
 }
 
+export async function getAdminMessaging() {
+  const { getMessaging } = await import("firebase-admin/messaging");
+  return getMessaging(getAdminApp());
+}
+
 export async function getAdminStorage() {
   const { getStorage } = await import("firebase-admin/storage");
   return getStorage(getAdminApp());

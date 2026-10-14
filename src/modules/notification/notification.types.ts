@@ -53,6 +53,8 @@ export interface Notification {
 
   isRead: boolean;
 
+  readBy?: string[];
+
   createdAt: Date;
 
 }

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1089196826172",
+    "firebase_url": "https://ks25-digital-studio-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "ks25-digital-studio",
+    "storage_bucket": "ks25-digital-studio.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1089196826172:android:1f9d8fad937981d68d2d39",
+        "android_client_info": {
+          "package_name": "com.ks25.mitraumkm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2KZdkmLKffqY9jemdKbSgvHhOAZadtHY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

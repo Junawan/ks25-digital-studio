@@ -10,6 +10,8 @@ import DashboardHeader from "@/shared/layouts/DashboardHeader";
 import MobileShell from "@/shared/components/mobile/MobileShell";
 import DeepLinkProvider from "@/shared/components/native/DeepLinkProvider";
 import { EmployeeIdentityProvider } from "@/modules/employee-profile/EmployeeIdentityProvider";
+import PlayStoreUpdatePrompt from "@/shared/components/native/PlayStoreUpdatePrompt";
+import PushNotificationRegistration from "@/modules/notification/PushNotificationRegistration";
 
 interface Props {
   children: React.ReactNode;
@@ -50,6 +52,9 @@ export default function DashboardLayout({
 
       <EmployeeIdentityProvider>
       <DeepLinkProvider>
+
+      <PlayStoreUpdatePrompt />
+      <PushNotificationRegistration />
 
       {mobile ? (
 

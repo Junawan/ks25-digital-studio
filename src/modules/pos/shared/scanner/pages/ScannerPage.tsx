@@ -22,6 +22,7 @@ const [loading, setLoading] =
 
 const [result, setResult] =
   useState("");
+const [scannerError, setScannerError] = useState("");
 
   const [
   paired,
@@ -46,6 +47,17 @@ const [
   >("connecting");
 
   const router = useRouter();
+
+useEffect(() => {
+  const onInstallProgress = (event: Event) => {
+    const progress = (event as CustomEvent<{ state: number; progress: number }>).detail;
+    if (progress.state === 4) setScannerError("");
+    else if (progress.state === 5 || progress.state === 3) setScannerError("Modul pemindai Google gagal dipasang. Periksa Google Play Services dan koneksi internet, lalu coba lagi.");
+    else setScannerError(`Menyiapkan modul pemindai Google… ${Math.round(progress.progress)}%`);
+  };
+  window.addEventListener("packflow:scanner-install-progress", onInstallProgress);
+  return () => window.removeEventListener("packflow:scanner-install-progress", onInstallProgress);
+}, []);
 
 const runningRef =
   useRef(false);
@@ -121,6 +133,7 @@ const runningRef =
   } catch (error) {
 
     console.error(error);
+    setScannerError(error instanceof Error ? error.message : "Pemindai belum siap. Coba lagi.");
 
   }
 
@@ -211,6 +224,7 @@ if (
   } catch (error) {
 
   console.error(error);
+  setScannerError(error instanceof Error ? error.message : "Pemindai belum siap. Coba lagi.");
 
   runningRef.current = false;
 
@@ -384,6 +398,8 @@ font-medium
 "🔵 Mengirim Barcode..."}
 
 </p>
+
+{scannerError && <p role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">{scannerError}</p>}
 
 
 {result && (

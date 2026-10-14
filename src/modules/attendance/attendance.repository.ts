@@ -3,7 +3,7 @@ import {
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { db, storage } from "@/core/firebase";
-import type { AttendanceArticle, AttendanceEmployee, AttendancePunch, AttendanceRecord, LeaveRequest, LeaveStatus } from "./attendance.types";
+import type { AttendanceArticle, AttendanceEmployee, AttendancePunch, AttendanceRecord, AttendanceWorkLocation, LeaveRequest, LeaveStatus } from "./attendance.types";
 
 const COLLECTIONS = { records: "attendance_records", articles: "attendance_articles", leave: "attendance_leave_requests", employees: "company_employee_profiles", admin: "attendance_admin_pin" } as const;
 const fromSnapshot = <T extends { id: string }>(snapshots: { docs: Array<{ id: string; data(): Record<string, unknown> }> }): T[] => snapshots.docs.map((entry) => ({ ...entry.data(), id: entry.id, createdAt: dateValue(entry.data().createdAt), updatedAt: dateValue(entry.data().updatedAt) } as unknown as T));
@@ -18,11 +18,11 @@ export const attendanceRepository = {
     const snapshot = await getDoc(doc(db, COLLECTIONS.employees, profileId(companyId, nik)));
     if (!snapshot.exists()) return null;
     const data = snapshot.data();
-    return { fullName: String(data.fullName ?? "Karyawan"), nik: String(data.nik ?? normalized(nik)), hireDate: typeof data.hireDate === "string" ? data.hireDate : "" };
+    return { fullName: String(data.fullName ?? "Karyawan"), nik: String(data.nik ?? normalized(nik)), hireDate: typeof data.hireDate === "string" ? data.hireDate : "", workLocationId: typeof data.workLocationId === "string" ? data.workLocationId : "" };
   },
   async employees(companyId: string): Promise<AttendanceEmployee[]> {
     const snapshot = await getDocs(query(collection(db, COLLECTIONS.employees), where("companyId", "==", companyId)));
-    return snapshot.docs.map((entry) => ({ fullName: String(entry.data().fullName ?? "Karyawan"), nik: String(entry.data().nik ?? ""), hireDate: typeof entry.data().hireDate === "string" ? entry.data().hireDate : "" }));
+    return snapshot.docs.map((entry) => ({ fullName: String(entry.data().fullName ?? "Karyawan"), nik: String(entry.data().nik ?? ""), hireDate: typeof entry.data().hireDate === "string" ? entry.data().hireDate : "", workLocationId: typeof entry.data().workLocationId === "string" ? entry.data().workLocationId : "" }));
   },
   async today(companyId: string, date = localDate()): Promise<AttendanceRecord[]> {
     try {
@@ -71,6 +71,12 @@ export const attendanceRepository = {
     }
   },
   addArticle: (companyId: string, title: string, body: string, author: string) => addDoc(collection(db, COLLECTIONS.articles), { companyId, title, body, author, createdAt: new Date() }),
+  async workLocations(companyId: string): Promise<AttendanceWorkLocation[]> {
+    const snapshot = await getDocs(query(collection(db, "attendance_work_locations"), where("companyId", "==", companyId)));
+    return snapshot.docs.map((entry) => ({ ...entry.data(), id: entry.id, createdAt: dateValue(entry.data().createdAt) } as AttendanceWorkLocation)).sort((a, b) => a.name.localeCompare(b.name, "id"));
+  },
+  addWorkLocation: (companyId: string, data: Omit<AttendanceWorkLocation, "id" | "companyId" | "createdAt">) => addDoc(collection(db, "attendance_work_locations"), { companyId, ...data, createdAt: new Date() }),
+  updateEmployeeLocation: async (companyId: string, nik: string, workLocationId: string) => updateDoc(doc(db, COLLECTIONS.employees, profileId(companyId, nik)), { workLocationId, updatedAt: new Date() }),
   async leaveRequests(companyId: string, employeeNik?: string): Promise<LeaveRequest[]> {
     try {
       const constraints = employeeNik ? [where("companyId", "==", companyId), where("employeeNik", "==", normalized(employeeNik))] : [where("companyId", "==", companyId)];
