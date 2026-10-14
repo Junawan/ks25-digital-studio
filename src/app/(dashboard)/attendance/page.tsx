@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 import { Activity, ArrowDownToLine, CalendarOff, Camera, Check, Clock3, FileText, LayoutDashboard, MessageCircle, Settings, ShieldCheck, Users } from "lucide-react";
 import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
 import * as XLSX from "xlsx";
+import { Capacitor, registerPlugin } from "@capacitor/core";
 import { db } from "@/core/firebase";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 import { useActiveEmployee } from "@/modules/employee-profile/EmployeeIdentityProvider";
@@ -14,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 
 type Section = "dashboard" | "absensi" | "riwayat" | "informasi" | "admin" | "cuti" | "pengaturan";
+const AttendanceDownload = registerPlugin<{ save: (options: { fileName: string; mimeType: string; data: string }) => Promise<void> }>("AttendanceDownload");
 const nav: { id: Section; label: string; Icon: typeof Activity }[] = [
   { id: "dashboard", label: "Dashboard", Icon: LayoutDashboard }, { id: "absensi", label: "Absensi", Icon: Camera },
   { id: "riwayat", label: "Riwayat", Icon: Clock3 }, { id: "informasi", label: "Informasi", Icon: FileText },
@@ -75,7 +77,7 @@ export default function AttendancePage() {
     try { const date = nowDate(); const url = await attendanceRepository.uploadSelfie(companyId, date, employee.nik, nextStep.id, photo); await attendanceRepository.punch(companyId, employee, date, { stage: nextStep.id, time: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }), photoUrl: url }); setPhoto(null); setPhotoUrl(""); await refresh(); setNotice("Absensi tersimpan dengan foto selfie."); }
     catch (e) { setNotice(e instanceof Error ? e.message : "Absensi gagal disimpan."); } finally { setBusy(false); }
   }
-  function exportExcel(rows: AttendanceRecord[], name: string, periodStart?: string, periodEnd?: string) {
+  async function exportExcel(rows: AttendanceRecord[], name: string, periodStart?: string, periodEnd?: string) {
     setNotice("Menyiapkan file Excel…");
     if (!rows.length) { setNotice("Tidak ada data absensi pada rentang tanggal ini."); return; }
     try {
@@ -103,6 +105,13 @@ export default function AttendancePage() {
       const output = XLSX.write(book, { bookType: "xlsx", type: "array" });
       const bytes = new Uint8Array(output);
       const blob = new Blob([bytes.buffer as ArrayBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      if (Capacitor.getPlatform() === "android") {
+        let binary = "";
+        for (let offset = 0; offset < bytes.length; offset += 0x8000) binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+        await AttendanceDownload.save({ fileName: name, mimeType: blob.type, data: btoa(binary) });
+        setNotice("File berhasil disimpan di folder Unduhan/KS25.");
+        return;
+      }
       const file = new File([blob], name, { type: blob.type });
       if ((navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches) && navigator.share && navigator.canShare?.({ files: [file] })) {
         void navigator.share({ files: [file], title: "Data Absensi" })
