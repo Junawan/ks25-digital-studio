@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { Activity, ArrowDownToLine, CalendarOff, Camera, Check, Clock3, FileText, LayoutDashboard, MessageCircle, Settings, ShieldCheck, Users } from "lucide-react";
 import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
+import * as XLSX from "xlsx";
 import { db } from "@/core/firebase";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 import { useActiveEmployee } from "@/modules/employee-profile/EmployeeIdentityProvider";
@@ -37,6 +38,7 @@ export default function AttendancePage() {
   const [section, setSection] = useState<Section>("dashboard"); const [records, setRecords] = useState<AttendanceRecord[]>([]); const [historyRows, setHistoryRows] = useState<AttendanceRecord[]>([]); const [reportRows, setReportRows] = useState<AttendanceRecord[]>([]);
   const [employeeInfo, setEmployeeInfo] = useState<AttendanceEmployee | null>(null); const [leaves, setLeaves] = useState<LeaveRequest[]>([]); const [articles, setArticles] = useState<AttendanceArticle[]>([]);
   const [notice, setNotice] = useState(""); const [busy, setBusy] = useState(false); const [adminReady, setAdminReady] = useState<boolean | null>(null); const [admin, setAdmin] = useState(false);
+  const [reportLoadedFor, setReportLoadedFor] = useState("");
   const [pin, setPin] = useState(""); const [pinConfirm, setPinConfirm] = useState(""); const [from, setFrom] = useState(nowDate()); const [to, setTo] = useState(nowDate()); const [reportFrom, setReportFrom] = useState(nowDate()); const [reportTo, setReportTo] = useState(nowDate());
   const [hireDate, setHireDate] = useState(""); const [camera, setCamera] = useState(false); const [photo, setPhoto] = useState<Blob | null>(null); const [photoUrl, setPhotoUrl] = useState(""); const [articleTitle, setArticleTitle] = useState(""); const [articleBody, setArticleBody] = useState("");
   const [leaveFrom, setLeaveFrom] = useState(nowDate()); const [leaveTo, setLeaveTo] = useState(nowDate()); const [reason, setReason] = useState(""); const video = useRef<HTMLVideoElement>(null); const canvas = useRef<HTMLCanvasElement>(null); const stream = useRef<MediaStream | null>(null);
@@ -73,11 +75,10 @@ export default function AttendancePage() {
     try { const date = nowDate(); const url = await attendanceRepository.uploadSelfie(companyId, date, employee.nik, nextStep.id, photo); await attendanceRepository.punch(companyId, employee, date, { stage: nextStep.id, time: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }), photoUrl: url }); setPhoto(null); setPhotoUrl(""); await refresh(); setNotice("Absensi tersimpan dengan foto selfie."); }
     catch (e) { setNotice(e instanceof Error ? e.message : "Absensi gagal disimpan."); } finally { setBusy(false); }
   }
-  async function exportExcel(rows: AttendanceRecord[], name: string, periodStart?: string, periodEnd?: string) {
+  function exportExcel(rows: AttendanceRecord[], name: string, periodStart?: string, periodEnd?: string) {
     setNotice("Menyiapkan file Excel…");
     if (!rows.length) { setNotice("Tidak ada data absensi pada rentang tanggal ini."); return; }
     try {
-      const XLSX = await import("xlsx");
       const dates = periodStart && periodEnd
         ? Array.from({ length: Math.floor((new Date(periodEnd + "T00:00:00").getTime() - new Date(periodStart + "T00:00:00").getTime()) / 86400000) + 1 }, (_, i) => { const date = new Date(periodStart + "T00:00:00"); date.setDate(date.getDate() + i); return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`; })
         : [...new Set(rows.map((row) => row.date))].sort();
@@ -102,6 +103,13 @@ export default function AttendancePage() {
       const output = XLSX.write(book, { bookType: "xlsx", type: "array" });
       const bytes = new Uint8Array(output);
       const blob = new Blob([bytes.buffer as ArrayBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const file = new File([blob], name, { type: blob.type });
+      if ((navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches) && navigator.share && navigator.canShare?.({ files: [file] })) {
+        void navigator.share({ files: [file], title: "Data Absensi" })
+          .then(() => setNotice("File terbuka pada menu berbagi perangkat. Pilih Simpan atau Unduh untuk menyimpan."))
+          .catch((error: unknown) => { if (error instanceof Error && error.name === "AbortError") setNotice("Penyimpanan file dibatalkan."); else { console.error("Attendance file sharing failed:", error); setNotice("Menu simpan perangkat tidak tersedia. Coba unduh file dari browser."); } });
+        return;
+      }
       const url = URL.createObjectURL(blob); const link = document.createElement("a");
       link.href = url; link.download = name; link.style.display = "none"; document.body.appendChild(link); link.click(); link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
@@ -120,28 +128,21 @@ export default function AttendancePage() {
     }
   }, [companyId]);
   const loadReport = useCallback(async () => {
-    setReportRows([]);
+    setReportRows([]); setReportLoadedFor("");
     if (!companyId) return; const days = (new Date(toDate(reportTo)).getTime() - new Date(toDate(reportFrom)).getTime()) / 86400000;
     if (reportFrom > reportTo || days > 30) { setNotice("Rentang ekspor maksimal 31 hari."); return; }
     try {
       const rows = await fetchReportRows(reportFrom, reportTo);
-      setReportRows(rows); setNotice("");
+      setReportRows(rows); setReportLoadedFor(reportFrom + ":" + reportTo); setNotice("");
     } catch { setNotice("Rekap gagal dimuat."); }
   }, [companyId, reportFrom, reportTo, fetchReportRows]);
-  async function exportReport() {
-    setNotice("Menyiapkan file Excel…");
+  function exportReport() {
     if (!companyId) { setNotice("Perusahaan belum dipilih."); return; }
     const days = (new Date(toDate(reportTo)).getTime() - new Date(toDate(reportFrom)).getTime()) / 86400000;
     if (reportFrom > reportTo || days > 30) { setNotice("Rentang ekspor maksimal 31 hari."); return; }
-    setBusy(true);
-    try {
-      const rows = await fetchReportRows(reportFrom, reportTo);
-      setReportRows(rows);
-      if (!rows.length) { setNotice("Tidak ada data absensi pada rentang tanggal ini."); return; }
-      await exportExcel(rows, "Data-Absensi-" + reportFrom + "-" + reportTo + ".xlsx", reportFrom, reportTo);
-      setNotice(rows.length + " data absensi berhasil diunduh.");
-    } catch (error) { console.error("Attendance export failed:", error); setNotice("Ekspor gagal. Periksa koneksi dan akses data, lalu coba lagi."); }
-    finally { setBusy(false); }
+    if (reportLoadedFor !== reportFrom + ":" + reportTo) { setNotice("Data pada rentang ini sedang dimuat. Coba lagi sebentar."); return; }
+    if (!reportRows.length) { setNotice("Tidak ada data absensi pada rentang tanggal ini."); return; }
+    exportExcel(reportRows, "Data-Absensi-" + reportFrom + "-" + reportTo + ".xlsx", reportFrom, reportTo);
   }
   function toDate(s: string) { return s + "T00:00:00"; }
   useEffect(() => { if (admin && section === "admin") void loadReport(); }, [admin, section, loadReport]);
