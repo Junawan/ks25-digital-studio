@@ -5,10 +5,11 @@ android {
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.ks25.mitraumkm"
+        manifestPlaceholders = [ADMOB_APP_ID: "ca-app-pub-7628385043445495~8573252793"]
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
-        versionName "1.0.3"
+        versionCode 5
+        versionName "1.0.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -17,7 +18,11 @@ android {
         }
     }
     buildTypes {
+        debug {
+            manifestPlaceholders = [ADMOB_APP_ID: "ca-app-pub-3940256099942544~3347511713"]
+        }
         release {
+            manifestPlaceholders = [ADMOB_APP_ID: "ca-app-pub-7628385043445495~8573252793"]
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -41,6 +46,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
     implementation 'com.google.android.play:app-update:2.1.0'
+    implementation "com.google.android.gms:play-services-ads:25.4.+"
 }
 
 apply from: 'capacitor.build.gradle'

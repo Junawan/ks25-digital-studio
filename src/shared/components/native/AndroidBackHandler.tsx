@@ -5,6 +5,7 @@ import { App } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 
 import { useAndroidBack } from "@/hooks/useAndroidBack";
+import { showModuleTransitionInterstitial } from "@/shared/ads/admob-consent";
 
 interface AndroidBackHandlerProps {
   href?: string;
@@ -38,7 +39,11 @@ export default function AndroidBackHandler({
 
     // Push ke halaman tertentu
     if (href) {
-      router.push(href);
+      if (href === "/dashboard" || href === "/dashboard/") {
+        void showModuleTransitionInterstitial().finally(() => router.push(href));
+      } else {
+        router.push(href);
+      }
       return true;
     }
 

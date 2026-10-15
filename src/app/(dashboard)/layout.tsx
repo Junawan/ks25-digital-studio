@@ -12,6 +12,8 @@ import DeepLinkProvider from "@/shared/components/native/DeepLinkProvider";
 import { EmployeeIdentityProvider } from "@/modules/employee-profile/EmployeeIdentityProvider";
 import PlayStoreUpdatePrompt from "@/shared/components/native/PlayStoreUpdatePrompt";
 import PushNotificationRegistration from "@/modules/notification/PushNotificationRegistration";
+import DashboardBannerAd from "@/shared/ads/DashboardBannerAd";
+import AdMobStartup from "@/shared/ads/AdMobStartup";
 
 interface Props {
   children: React.ReactNode;
@@ -55,12 +57,14 @@ export default function DashboardLayout({
 
       <PlayStoreUpdatePrompt />
       <PushNotificationRegistration />
+      <AdMobStartup />
 
       {mobile ? (
 
         <MobileShell>
 
 {children}
+          <DashboardBannerAd />
 
         </MobileShell>
 
@@ -77,6 +81,7 @@ export default function DashboardLayout({
             <main className="flex-1 p-6">
 
               {children}
+              <DashboardBannerAd />
 
             </main>
 
