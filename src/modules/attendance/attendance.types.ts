@@ -5,6 +5,9 @@ export interface AttendancePunch {
   stage: AttendanceStage;
   time: string;
   photoUrl: string;
+  workLocationId?: string;
+  workLocationName?: string;
+  workLocationSource?: "recorded" | "current-assignment";
 }
 
 export interface AttendanceRecord {
