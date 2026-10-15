@@ -219,7 +219,9 @@ async function pinShortcut() {
       <div
   className={`
     relative
-    h-52
+    h-32
+    sm:h-40
+    lg:h-52
     overflow-hidden
     bg-gradient-to-br
     ${product.color}
@@ -238,13 +240,13 @@ async function pinShortcut() {
 
       {/* Content */}
 
-      <div className="space-y-4 p-5">
+      <div className="space-y-3 p-3 sm:space-y-4 sm:p-5">
 
         <div className="flex items-start justify-between">
 
           <div>
 
-            <h3 className="font-semibold text-lg">
+            <h3 className="text-sm font-semibold sm:text-lg">
 
               {product.name}
 
@@ -253,7 +255,8 @@ async function pinShortcut() {
             <p
               className="
               mt-1
-              text-sm
+              text-xs
+              sm:text-sm
               text-muted-foreground
               "
             >
