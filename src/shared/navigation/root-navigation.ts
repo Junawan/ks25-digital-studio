@@ -3,6 +3,7 @@ import {
   Package,
   CreditCard,
   Newspaper,
+  LifeBuoy,
 } from "lucide-react";
 
 export interface NavigationItem {
@@ -56,6 +57,17 @@ export const rootNavigation: NavigationItem[] = [
     href: "/dashboard/updates",
 
     icon: Newspaper,
+
+  },
+
+  {
+
+    label: "Bantuan",
+
+    icon: LifeBuoy,
+
+    external:
+      "https://wa.me/6285710255464?text=Halo%20KS25%20Digital%20Studio,%20saya%20membutuhkan%20bantuan.",
 
   },
 
