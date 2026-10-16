@@ -14,6 +14,8 @@ import PlayStoreUpdatePrompt from "@/shared/components/native/PlayStoreUpdatePro
 import PushNotificationRegistration from "@/modules/notification/PushNotificationRegistration";
 import DashboardBannerAd from "@/shared/ads/DashboardBannerAd";
 import AdMobStartup from "@/shared/ads/AdMobStartup";
+import AndroidUpgradePrompt from "@/shared/components/subscription/AndroidUpgradePrompt";
+import WebFreePlanGate from "@/shared/components/subscription/WebFreePlanGate";
 
 interface Props {
   children: React.ReactNode;
@@ -51,10 +53,12 @@ export default function DashboardLayout({
   return (
 
     <AuthGuard>
+      <WebFreePlanGate>
 
       <EmployeeIdentityProvider>
       <DeepLinkProvider>
 
+      <AndroidUpgradePrompt />
       <PlayStoreUpdatePrompt />
       <PushNotificationRegistration />
       <AdMobStartup />
@@ -93,6 +97,7 @@ export default function DashboardLayout({
 
       </DeepLinkProvider>
       </EmployeeIdentityProvider>
+      </WebFreePlanGate>
 
     </AuthGuard>
 

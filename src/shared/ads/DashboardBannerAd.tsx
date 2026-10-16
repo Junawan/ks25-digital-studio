@@ -7,23 +7,35 @@ import { useEffect } from "react";
 
 import { requestAdMobConsent } from "@/shared/ads/admob-consent";
 import { getAdUnitId } from "@/shared/ads/inline-native-ad-bridge";
+import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
+import { isProPlanActive } from "@/modules/subscription/subscription-policy";
 
-const DASHBOARD_PATHS = new Set([
-  "/dashboard",
-  "/pos",
-  "/packflow",
-  "/attendance",
-  "/scanner",
-  "/marketplace",
-  "/live-assistant",
-  "/my-apps",
-]);
+function isDashboardOrModulePath(pathname: string) {
+  if (pathname === "/dashboard") return true;
+
+  return [
+    "/dashboard/apps",
+    "/pos",
+    "/packflow",
+    "/attendance",
+    "/scanner",
+    "/marketplace",
+    "/live-assistant",
+    "/my-apps",
+  ].some((basePath) => pathname === basePath || pathname.startsWith(`${basePath}/`));
+}
 
 export default function DashboardBannerAd() {
   const pathname = usePathname();
+  const { workspace, loading } = useWorkspace();
 
   useEffect(() => {
-    if (Capacitor.getPlatform() !== "android" || !DASHBOARD_PATHS.has(pathname)) {
+    if (
+      Capacitor.getPlatform() !== "android" ||
+      loading ||
+      !isDashboardOrModulePath(pathname) ||
+      isProPlanActive(workspace?.company)
+    ) {
       void AdMob.hideBanner().catch(() => undefined);
       return;
     }
@@ -48,7 +60,7 @@ export default function DashboardBannerAd() {
       active = false;
       void AdMob.hideBanner().catch(() => undefined);
     };
-  }, [pathname]);
+  }, [loading, pathname, workspace?.company]);
 
   return null;
 }

@@ -4,9 +4,13 @@ import { useAndroidBack } from "@/hooks/useAndroidBack";
 import CurrentPlanCard from "@/modules/subscription/components/CurrentPlanCard";
 import PlanCard from "@/modules/subscription/components/PlanCard";
 import { useRouter } from "next/navigation";
+import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
+import { isProPlanActive } from "@/modules/subscription/subscription-policy";
 
 export default function SubscriptionPage() {
 const router = useRouter();
+const { workspace } = useWorkspace();
+const proActive = isProPlanActive(workspace?.company);
 
   useAndroidBack(() => {
           router.back();
@@ -34,14 +38,14 @@ const router = useRouter();
           plan="starter"
           title="Starter"
           price="Gratis"
-          description="Cocok untuk mencoba semua aplikasi."
+          description="Semua fitur dan modul tersedia gratis. Di Android, paket Starter tidak memiliki batas waktu."
           features={[
-            "Semua fitur dasar",
-            "1 Perusahaan",
-            "1 Host",
-            "Dengan iklan",
+            "Semua fitur dan modul tanpa batas penggunaan",
+            "Gratis tanpa batas waktu di Android",
+            "Iklan banner dan interstitial di Android",
+            "Gratis 1 bulan melalui web",
           ]}
-          current
+          current={!proActive}
         />
 
         <PlanCard
@@ -51,10 +55,11 @@ const router = useRouter();
           description="Tanpa iklan dan seluruh fitur premium."
           features={[
             "Tanpa iklan",
+            "Semua fitur dan modul",
             "Generate AI tanpa batas",
-            "Backup Cloud",
-            "Prioritas Support",
+            "Backup Cloud dan prioritas support",
           ]}
+          current={proActive}
         />
 
       </div>

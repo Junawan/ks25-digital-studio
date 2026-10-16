@@ -6,20 +6,23 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
+import {
+  isProPlanActive,
+  toSubscriptionDate,
+} from "@/modules/subscription/subscription-policy";
 
 export default function CurrentPlanCard() {
   const { workspace } = useWorkspace();
 
   const company = workspace?.company;
 
-  const plan = company?.plan ?? "starter";
+  const proActive = isProPlanActive(company);
+  const plan = proActive ? "pro" : "starter";
 
-  const expired =
-  company?.planExpiresAt
-    ? new Date(
-        company.planExpiresAt
-      ).toLocaleDateString("id-ID")
-    : "Tidak ada";
+  const planExpiresAt = toSubscriptionDate(company?.planExpiresAt);
+  const expired = planExpiresAt
+    ? planExpiresAt.toLocaleDateString("id-ID")
+    : "Tidak aktif";
 
   return (
     <Card>
@@ -80,7 +83,7 @@ export default function CurrentPlanCard() {
 
             <p className="font-medium">
   {plan === "starter"
-    ? "Tidak terbatas"
+    ? "Android tanpa batas waktu · Web 1 bulan"
     : expired}
 </p>
 

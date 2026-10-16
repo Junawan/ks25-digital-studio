@@ -7,6 +7,7 @@ import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
 import { Button } from "@/components/ui/button";
 import { useActiveEmployee } from "@/modules/employee-profile/EmployeeIdentityProvider";
+import { isProPlanActive } from "@/modules/subscription/subscription-policy";
 
 import { ShieldCheck, UserRoundX, } from "lucide-react";
 
@@ -37,6 +38,7 @@ export default function AccountMenu({
     company,
     user,
   } = workspace;
+  const plan = isProPlanActive(company) ? "pro" : "starter";
 
   const content = (
 
@@ -106,13 +108,13 @@ export default function AccountMenu({
 
           <span className="capitalize font-semibold text-violet-600">
 
-            {company.plan}
+            {plan}
 
           </span>
 
         </Button>
 
-        {company.plan === "starter" && (
+        {plan === "starter" && (
 
           <Button
             className="w-full"

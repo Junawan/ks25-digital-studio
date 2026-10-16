@@ -90,8 +90,9 @@ export default function PrivacyPolicyPage() {
           </ul>
 
           <p>
-            Pada pembaruan berikutnya, aplikasi dapat menampilkan
-            iklan melalui Google AdMob untuk pengguna paket gratis.
+            Aplikasi Android dapat menampilkan iklan banner dan interstitial
+            melalui Google AdMob untuk pengguna paket Starter. Pengguna PRO
+            tidak melihat iklan. Versi web tidak menampilkan iklan AdMob.
           </p>
         </section>
 

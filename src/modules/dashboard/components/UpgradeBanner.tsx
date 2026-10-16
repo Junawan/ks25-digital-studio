@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
+import { isProPlanActive } from "@/modules/subscription/subscription-policy";
 
 export default function UpgradeBanner() {
 
@@ -18,10 +19,7 @@ export default function UpgradeBanner() {
     return null;
   }
 
-  if (
-    workspace.company.plan !==
-    "starter"
-  ) {
+  if (isProPlanActive(workspace.company)) {
     return null;
   }
 

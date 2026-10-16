@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 
 import { db } from "@/core/firebase";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
+import { isProPlanActive } from "@/modules/subscription/subscription-policy";
 
 export type SubscriptionStatus =
   | "none"
@@ -85,7 +86,12 @@ export function useSubscriptionStatus() {
     const payment =
       snapshot.docs[0].data();
 
-    setStatus(payment.status);
+    setStatus(
+      payment.status === "approved" &&
+        !isProPlanActive(workspace.company)
+        ? "none"
+        : payment.status,
+    );
 
     setLoading(false);
 
