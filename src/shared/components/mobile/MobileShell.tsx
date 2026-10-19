@@ -129,6 +129,12 @@ function getTitle(pathname: string) {
 }
 //
 if (
+  pathname.includes("/pos/customers")
+) {
+  return "Pelanggan";
+}
+
+if (
   pathname.includes(
     "/pos/transactions"
   )

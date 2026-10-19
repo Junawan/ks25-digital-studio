@@ -32,6 +32,7 @@ const [keterangan, setKeterangan] =
 
   const [customer, setCustomer] =
     useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
 
   const [
     paymentMethod,
@@ -300,6 +301,7 @@ const changeAmount =
   setKeterangan("");
 
   setCustomer("");
+  setCustomerPhone("");
 
   setPaidAmount(0);
 
@@ -317,6 +319,7 @@ function createDraftData(
     cashierId,
 
     customer,
+      customerPhone,
 
     paymentMethod,
 
@@ -360,6 +363,7 @@ function loadDraft(
   setCustomer(
     draft.customer
   );
+  setCustomerPhone(draft.customerPhone ?? "");
 
   setPaidAmount(
     draft.paidAmount
@@ -386,6 +390,7 @@ function loadDraft(
   cashierId,
 
   customer,
+  customerPhone,
 
   paymentMethod,
 
@@ -416,6 +421,7 @@ function loadDraft(
   setCashierId,
 
   setCustomer,
+  setCustomerPhone,
 
   setPaymentMethod,
 

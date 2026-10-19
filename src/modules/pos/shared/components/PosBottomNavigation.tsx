@@ -6,9 +6,9 @@ import { usePathname } from "next/navigation";
 import {
   ArrowDownCircle,
   ArrowUpCircle,
-  Package,
+  LayoutDashboard,
   ReceiptText,
-  Settings,
+  ChartColumn,
   ShoppingCart,
 } from "lucide-react";
 
@@ -22,9 +22,9 @@ interface MenuItem {
 
 const menus: MenuItem[] = [
   {
-    title: "Produk",
-    href: "/pos/products",
-    icon: Package,
+    title: "Dashboard",
+    href: "/pos",
+    icon: LayoutDashboard,
   },
   {
     title: "Transaksi",
@@ -47,9 +47,9 @@ const menus: MenuItem[] = [
     icon: ArrowUpCircle,
   },
   {
-    title: "Setting",
-    href: "/pos/settings",
-    icon: Settings,
+    title: "Laporan",
+    href: "/pos/reports",
+    icon: ChartColumn,
   },
 ];
 

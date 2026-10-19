@@ -21,6 +21,7 @@ interface Props {
   cashierId: string;
 
   customer: string;
+  customerPhone: string;
 
   onDiscountChange: (
     value: number
@@ -41,6 +42,7 @@ interface Props {
   onCustomerChange: (
     value: string
   ) => void;
+  onCustomerPhoneChange: (value: string) => void;
 }
 
 export default function CheckoutForm({
@@ -55,6 +57,7 @@ export default function CheckoutForm({
   cashierId,
 
   customer,
+  customerPhone,
 
   onDiscountChange,
 
@@ -65,6 +68,7 @@ export default function CheckoutForm({
   onCashierChange,
 
   onCustomerChange,
+  onCustomerPhoneChange,
 }: Props) {
 
   const [
@@ -184,6 +188,8 @@ export default function CheckoutForm({
             )
           }
         />
+        {customer.trim() && <p className="text-xs text-muted-foreground">No. HP wajib diisi jika nama pelanggan diisi.</p>}
+        <Input type="tel" inputMode="tel" value={customerPhone} placeholder="No. HP pelanggan" aria-label="Nomor HP pelanggan" required={Boolean(customer.trim())} onChange={(e) => onCustomerPhoneChange(e.target.value)} />
 
       </div>
 

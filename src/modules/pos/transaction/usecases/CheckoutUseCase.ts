@@ -11,6 +11,8 @@ import { TransactionRepository } from "../repositories/TransactionRepository";
 
 import { generateInvoiceNumber } from "../utils/generateInvoiceNumber";
 import { CashierRepository } from "../../cashier/repositories/CashierRepository";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/core/firebase";
 
 interface CheckoutInput {
   companyId: string;
@@ -18,6 +20,7 @@ interface CheckoutInput {
   cashierId: string;
 
   customerName: string;
+  customerPhone?: string;
 
   paymentMethod: PaymentMethod;
 
@@ -162,6 +165,8 @@ if (!cashier) {
         customerName:
           input.customerName,
 
+        customerPhone: input.customerPhone ?? "",
+
         paymentMethod:
           input.paymentMethod,
 
@@ -205,8 +210,13 @@ status:
           new Date(),
       };
 
-    return this.transactionRepository.create(
-      transaction
-    );
+    const saved = await this.transactionRepository.create(transaction);
+    if (saved.status === "paid" && input.customerName.trim() && input.customerPhone?.trim()) {
+      const phone = input.customerPhone.trim();
+      const customerId = `${input.companyId}_${phone.replace(/\D/g, "")}`;
+      const customerRef = doc(db, "pos_customers", customerId);
+      await setDoc(customerRef, { customerId, companyId: input.companyId, name: input.customerName.trim(), phone, active: true, updatedAt: new Date(), createdAt: new Date() }, { merge: true });
+    }
+    return saved;
   }
 }

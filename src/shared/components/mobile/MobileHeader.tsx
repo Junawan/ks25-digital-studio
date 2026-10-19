@@ -5,17 +5,14 @@ import Link from "next/link";
 
 import {
   Menu,
-  Bell,
   UserCircle2,
   X,
   LayoutDashboard,
   Grid2x2,
-  Sparkles,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { useRouter } from "next/navigation";
 
 import NotificationBell from "@/modules/notification/components/NotificationBell";
 
@@ -32,7 +29,6 @@ export default function MobileHeader({
   title,
 }: Props) {
   const [open, setOpen] = useState(false);
-const router = useRouter();
 
 
   const [accountOpen, setAccountOpen] =
@@ -216,28 +212,6 @@ const router = useRouter();
                   setOpen(false)
                 }
               />
-
-              <Button
-  variant="ghost"
-  className="
-    w-full
-    justify-start
-    rounded-xl
-    px-4
-    py-6
-    text-zinc-300
-    hover:bg-zinc-800
-    hover:text-white
-  "
-  onClick={() => {
-    setOpen(false);
-    router.push("/scanner");
-  }}
->
-  <Sparkles className="mr-3 h-5 w-5" />
-
-  Scanner
-</Button>
 
             </nav>
 

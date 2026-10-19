@@ -14,7 +14,9 @@ import {
   Search,
   Settings,
   ShoppingCart,
+  ScanLine,
   Users,
+  UserRound,
 } from "lucide-react";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 import { useProducts } from "@/modules/pos/product/hooks/useProducts";
@@ -30,6 +32,7 @@ import { Input } from "@/shared/components/ui/input";
 const navigation = [
   { title: "Kelola produk", href: "/pos/products", icon: Boxes },
   { title: "Transaksi", href: "/pos/transactions", icon: ShoppingCart },
+  { title: "Pelanggan", href: "/pos/customers", icon: UserRound },
   { title: "Order QR", href: "/pos/order-by-qr", icon: QrCode },
   { title: "Riwayat", href: "/pos/history", icon: History },
   { title: "Pemasukan", href: "/pos/income", icon: ArrowDownCircle },
@@ -105,8 +108,11 @@ export default function PosPage() {
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="Cari produk, varian, atau barcode..." className="h-11 pl-9" />
         </div>
-        <Button className="h-11 shrink-0" variant="outline" onClick={() => setCartOpen(true)}>
-          <ShoppingCart className="mr-2 h-4 w-4" />Keranjang ({cartQuantity})
+        <Button className="h-11 shrink-0" variant="outline" aria-label="Buka scanner Android" title="Scanner Android" onClick={() => router.push("/scanner")}>
+          <ScanLine className="h-4 w-4" />
+        </Button>
+        <Button className="h-11 shrink-0 gap-2 px-3" variant="outline" onClick={() => setCartOpen(true)} aria-label={`Keranjang (${cartQuantity})`}>
+          <ShoppingCart className="h-4 w-4" /><span className="hidden sm:inline">Keranjang</span><span>({cartQuantity})</span>
         </Button>
       </div>
     </header>

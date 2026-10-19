@@ -102,7 +102,9 @@ const company =
   setCashierId,
 
   customer,
+  customerPhone,
   setCustomer,
+  setCustomerPhone,
 
   paymentMethod,
   setPaymentMethod,
@@ -144,14 +146,15 @@ useEffect(() => {
     addCartItems(incoming.items);
     const name = incoming.customerName?.trim() ?? "";
     const phone = incoming.phone?.trim() ?? "";
-    if (name || phone) setCustomer([name, phone].filter(Boolean).join(" · "));
+    if (name) setCustomer(name);
+    if (phone) setCustomerPhone(phone);
     if (incoming.orderNumber) setKeterangan(`Pesanan QR ${incoming.orderNumber}`);
     toast.success(`Pesanan QR ${incoming.orderNumber ?? ""} dimuat ke transaksi.`);
   } catch (error) {
     console.error("Pesanan QR tidak dapat dibaca:", error);
     toast.error("Pesanan QR tidak dapat dimuat ke kasir.");
   }
-}, [addCartItems, setCustomer, setKeterangan]);
+}, [addCartItems, setCustomer, setCustomerPhone, setKeterangan]);
 
 function addBarcode(
   barcode: string
@@ -259,6 +262,7 @@ const [lastTransaction, setLastTransaction] =
     changeAmount: number;
     cashierName: string,
     customerName: string;
+    customerPhone: string;
   } | null>(null);
 const [invoiceChoiceTransaction, setInvoiceChoiceTransaction] =
   useState<Transaction | null>(null);
@@ -491,6 +495,7 @@ async function handleSaveDraft() {
       cashierId,
 
       customer,
+      customerPhone,
 
       paymentMethod,
 
@@ -672,6 +677,11 @@ async function handleCheckout() {
     return;
   }
 
+  if (customer.trim() && !customerPhone.trim()) {
+    toast.error("Nomor HP pelanggan wajib diisi.");
+    return;
+  }
+
   try {
 
     setCheckoutLoading(true);
@@ -688,6 +698,8 @@ async function handleCheckout() {
 
           customerName:
             customer,
+
+          customerPhone,
 
           paymentMethod,
 
@@ -725,6 +737,7 @@ keterangan,
   cashierName: transaction.cashierName,
 
   customerName: customer,
+  customerPhone,
 });
 
 setPaymentOpen(false);
@@ -1035,6 +1048,7 @@ if (!company) {
   keterangan={keterangan}
   cashierId={cashierId}
   customer={customer}
+  customerPhone={customerPhone}
 
   onDiscountChange={
     setDiscount
@@ -1055,6 +1069,7 @@ if (!company) {
   onCustomerChange={
     setCustomer
   }
+  onCustomerPhoneChange={setCustomerPhone}
 
 />
 

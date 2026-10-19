@@ -31,6 +31,7 @@ interface Props {
   onDelete: (
     debt: Debt
   ) => void;
+  onDebtorTypeChange: (debtId: string, type: "employee" | "customer") => void;
 }
 
 function getDebtTypeLabel(
@@ -57,6 +58,7 @@ export default function DebtList({
   onPay,
   onDetail,
   onDelete,
+  onDebtorTypeChange,
 }: Props) {
   if (loading) {
     return (
@@ -99,6 +101,8 @@ export default function DebtList({
                 Jenis
               </th>
 
+              <th className="px-2 py-3">Debitur</th>
+
               <th className="px-2 py-3 text-right">
                 Sisa
               </th>
@@ -122,12 +126,15 @@ export default function DebtList({
 
                   <td className="px-2 py-4 font-medium">
                     {debt.name}
+                    {debt.source === "transaction" && <div className="mt-1 text-xs font-normal text-muted-foreground">{debt.invoiceNumber}{debt.phone ? ` · ${debt.phone}` : ""}</div>}
                   </td>
 
                   <td className="px-2 py-4">
-                    {getDebtTypeLabel(
-                      debt.type
-                    )}
+                    {debt.source === "transaction" ? "Sisa Transaksi" : getDebtTypeLabel(debt.type)}
+                  </td>
+
+                  <td className="px-2 py-4">
+                    {debt.source === "transaction" ? "Pelanggan" : debt.debtorType ? (debt.debtorType === "employee" ? "Karyawan" : "Pelanggan") : <select aria-label={`Jenis debitur ${debt.name}`} value="legacy" onChange={(event) => onDebtorTypeChange(debt.debtId, event.target.value as "employee" | "customer")} className="h-9 rounded-md border border-input bg-background px-2 text-sm"><option value="legacy" disabled>Data lama</option><option value="employee">Karyawan</option><option value="customer">Pelanggan</option></select>}
                   </td>
 
                   <td className="px-2 py-4 text-right font-medium whitespace-nowrap">
@@ -138,7 +145,7 @@ export default function DebtList({
 
                   <td className="px-2 py-4">
                     <div className="flex justify-end gap-2">
-                      <Button
+                      {debt.status === "unpaid" && <Button
                         size="sm"
                         onClick={() =>
                           onPay(debt)
@@ -146,7 +153,7 @@ export default function DebtList({
                       >
                         <CreditCard className="mr-2 h-4 w-4" />
                         Bayar
-                      </Button>
+                      </Button>}
 
                       <Button
                         size="sm"
@@ -159,7 +166,7 @@ export default function DebtList({
                         Detail
                       </Button>
 
-                      <Button
+                      {debt.source !== "transaction" && <Button
                         size="sm"
                         variant="destructive"
                         onClick={() =>
@@ -167,7 +174,7 @@ export default function DebtList({
                         }
                       >
                         <Trash2 className="h-4 w-4" />
-                      </Button>
+                      </Button>}
                     </div>
                   </td>
                 </tr>
@@ -190,12 +197,12 @@ export default function DebtList({
                   <p className="font-semibold">
                     {debt.name}
                   </p>
+                  {debt.source === "transaction" && <p className="mt-1 text-xs text-muted-foreground">{debt.invoiceNumber}{debt.phone ? ` · ${debt.phone}` : ""}</p>}
 
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {getDebtTypeLabel(
-                      debt.type
-                    )}
+                    {debt.source === "transaction" ? "Sisa Transaksi" : getDebtTypeLabel(debt.type)}
                   </p>
+                  {debt.source === "transaction" ? <span className="mt-2 inline-flex rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">Pelanggan</span> : debt.debtorType ? <span className="mt-2 inline-flex rounded-full bg-muted px-2 py-1 text-xs">{debt.debtorType === "employee" ? "Karyawan" : "Pelanggan"}</span> : <select aria-label={`Jenis debitur ${debt.name}`} value="legacy" onChange={(event) => onDebtorTypeChange(debt.debtId, event.target.value as "employee" | "customer")} className="mt-2 h-8 rounded-md border border-input bg-background px-2 text-xs"><option value="legacy" disabled>Data lama</option><option value="employee">Karyawan</option><option value="customer">Pelanggan</option></select>}
                 </div>
 
                 <span
@@ -226,15 +233,15 @@ export default function DebtList({
                 </p>
               </div>
 
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                <Button
+              <div className={`mt-4 grid gap-2 ${debt.source === "transaction" ? "grid-cols-2" : "grid-cols-3"}`}>
+                {debt.status === "unpaid" && <Button
                   size="sm"
                   onClick={() =>
                     onPay(debt)
                   }
                 >
                   Bayar
-                </Button>
+                </Button>}
 
                 <Button
                   size="sm"
@@ -246,7 +253,7 @@ export default function DebtList({
                   Detail
                 </Button>
 
-                <Button
+                {debt.source !== "transaction" && <Button
                   size="sm"
                   variant="destructive"
                   onClick={() =>
@@ -254,7 +261,7 @@ export default function DebtList({
                   }
                 >
                   Hapus
-                </Button>
+                </Button>}
               </div>
             </div>
           )

@@ -31,6 +31,8 @@ export interface Transaction {
 
   customerName: string;
 
+  customerPhone?: string;
+
   paymentMethod: PaymentMethod;
 
   subtotal: number;

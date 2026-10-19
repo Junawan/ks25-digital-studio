@@ -98,17 +98,8 @@ export class SettleTransactionUseCase {
         input.paidAmount
       );
 
-    /*
-     * Pembayaran tidak boleh kurang
-     * dari sisa transaksi
-     */
-    if (
-      paymentAmount <
-      remainingAmount
-    ) {
-      throw new Error(
-        "Pembayaran masih kurang dari sisa transaksi."
-      );
+    if (paymentAmount <= 0) {
+      throw new Error("Nominal pembayaran harus lebih dari 0.");
     }
 
     /*
@@ -121,9 +112,11 @@ export class SettleTransactionUseCase {
      * ------------------------
      * Total dibayar   500.000
      */
+    const appliedAmount = Math.min(paymentAmount, remainingAmount);
     const totalPaid =
       transaction.paidAmount +
-      paymentAmount;
+      appliedAmount;
+    const nextRemaining = Math.max(0, remainingAmount - appliedAmount);
 
     /*
      * Kembalian hanya untuk Cash
@@ -132,7 +125,7 @@ export class SettleTransactionUseCase {
       input.paymentMethod === "cash"
         ? Math.max(
             0,
-            paymentAmount -
+              paymentAmount -
               remainingAmount
           )
         : 0;
@@ -151,13 +144,11 @@ export class SettleTransactionUseCase {
       paidAmount:
         totalPaid,
 
-      remainingAmount:
-        0,
+      remainingAmount: nextRemaining,
 
       changeAmount,
 
-      status:
-        "paid",
+      status: nextRemaining === 0 ? "paid" : "unpaid",
 
       updatedAt:
         new Date(),

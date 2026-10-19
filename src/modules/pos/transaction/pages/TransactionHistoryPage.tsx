@@ -73,6 +73,10 @@ export default function TransactionHistoryPage() {
   ] = useState(
     getTodayDateKey()
   );
+  const [dateMode, setDateMode] = useState<"day" | "range" | "month">("day");
+  const [dateFrom, setDateFrom] = useState(getTodayDateKey());
+  const [dateTo, setDateTo] = useState(getTodayDateKey());
+  const [selectedMonth, setSelectedMonth] = useState(getTodayDateKey().slice(0, 7));
 
   const [
     search,
@@ -190,10 +194,12 @@ const [
         /*
          * Filter tanggal
          */
-        if (
-          transactionDate !==
-          selectedDate
-        ) {
+        const dateMatches = dateMode === "day"
+          ? transactionDate === selectedDate
+          : dateMode === "range"
+            ? transactionDate >= dateFrom && transactionDate <= dateTo
+            : transactionDate.startsWith(selectedMonth);
+        if (!dateMatches) {
           return false;
         }
 
@@ -246,7 +252,11 @@ const [
 
   }, [
     transactions,
+    dateMode,
     selectedDate,
+    dateFrom,
+    dateTo,
+    selectedMonth,
     search,
     statusFilter,
   ]);
@@ -517,11 +527,12 @@ async function handleSettlement(
    * Tombol hari ini
    */
   function handleToday() {
-
-    setSelectedDate(
-      getTodayDateKey()
-    );
-
+    const today = getTodayDateKey();
+    setSelectedDate(today);
+    setDateFrom(today);
+    setDateTo(today);
+    setSelectedMonth(today.slice(0, 7));
+    setDateMode("day");
   }
 
   return (
@@ -538,7 +549,7 @@ async function handleSettlement(
 
         <CardContent className="pt-6">
 
-          <div className="grid gap-4 md:grid-cols-[1fr_180px_180px_auto]">
+          <div className="grid gap-4 md:grid-cols-[minmax(220px,1fr)_180px_auto]">
 
             {/* SEARCH */}
 
@@ -569,33 +580,15 @@ async function handleSettlement(
 
             </div>
 
-            {/* TANGGAL */}
+            <select aria-label="Jenis filter tanggal" value={dateMode} onChange={(event) => setDateMode(event.target.value as typeof dateMode)} className="h-10 w-full rounded-md border bg-background px-3 text-sm">
+              <option value="day">Per tanggal</option><option value="range">Rentang tanggal</option><option value="month">Per bulan</option>
+            </select>
 
-            <div className="relative">
-
-              <CalendarDays
-                className="
-                  absolute
-                  left-3
-                  top-1/2
-                  h-4
-                  w-4
-                  -translate-y-1/2
-                  text-muted-foreground
-                "
-              />
-
-              <Input
-                type="date"
-                value={selectedDate}
-                onChange={(event) =>
-                  setSelectedDate(
-                    event.target.value
-                  )
-                }
-                className="pl-9"
-              />
-
+            <div className="flex flex-wrap items-center gap-2 md:col-span-2">
+              <CalendarDays className="h-4 w-4 text-muted-foreground" />
+              {dateMode === "day" && <Input aria-label="Pilih tanggal" type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} className="w-auto min-w-40" />}
+              {dateMode === "range" && <><Input aria-label="Tanggal mulai" type="date" value={dateFrom} onChange={(event) => { const next = event.target.value; setDateFrom(next); if (dateTo < next) setDateTo(next); else if (dayDifference(next, dateTo) > 30) setDateTo(addDaysKey(next, 30)); }} className="w-auto min-w-40" /><span className="text-sm text-muted-foreground">sampai</span><Input aria-label="Tanggal akhir (maksimal 31 hari)" type="date" value={dateTo} min={dateFrom || undefined} max={addDaysKey(dateFrom, 30)} onChange={(event) => { const next = event.target.value; setDateTo(dayDifference(dateFrom, next) > 30 ? addDaysKey(dateFrom, 30) : next); }} className="w-auto min-w-40" /></>}
+              {dateMode === "month" && <Input aria-label="Pilih bulan" type="month" value={selectedMonth} onChange={(event) => setSelectedMonth(event.target.value)} className="w-auto min-w-40" />}
             </div>
 
             <select
@@ -658,9 +651,7 @@ async function handleSettlement(
             </span>{" "}
             transaksi pada{" "}
             <span className="font-medium text-foreground">
-              {formatSelectedDate(
-                selectedDate
-              )}
+              {dateMode === "day" ? formatSelectedDate(selectedDate) : dateMode === "range" ? `${formatSelectedDate(dateFrom)} – ${formatSelectedDate(dateTo)}` : formatSelectedMonth(selectedMonth)}
             </span>
 
           </div>
@@ -738,7 +729,7 @@ async function handleSettlement(
 
                 {search
                   ? "Tidak ada transaksi yang sesuai dengan pencarian."
-                  : "Tidak ada transaksi pada tanggal tersebut."}
+                : "Tidak ada transaksi pada tanggal atau periode tersebut."}
 
               </p>
 
@@ -794,7 +785,8 @@ async function handleSettlement(
               )
             )}
 
-            <SettlementDialog
+            {selectedTransaction && <SettlementDialog
+  key={selectedTransaction.transactionId}
   open={
     settlementOpen
   }
@@ -814,7 +806,7 @@ async function handleSettlement(
   loading={
     settlementLoading
   }
-/>
+/>}
 
       <CommercialInvoiceOptionsDialog
         open={invoiceTransaction !== null}
@@ -926,4 +918,24 @@ function formatSelectedDate(
       year: "numeric",
     }
   );
+}
+
+function addDaysKey(value: string, days: number) {
+  if (!value) return "";
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(year, month - 1, day + days);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function dayDifference(start: string, end: string) {
+  if (!start || !end) return 0;
+  const [startYear, startMonth, startDay] = start.split("-").map(Number);
+  const [endYear, endMonth, endDay] = end.split("-").map(Number);
+  return Math.round((Date.UTC(endYear, endMonth - 1, endDay) - Date.UTC(startYear, startMonth - 1, startDay)) / 86_400_000);
+}
+
+function formatSelectedMonth(value: string) {
+  if (!value) return "-";
+  const [year, month] = value.split("-").map(Number);
+  return new Date(year, month - 1, 1).toLocaleDateString("id-ID", { month: "long", year: "numeric" });
 }

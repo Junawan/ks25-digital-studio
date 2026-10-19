@@ -11,6 +11,7 @@ export interface DraftTransaction {
   cashierId: string;
 
   customer: string;
+  customerPhone?: string;
 
   paymentMethod: PaymentMethod;
 

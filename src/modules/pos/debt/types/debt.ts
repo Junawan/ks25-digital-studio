@@ -7,6 +7,8 @@ export type DebtStatus =
   | "unpaid"
   | "paid";
 
+export type DebtorType = "employee" | "customer";
+
 export interface DebtPayment {
   paymentId: string;
 
@@ -25,6 +27,13 @@ export interface Debt {
   companyId: string;
 
   name: string;
+
+  debtorType?: DebtorType;
+
+  source?: "manual" | "transaction";
+  transactionId?: string;
+  invoiceNumber?: string;
+  phone?: string;
 
   type: DebtType;
 

@@ -24,6 +24,11 @@ import type { DebtFormInput } from "../validation/debtSchema";
 import PayDebtDialog from "../components/PayDebtDialog";
 import DebtDetailDialog from "../components/DebtDetailDialog";
 import DeleteDebtDialog from "../components/DeleteDebtDialog";
+import { useTransactions } from "@/modules/pos/transaction/hooks/useTransactions";
+import type { Transaction, PaymentMethod } from "@/modules/pos/transaction/types/transaction";
+import { transactionDI } from "@/modules/pos/transaction/di/transaction";
+import SettlementDialog from "@/modules/pos/transaction/components/SettlementDialog";
+import { toast } from "sonner";
 
 export default function DebtPage() {
   const {
@@ -35,10 +40,13 @@ export default function DebtPage() {
   createDebt,
   payDebt,
   deleteDebt,
+  updateDebtorType,
 } = useDebts();
+  const { transactions, loading: transactionsLoading, reload: reloadTransactions } = useTransactions();
 
   const [search, setSearch] =
     useState("");
+  const [debtorFilter, setDebtorFilter] = useState<"all" | "employee" | "customer">("all");
 
     const [selectedDebt, setSelectedDebt] =
   useState<Debt | null>(null);
@@ -54,25 +62,48 @@ const [deleteDialogOpen, setDeleteDialogOpen] =
 
 const [actionLoading, setActionLoading] =
   useState(false);
+const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+const [settlementOpen, setSettlementOpen] = useState(false);
+
+  const transactionDebts = useMemo(() => transactions
+    .filter((transaction) => transaction.customerName?.trim() && transaction.status !== "cancelled")
+    .filter((transaction) => status === "all" || transaction.status === status)
+    .map((transaction) => ({
+      debtId: `transaction_${transaction.transactionId}`,
+      companyId: transaction.companyId,
+      name: transaction.customerName,
+      type: "other" as const,
+      debtorType: "customer" as const,
+      source: "transaction" as const,
+      transactionId: transaction.transactionId,
+      invoiceNumber: transaction.invoiceNumber,
+      phone: transaction.customerPhone ?? "",
+      amount: transaction.total,
+      totalPaid: transaction.paidAmount,
+      remainingAmount: transaction.remainingAmount,
+      status: transaction.status === "paid" ? "paid" as const : "unpaid" as const,
+      note: transaction.keterangan || null,
+      date: transaction.createdAt instanceof Date ? transaction.createdAt : new Date(transaction.createdAt),
+      payments: [],
+      createdAt: transaction.createdAt instanceof Date ? transaction.createdAt : new Date(transaction.createdAt),
+      updatedAt: transaction.updatedAt instanceof Date ? transaction.updatedAt : new Date(transaction.updatedAt),
+    })), [transactions, status]);
+  const allDebts = useMemo(() => [...debts, ...transactionDebts], [debts, transactionDebts]);
 
   const filteredDebts =
     useMemo(() => {
       const keyword =
         search.trim().toLowerCase();
 
-      if (!keyword) {
-        return debts;
-      }
-
-      return debts.filter(
+      return allDebts.filter(
         (debt) =>
-          debt.name
-            .toLowerCase()
-            .includes(keyword)
+          (!keyword || debt.name.toLowerCase().includes(keyword) || debt.phone?.toLowerCase().includes(keyword) || debt.invoiceNumber?.toLowerCase().includes(keyword)) &&
+          (debtorFilter === "all" || debt.debtorType === debtorFilter)
       );
     }, [
-      debts,
+      allDebts,
       search,
+      debtorFilter,
     ]);
 
   const totalRemaining =
@@ -103,6 +134,8 @@ const [actionLoading, setActionLoading] =
       type:
         data.type,
 
+      debtorType: "employee",
+
       note:
         data.note,
 
@@ -111,12 +144,33 @@ const [actionLoading, setActionLoading] =
     });
   }
 
-  function handlePay(
-  debt: Debt
-) {
+  function handlePay(debt: Debt & { transactionId?: string }) {
+  if (debt.transactionId) {
+    const transaction = transactions.find((item) => item.transactionId === debt.transactionId);
+    if (!transaction) return;
+    setSelectedTransaction(transaction);
+    setSettlementOpen(true);
+    return;
+  }
   setSelectedDebt(debt);
 
   setPayDialogOpen(true);
+}
+
+async function handleTransactionSettlement(method: PaymentMethod, amount: number) {
+  if (!selectedTransaction) return;
+  try {
+    setActionLoading(true);
+    await transactionDI.settleTransactionUseCase.execute({ transactionId: selectedTransaction.transactionId, paymentMethod: method, paidAmount: amount });
+    toast.success(amount >= selectedTransaction.remainingAmount ? "Transaksi berhasil dilunasi." : "Pembayaran transaksi berhasil dicatat.");
+    setSettlementOpen(false);
+    setSelectedTransaction(null);
+    await reloadTransactions();
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : "Gagal menyimpan pembayaran transaksi.");
+  } finally {
+    setActionLoading(false);
+  }
 }
 
   function handleDetail(
@@ -187,9 +241,11 @@ async function handleDeleteConfirm(
         </p>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-        {/* LEFT */}
-        <div className="space-y-4 rounded-xl border bg-card p-4 shadow-sm md:p-6">
+      <aside className="rounded-xl border bg-card p-4 shadow-sm md:p-6">
+        <DebtForm loading={loading} onSubmit={handleCreateDebt} />
+      </aside>
+
+      <div className="space-y-4 rounded-xl border bg-card p-4 shadow-sm md:p-6">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -249,6 +305,9 @@ async function handleDeleteConfirm(
 
               Export Excel
             </Button>
+            <select value={debtorFilter} onChange={(event) => setDebtorFilter(event.target.value as typeof debtorFilter)} aria-label="Filter jenis debitur" className="h-10 rounded-md border border-input bg-background px-3 text-sm">
+              <option value="all">Semua debitur</option><option value="employee">Karyawan</option><option value="customer">Pelanggan</option>
+            </select>
           </div>
 
           <div className="flex items-center justify-between border-b pb-4">
@@ -285,24 +344,15 @@ async function handleDeleteConfirm(
 
           <DebtList
             debts={filteredDebts}
-            loading={loading}
+            loading={loading || transactionsLoading}
             onPay={handlePay}
             onDetail={handleDetail}
             onDelete={handleDelete}
+            onDebtorTypeChange={(debtId, type) => void updateDebtorType(debtId, type)}
           />
         </div>
-
-        {/* RIGHT */}
-        <aside className="h-fit rounded-xl border bg-card p-4 shadow-sm md:p-6">
-          <DebtForm
-            loading={loading}
-            onSubmit={
-              handleCreateDebt
-            }
-          />
-        </aside>
-      </div>
     </div>
+      {selectedTransaction && <SettlementDialog key={selectedTransaction.transactionId} open={settlementOpen} onOpenChange={(open) => { setSettlementOpen(open); if (!open) setSelectedTransaction(null); }} transaction={selectedTransaction} onConfirm={handleTransactionSettlement} loading={actionLoading} />}
       <PayDebtDialog
       debt={selectedDebt}
       open={payDialogOpen}

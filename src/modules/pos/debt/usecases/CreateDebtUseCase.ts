@@ -1,7 +1,4 @@
-import {
-  Debt,
-  DebtType,
-} from "../types/debt";
+import { Debt, DebtType, DebtorType } from "../types/debt";
 
 import { DebtRepository } from "../repositories/DebtRepository";
 
@@ -9,6 +6,8 @@ interface CreateDebtInput {
   companyId: string;
 
   name: string;
+
+  debtorType: DebtorType;
 
   amount: number;
 
@@ -38,6 +37,8 @@ export class CreateDebtUseCase {
       companyId: input.companyId,
 
       name: input.name,
+
+      debtorType: input.debtorType,
 
       type: input.type,
 

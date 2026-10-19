@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useState } from "react";
 
 import {
   Dialog,
@@ -54,30 +51,7 @@ export default function SettlementDialog({
   const [
     paidAmount,
     setPaidAmount,
-  ] = useState(0);
-
-  /*
-   * Ketika transaksi berubah,
-   * otomatis isi nominal dengan
-   * sisa pembayaran.
-   */
-  useEffect(() => {
-
-    if (!transaction) {
-      setPaidAmount(0);
-      return;
-    }
-
-    setPaidAmount(
-      transaction.remainingAmount
-    );
-
-    setPaymentMethod("cash");
-
-  }, [
-    transaction,
-    open,
-  ]);
+  ] = useState(transaction?.remainingAmount ?? 0);
 
   if (!transaction) {
     return null;
@@ -98,9 +72,8 @@ export default function SettlementDialog({
         )
       : 0;
 
-  const paymentIsEnough =
-    paidAmount >=
-    remainingAmount;
+  const paymentIsEnough = paidAmount > 0;
+  const isFinalPayment = paidAmount >= remainingAmount;
 
   async function handleConfirm() {
 
@@ -128,13 +101,12 @@ export default function SettlementDialog({
 
         <DialogHeader>
 
-          <DialogTitle>
-            Pelunasan Transaksi
+            <DialogTitle>
+            Pembayaran Transaksi
           </DialogTitle>
 
           <DialogDescription>
-            Selesaikan sisa pembayaran
-            transaksi ini.
+            Bayar sebagian atau lunasi sisa pembayaran transaksi ini.
           </DialogDescription>
 
         </DialogHeader>
@@ -309,10 +281,7 @@ export default function SettlementDialog({
 
             <p className="text-xs text-muted-foreground">
 
-              Masukkan nominal pembayaran
-              pelunasan. Nilai awal
-              otomatis diisi sesuai
-              sisa pembayaran.
+              Masukkan nominal pembayaran. Nilai awal otomatis diisi sesuai sisa pembayaran.
 
             </p>
 
@@ -361,7 +330,7 @@ export default function SettlementDialog({
                 <span className="font-medium text-foreground">
 
                   Rp{" "}
-                  {remainingAmount.toLocaleString(
+                  {paidAmount.toLocaleString(
                     "id-ID"
                   )}
 
@@ -406,7 +375,7 @@ export default function SettlementDialog({
 
             {loading
               ? "Memproses..."
-              : "Lunasi"}
+              : isFinalPayment ? "Lunasi" : "Catat Pembayaran"}
 
           </Button>
 

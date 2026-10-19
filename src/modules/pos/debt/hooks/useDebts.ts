@@ -91,6 +91,7 @@ export function useDebts() {
     useCallback(
       async (input: {
         name: string;
+        debtorType: "employee" | "customer";
         amount: number;
         type:
           | "kasbon"
@@ -175,6 +176,14 @@ export function useDebts() {
       []
     );
 
+  const updateDebtorType = useCallback(async (debtId: string, debtorType: "employee" | "customer") => {
+    const debt = debts.find((item) => item.debtId === debtId);
+    if (!debt) return;
+    const updated = { ...debt, debtorType, updatedAt: new Date() };
+    await debtDI.repository.update(updated);
+    setDebts((current) => current.map((item) => item.debtId === debtId ? updated : item));
+  }, [debts]);
+
   const refresh =
     useCallback(async () => {
       await loadDebts();
@@ -197,6 +206,7 @@ export function useDebts() {
     payDebt,
 
     deleteDebt,
+    updateDebtorType,
 
     refresh,
   };
