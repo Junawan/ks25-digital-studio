@@ -52,6 +52,11 @@ export function isProPlanActive(
   return expiresAt !== null && expiresAt.getTime() > now.getTime();
 }
 
+export function getPlanDaysRemaining(company: Company | null | undefined) {
+  const expiresAt = toSubscriptionDate(company?.planExpiresAt);
+  return expiresAt ? Math.ceil((expiresAt.getTime() - Date.now()) / 86_400_000) : null;
+}
+
 export function isWebStarterExpired(
   company: Company | null | undefined,
   now = new Date(),

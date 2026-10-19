@@ -73,6 +73,7 @@ return result;
   } satisfies User;
 
 }
+
 }
 
 export const userRepository = new UserRepository();

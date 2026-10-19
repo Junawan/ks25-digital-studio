@@ -211,7 +211,7 @@ status:
       };
 
     const saved = await this.transactionRepository.create(transaction);
-    if (saved.status === "paid" && input.customerName.trim() && input.customerPhone?.trim()) {
+    if (input.customerName.trim() && input.customerPhone?.trim()) {
       const phone = input.customerPhone.trim();
       const customerId = `${input.companyId}_${phone.replace(/\D/g, "")}`;
       const customerRef = doc(db, "pos_customers", customerId);

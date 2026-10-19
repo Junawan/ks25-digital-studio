@@ -169,12 +169,6 @@ export default function MobileHeader({
 
                 </h2>
 
-                <p className="text-xs text-zinc-400">
-
-                  Trial Plan
-
-                </p>
-
               </div>
 
               <Button

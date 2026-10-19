@@ -2,14 +2,14 @@
 
 import { useRouter } from "next/navigation";
 
-import { Sparkles, Crown } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 import { useActiveEmployee } from "@/modules/employee-profile/EmployeeIdentityProvider";
 
-import { dashboardProducts } from "../dashboard.data";
+import { getPlanDaysRemaining, toSubscriptionDate } from "@/modules/subscription/subscription-policy";
 
 export default function DashboardHero() {
 
@@ -24,8 +24,12 @@ export default function DashboardHero() {
     return null;
   }
 
-  const installed =
-  workspace.modules.length;
+  const company = workspace.company;
+  const planExpiresAt = toSubscriptionDate(company.planExpiresAt);
+  const daysLeft = getPlanDaysRemaining(company);
+  const isPaidPlan = company.plan === "pro" || company.plan === "business";
+  const expiringSoon = company.plan === "pro" && daysLeft !== null && daysLeft >= 0 && daysLeft <= 3;
+  const formattedExpiry = planExpiresAt?.toLocaleString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 
   return (
 
@@ -118,6 +122,12 @@ export default function DashboardHero() {
 
           </p>
 
+          <p className="mt-3 text-sm font-semibold text-white">
+            {isPaidPlan ? daysLeft !== null && daysLeft >= 0 && formattedExpiry ? `${company.plan.toUpperCase()} aktif sampai ${formattedExpiry}` : `Paket ${company.plan.toUpperCase()} telah berakhir` : "Paket STARTER aktif"}
+          </p>
+
+          {expiringSoon && <p role="status" className="mt-3 rounded-xl border border-amber-200/40 bg-amber-950/25 px-4 py-3 text-sm font-medium text-amber-50">Paket PRO akan berakhir {daysLeft === 0 ? "hari ini" : `dalam ${daysLeft} hari`}. Perpanjang agar layanan tetap aktif.</p>}
+
           <div className="mt-6">
 
             <Button
@@ -139,53 +149,6 @@ export default function DashboardHero() {
         </div>
 
     </div>
-
-    </div>
-
-  );
-
-}
-
-interface HeroStatProps {
-
-  title: string;
-
-  value: string;
-
-}
-
-function HeroStat({
-
-  title,
-
-  value,
-
-}: HeroStatProps) {
-
-  return (
-
-    <div
-      className="
-      rounded-2xl
-      border
-      border-white/20
-      bg-white/10
-      p-5
-      backdrop-blur
-      "
-    >
-
-      <div className="text-sm text-white/70">
-
-        {title}
-
-      </div>
-
-      <div className="mt-2 text-2xl font-bold">
-
-        {value}
-
-      </div>
 
     </div>
 
