@@ -46,7 +46,7 @@ export default function MobileHeader({
         sticky
         top-0
         z-40
-        h-16
+        min-h-16
         border-b
         border-zinc-800
         bg-zinc-950/90
@@ -57,7 +57,7 @@ export default function MobileHeader({
           className="
           mx-auto
           flex
-          h-full
+          min-h-16
           items-center
           justify-between
           px-4
@@ -78,17 +78,13 @@ export default function MobileHeader({
 
           {/* tengah */}
 
-          <h1
-            className="
-            flex-1
-            text-center
-            text-lg
-            font-semibold
-            text-white
-            "
-          >
-            {title}
-          </h1>
+          <div className="min-w-0 flex-1 text-center">
+            <h1 className="truncate text-lg font-semibold text-white">{title}</h1>
+            <p className="text-[10px] leading-tight text-zinc-300">
+              Untuk penggunaan di PC/Laptop, buka{" "}
+              <a className="font-medium underline underline-offset-2" href="https://www.ks25studio.web.id" target="_blank" rel="noreferrer">www.ks25studio.web.id</a>
+            </p>
+          </div>
 
           {/* kanan */}
 

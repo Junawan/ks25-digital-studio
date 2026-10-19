@@ -122,6 +122,13 @@ export default function DashboardHero() {
 
           </p>
 
+          <p className="mt-3 text-sm text-white/90">
+            Untuk penggunaan di PC/Laptop, buka{" "}
+            <a className="font-semibold underline underline-offset-2" href="https://www.ks25studio.web.id" target="_blank" rel="noreferrer">
+              www.ks25studio.web.id
+            </a>
+          </p>
+
           <p className="mt-3 text-sm font-semibold text-white">
             {isPaidPlan ? daysLeft !== null && daysLeft >= 0 && formattedExpiry ? `${company.plan.toUpperCase()} aktif sampai ${formattedExpiry}` : `Paket ${company.plan.toUpperCase()} telah berakhir` : "Paket STARTER aktif"}
           </p>
