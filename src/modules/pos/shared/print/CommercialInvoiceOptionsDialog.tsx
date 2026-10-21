@@ -6,19 +6,25 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import type { Transaction } from "@/modules/pos/transaction/types/transaction";
 import type { CommercialInvoiceDetails } from "./printInvoice";
+import type { PosSettings } from "@/modules/pos/settings/types/PosSettings";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   transaction: Transaction | null;
+  settings: PosSettings | null;
   onSelect: (type: "domestic" | "commercial", details?: CommercialInvoiceDetails) => void;
 }
 
 const incoterms = ["EXW", "FCA", "CPT", "CIP", "DAP", "DPU", "DDP", "FAS", "FOB", "CFR", "CIF"];
 
-export default function CommercialInvoiceOptionsDialog({ open, onOpenChange, transaction, onSelect }: Props) {
-  const [buyerName, setBuyerName] = useState("");
+export default function CommercialInvoiceOptionsDialog({ open, onOpenChange, transaction, settings, onSelect }: Props) {
+  const [sellerName, setSellerName] = useState<string | null>(null);
+  const [sellerAddress, setSellerAddress] = useState<string | null>(null);
+  const [sellerPhone, setSellerPhone] = useState<string | null>(null);
+  const [buyerName, setBuyerName] = useState<string | null>(null);
   const [buyerAddress, setBuyerAddress] = useState("");
+  const [buyerPhone, setBuyerPhone] = useState<string | null>(null);
   const [originCountry, setOriginCountry] = useState("Indonesia");
   const [destinationCountry, setDestinationCountry] = useState("Malaysia");
   const [currency, setCurrency] = useState("IDR");
@@ -29,8 +35,12 @@ export default function CommercialInvoiceOptionsDialog({ open, onOpenChange, tra
 
   function handleOpenChange(nextOpen: boolean) {
     if (nextOpen && !open) {
-      setBuyerName("");
+      setSellerName(null);
+      setSellerAddress(null);
+      setSellerPhone(null);
+      setBuyerName(null);
       setBuyerAddress("");
+      setBuyerPhone(null);
       setOriginCountry("Indonesia");
       setDestinationCountry("Malaysia");
       setCurrency("IDR");
@@ -42,8 +52,14 @@ export default function CommercialInvoiceOptionsDialog({ open, onOpenChange, tra
     onOpenChange(nextOpen);
   }
 
+  const sellerNameValue = sellerName ?? settings?.accountHolder ?? "";
+  const sellerAddressValue = sellerAddress ?? settings?.address ?? "";
+  const sellerPhoneValue = sellerPhone ?? settings?.phone ?? "";
+  const buyerNameValue = buyerName ?? transaction?.customerName ?? "";
+  const buyerPhoneValue = buyerPhone ?? transaction?.customerPhone ?? "";
+
   const hasRequiredExportDetails = Boolean(
-    buyerName.trim() && originCountry.trim() && destinationCountry.trim() && incoterm &&
+    sellerNameValue.trim() && sellerAddressValue.trim() && buyerNameValue.trim() && originCountry.trim() && destinationCountry.trim() && incoterm &&
     (currency === "IDR" || (Number(exchangeRate) > 0 && Number.isFinite(Number(exchangeRate))))
   );
 
@@ -65,8 +81,12 @@ export default function CommercialInvoiceOptionsDialog({ open, onOpenChange, tra
       !Number.isFinite(lengthCm) || lengthCm <= 0 || !Number.isFinite(widthCm) || widthCm <= 0 ||
       !Number.isFinite(heightCm) || heightCm <= 0) return;
     onSelect("commercial", {
-      buyerName: buyerName.trim(),
+      sellerName: sellerNameValue.trim(),
+      sellerAddress: sellerAddressValue.trim(),
+      sellerPhone: sellerPhoneValue.trim(),
+      buyerName: buyerNameValue.trim(),
       buyerAddress: buyerAddress.trim(),
+      buyerPhone: buyerPhoneValue.trim(),
       originCountry: originCountry.trim(),
       destinationCountry: destinationCountry.trim(),
       currency,
@@ -94,7 +114,11 @@ export default function CommercialInvoiceOptionsDialog({ open, onOpenChange, tra
           <h3 className="font-semibold">Detail Commercial Invoice</h3>
           <p className="text-xs text-muted-foreground">HS code dan Incoterms perlu dikonfirmasi untuk barang dan pengiriman Anda. Tidak ada kode atau biaya ekspor yang diisi otomatis.</p>
           <div className="grid gap-3 sm:grid-cols-2">
-            <label className="space-y-1">Consignee / Buyer<Input value={buyerName} onChange={(e) => setBuyerName(e.target.value)} placeholder="Nama pembeli" /></label>
+            <label className="space-y-1">Nama pengirim / Exporter<Input required value={sellerNameValue} onChange={(e) => setSellerName(e.target.value)} placeholder="Nama pemilik dari info pembayaran POS" /></label>
+            <label className="space-y-1">Telepon pengirim<Input type="tel" value={sellerPhoneValue} onChange={(e) => setSellerPhone(e.target.value)} placeholder="Nomor telepon pengirim" /></label>
+            <label className="space-y-1 sm:col-span-2">Alamat pengirim / Exporter<Input required value={sellerAddressValue} onChange={(e) => setSellerAddress(e.target.value)} placeholder="Alamat dari pengaturan POS" /></label>
+            <label className="space-y-1">Nama penerima / Consignee<Input required value={buyerNameValue} onChange={(e) => setBuyerName(e.target.value)} placeholder="Diisi dari nama pelanggan transaksi atau masukkan manual" /></label>
+            <label className="space-y-1">Telepon penerima<Input type="tel" value={buyerPhoneValue} onChange={(e) => setBuyerPhone(e.target.value)} placeholder="Diisi dari nomor pelanggan atau masukkan manual" /></label>
             <label className="space-y-1">Alamat buyer<Input value={buyerAddress} onChange={(e) => setBuyerAddress(e.target.value)} placeholder="Alamat buyer (opsional)" /></label>
             <label className="space-y-1">Country of Origin<Input value={originCountry} onChange={(e) => setOriginCountry(e.target.value)} /></label>
             <label className="space-y-1">Country of Destination<Input value={destinationCountry} onChange={(e) => setDestinationCountry(e.target.value)} /></label>

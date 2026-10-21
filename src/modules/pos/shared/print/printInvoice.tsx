@@ -11,8 +11,12 @@ import PackingListA4 from "./invoice/PackingListA4";
 import type { ShipmentPackingDetails } from "./printPackingList";
 
 export interface CommercialInvoiceDetails {
+  sellerName: string;
+  sellerAddress: string;
+  sellerPhone: string;
   buyerName: string;
   buyerAddress: string;
+  buyerPhone: string;
   originCountry: string;
   destinationCountry: string;
   currency: string;

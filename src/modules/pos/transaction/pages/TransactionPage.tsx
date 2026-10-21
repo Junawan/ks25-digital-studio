@@ -1203,6 +1203,7 @@ if (!company) {
   open={invoiceChoiceTransaction !== null}
   onOpenChange={(open) => { if (!open) setInvoiceChoiceTransaction(null); }}
   transaction={invoiceChoiceTransaction}
+  settings={posSettings}
   onSelect={(type, details) => { void handlePrintSelectedInvoice(type, details); }}
 />
 

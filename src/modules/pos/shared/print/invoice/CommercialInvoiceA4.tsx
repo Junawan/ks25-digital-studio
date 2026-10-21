@@ -39,15 +39,16 @@ export default function CommercialInvoiceA4({ company, transaction, details }: P
       <section className="mt-7 grid grid-cols-2 gap-8">
         <div>
           <h2 className="mb-2 text-xs font-bold uppercase tracking-wider">Exporter / Seller</h2>
-          <p className="font-semibold">{company.name}</p>
-          {company.address && <p className="whitespace-pre-line">{company.address}</p>}
-          {company.phone && <p>{company.phone}</p>}
+          <p className="font-semibold">{details.sellerName}</p>
+          {details.sellerAddress && <p className="whitespace-pre-line">{details.sellerAddress}</p>}
+          {details.sellerPhone && <p>{details.sellerPhone}</p>}
           {company.email && <p>{company.email}</p>}
         </div>
         <div>
           <h2 className="mb-2 text-xs font-bold uppercase tracking-wider">Consignee / Buyer</h2>
           <p className="font-semibold">{details.buyerName}</p>
           {details.buyerAddress && <p className="whitespace-pre-line">{details.buyerAddress}</p>}
+          {details.buyerPhone && <p>{details.buyerPhone}</p>}
         </div>
       </section>
 

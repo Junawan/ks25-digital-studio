@@ -812,6 +812,7 @@ async function handleSettlement(
         open={invoiceTransaction !== null}
         onOpenChange={(open) => { if (!open) setInvoiceTransaction(null); }}
         transaction={invoiceTransaction}
+        settings={settings}
         onSelect={(type, details) => {
           if (!invoiceTransaction) return;
           const transaction = invoiceTransaction;
