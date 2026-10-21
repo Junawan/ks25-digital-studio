@@ -825,6 +825,7 @@ async function handleSettlement(
         open={packingListTransaction !== null}
         onOpenChange={(open) => { if (!open) setPackingListTransaction(null); }}
         transaction={packingListTransaction}
+        settings={settings}
         onPrint={(details) => { void handlePrintPackingList(details); }}
       />
 

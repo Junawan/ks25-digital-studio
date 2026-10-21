@@ -17,8 +17,12 @@ export interface ShipmentPackingDetails {
 }
 
 export interface PackingListDetails extends ShipmentPackingDetails {
+  sellerName: string;
+  sellerAddress: string;
+  sellerPhone: string;
   buyerName: string;
   buyerAddress: string;
+  buyerPhone: string;
   originCountry: string;
   destinationCountry: string;
   hsCodes?: string[];

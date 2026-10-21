@@ -46,8 +46,12 @@ export async function printInvoice({
             transaction={transaction}
             forceNewPage
             details={{
+              sellerName: details.sellerName,
+              sellerAddress: details.sellerAddress,
+              sellerPhone: details.sellerPhone,
               buyerName: details.buyerName,
               buyerAddress: details.buyerAddress,
+              buyerPhone: details.buyerPhone,
               originCountry: details.originCountry,
               destinationCountry: details.destinationCountry,
               hsCodes: details.hsCodes,

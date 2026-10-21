@@ -1211,6 +1211,7 @@ if (!company) {
   open={packingListTransaction !== null}
   onOpenChange={(open) => { if (!open) setPackingListTransaction(null); }}
   transaction={packingListTransaction}
+  settings={posSettings}
   onPrint={(details) => { void handlePrintPackingList(details); }}
 />
 

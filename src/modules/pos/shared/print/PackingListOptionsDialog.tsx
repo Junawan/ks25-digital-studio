@@ -6,26 +6,36 @@ import { Input } from "@/shared/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import type { Transaction } from "@/modules/pos/transaction/types/transaction";
 import type { PackingListDetails } from "./printPackingList";
+import type { PosSettings } from "@/modules/pos/settings/types/PosSettings";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   transaction: Transaction | null;
+  settings: PosSettings | null;
   onPrint: (details: PackingListDetails) => void;
 }
 
-export default function PackingListOptionsDialog({ open, onOpenChange, transaction, onPrint }: Props) {
+export default function PackingListOptionsDialog({ open, onOpenChange, transaction, settings, onPrint }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
-  const [buyerName, setBuyerName] = useState("");
+  const [sellerName, setSellerName] = useState<string | null>(null);
+  const [sellerAddress, setSellerAddress] = useState<string | null>(null);
+  const [sellerPhone, setSellerPhone] = useState<string | null>(null);
+  const [buyerName, setBuyerName] = useState<string | null>(null);
   const [buyerAddress, setBuyerAddress] = useState("");
+  const [buyerPhone, setBuyerPhone] = useState<string | null>(null);
   const [originCountry, setOriginCountry] = useState("Indonesia");
   const [destinationCountry, setDestinationCountry] = useState("Malaysia");
   const [marksAndNumbers, setMarksAndNumbers] = useState("");
 
   function handleOpenChange(nextOpen: boolean) {
     if (nextOpen && !open) {
-      setBuyerName("");
+      setSellerName(null);
+      setSellerAddress(null);
+      setSellerPhone(null);
+      setBuyerName(null);
       setBuyerAddress("");
+      setBuyerPhone(null);
       setOriginCountry("Indonesia");
       setDestinationCountry("Malaysia");
       setMarksAndNumbers("");
@@ -33,6 +43,12 @@ export default function PackingListOptionsDialog({ open, onOpenChange, transacti
     }
     onOpenChange(nextOpen);
   }
+
+  const sellerNameValue = sellerName ?? settings?.accountHolder ?? "";
+  const sellerAddressValue = sellerAddress ?? settings?.address ?? "";
+  const sellerPhoneValue = sellerPhone ?? settings?.phone ?? "";
+  const buyerNameValue = buyerName ?? transaction?.customerName ?? "";
+  const buyerPhoneValue = buyerPhone ?? transaction?.customerPhone ?? "";
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -54,8 +70,12 @@ export default function PackingListOptionsDialog({ open, onOpenChange, transacti
       !Number.isFinite(heightCm) || heightCm <= 0) return;
 
     onPrint({
-      buyerName: buyerName.trim(),
+      sellerName: sellerNameValue.trim(),
+      sellerAddress: sellerAddressValue.trim(),
+      sellerPhone: sellerPhoneValue.trim(),
+      buyerName: buyerNameValue.trim(),
       buyerAddress: buyerAddress.trim(),
+      buyerPhone: buyerPhoneValue.trim(),
       originCountry: originCountry.trim(),
       destinationCountry: destinationCountry.trim(),
       marksAndNumbers: marksAndNumbers.trim(),
@@ -80,7 +100,11 @@ export default function PackingListOptionsDialog({ open, onOpenChange, transacti
         <form ref={formRef} onSubmit={handleSubmit}>
           <div className="space-y-5">
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="space-y-1">Consignee / Buyer<Input required value={buyerName} onChange={(event) => setBuyerName(event.currentTarget.value)} placeholder="Nama pembeli" /></label>
+              <label className="space-y-1">Nama pengirim / Exporter<Input required value={sellerNameValue} onChange={(event) => setSellerName(event.currentTarget.value)} placeholder="Nama pemilik dari info pembayaran POS" /></label>
+              <label className="space-y-1">Telepon pengirim<Input type="tel" value={sellerPhoneValue} onChange={(event) => setSellerPhone(event.currentTarget.value)} placeholder="Nomor telepon pengirim" /></label>
+              <label className="space-y-1 sm:col-span-2">Alamat pengirim / Exporter<Input required value={sellerAddressValue} onChange={(event) => setSellerAddress(event.currentTarget.value)} placeholder="Alamat dari pengaturan POS" /></label>
+              <label className="space-y-1">Nama penerima / Consignee<Input required value={buyerNameValue} onChange={(event) => setBuyerName(event.currentTarget.value)} placeholder="Diisi dari nama pelanggan transaksi atau masukkan manual" /></label>
+              <label className="space-y-1">Telepon penerima<Input type="tel" value={buyerPhoneValue} onChange={(event) => setBuyerPhone(event.currentTarget.value)} placeholder="Diisi dari nomor pelanggan atau masukkan manual" /></label>
               <label className="space-y-1">Alamat buyer<Input value={buyerAddress} onChange={(event) => setBuyerAddress(event.currentTarget.value)} placeholder="Alamat buyer (opsional)" /></label>
               <label className="space-y-1">Country of Origin<Input required value={originCountry} onChange={(event) => setOriginCountry(event.currentTarget.value)} /></label>
               <label className="space-y-1">Country of Destination<Input required value={destinationCountry} onChange={(event) => setDestinationCountry(event.currentTarget.value)} /></label>
