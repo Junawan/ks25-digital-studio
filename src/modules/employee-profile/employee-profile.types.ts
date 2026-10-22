@@ -2,6 +2,7 @@ export interface EmployeeProfile {
   fullName: string;
   nik: string;
   hireDate?: string;
+  type?: "owner" | "employee";
 }
 
 export interface EmployeeProfileDocument extends EmployeeProfile {

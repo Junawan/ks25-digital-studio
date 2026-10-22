@@ -1,4 +1,4 @@
-import { doc, getDoc, runTransaction } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, runTransaction, where } from "firebase/firestore";
 import { db } from "@/core/firebase";
 import type { EmployeeProfile, EmployeeProfileDocument } from "./employee-profile.types";
 
@@ -41,12 +41,18 @@ function employeeFromData(data: Record<string, unknown>): EmployeeProfile {
     fullName: typeof data.fullName === "string" ? data.fullName : "",
     nik: typeof data.nik === "string" ? data.nik : "",
     hireDate: typeof data.hireDate === "string" ? data.hireDate : "",
+    type: data.type === "owner" ? "owner" : "employee",
   };
 }
 
 export async function getEmployeeProfile(companyId: string, nik: string) {
   const snapshot = await getDoc(profileRef(companyId, nik));
   return snapshot.exists() ? employeeFromData(snapshot.data()) : null;
+}
+
+export async function listEmployeeProfiles(companyId: string): Promise<EmployeeProfile[]> {
+  const snapshot = await getDocs(query(collection(db, COLLECTION), where("companyId", "==", companyId)));
+  return snapshot.docs.map((entry) => employeeFromData(entry.data()));
 }
 
 export async function registerEmployeeProfile(
@@ -73,8 +79,8 @@ export async function registerEmployeeProfile(
 
     const existing = snapshot.exists() ? employeeFromData(snapshot.data()) : null;
     const employee = existing?.fullName
-      ? { fullName: existing.fullName.toLocaleUpperCase("id-ID"), nik: normalizedNik, hireDate: input.hireDate }
-      : { fullName: normalizedName, nik: normalizedNik, hireDate: input.hireDate };
+      ? { fullName: normalizedName, nik: normalizedNik, hireDate: input.hireDate, type: input.type ?? existing.type ?? "employee" }
+      : { fullName: normalizedName, nik: normalizedNik, hireDate: input.hireDate, type: input.type ?? "employee" };
     const now = new Date();
     transaction.set(ref, {
       companyId,
@@ -88,6 +94,26 @@ export async function registerEmployeeProfile(
     } satisfies EmployeeProfileDocument);
     return employee;
   });
+}
+
+export async function updateEmployeeProfile(companyId: string, input: EmployeeProfile & { pin?: string }) {
+  const nik = normalizeNik(input.nik);
+  const fullName = input.fullName.trim().toLocaleUpperCase("id-ID");
+  if (!fullName || !nik || !input.hireDate) throw new Error("Nama, NIK, dan tanggal wajib diisi.");
+  if (input.pin && !isValidPin(input.pin)) throw new Error("PIN harus terdiri dari 6 angka.");
+  const ref = profileRef(companyId, nik);
+  const pinSalt = input.pin ? crypto.getRandomValues(new Uint8Array(new ArrayBuffer(16))) : null;
+  const pinSaltHex = pinSalt ? toHex(pinSalt) : null;
+  const pinHash = pinSalt ? await hashPin(input.pin!, pinSalt, PIN_ITERATIONS) : null;
+  await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists()) throw new Error("Profil tidak ditemukan.");
+    transaction.update(ref, {
+      fullName, hireDate: input.hireDate, type: input.type ?? "employee", updatedAt: new Date(),
+      ...(pinHash && pinSaltHex ? { pinHash, pinSalt: pinSaltHex, pinIterations: PIN_ITERATIONS } : {}),
+    });
+  });
+  return { fullName, nik, hireDate: input.hireDate, type: input.type ?? "employee" } satisfies EmployeeProfile;
 }
 
 export async function verifyEmployeePin(companyId: string, nik: string, pin: string) {

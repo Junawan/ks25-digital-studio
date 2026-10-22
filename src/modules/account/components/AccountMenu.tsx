@@ -28,7 +28,7 @@ export default function AccountMenu({
   const { workspace } =
     useWorkspace();
 
-  const { employee, switchEmployee } = useActiveEmployee();
+  const { employee, openEmployeeManager } = useActiveEmployee();
 
   if (!open || !workspace) {
     return null;
@@ -71,6 +71,7 @@ export default function AccountMenu({
           </div>
 
           {employee?.nik && <div className="text-xs text-muted-foreground">NIK {employee.nik}</div>}
+          {employee && <div className="mt-1 inline-flex rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{employee.type === "owner" ? "Pemilik" : "Karyawan"}</div>}
 
           <div className="text-sm text-muted-foreground">
             {company.name}
@@ -81,9 +82,9 @@ export default function AccountMenu({
       </div>
 
       <div className="mt-5 rounded-xl border p-3">
-        <p className="text-sm font-semibold">Profil karyawan aktif</p>
-        <p className="mt-1 text-xs text-muted-foreground">Gunakan Ganti karyawan sebelum perangkat ini dipakai karyawan lain.</p>
-        <Button type="button" variant="outline" className="mt-3 w-full" onClick={() => { switchEmployee(); onClose(); }}>Ganti karyawan</Button>
+        <p className="text-sm font-semibold">Profil pekerja aktif</p>
+        <p className="mt-1 text-xs text-muted-foreground">Pilih, tambah, atau edit profil untuk modul absensi.</p>
+        <Button type="button" variant="outline" className="mt-3 w-full" onClick={() => { openEmployeeManager(); onClose(); }}>{employee ? "Kelola / pilih pekerja" : "Pilih / tambah pekerja"}</Button>
       </div>
 
       <div className="mt-6 space-y-3">
