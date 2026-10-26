@@ -4,7 +4,10 @@ import ProductModuleCard from "./ProductModuleCard";
 import { dashboardProducts } from "../dashboard.data";
 
 export default function ProductModuleGrid() {
-  const readyProducts = dashboardProducts.filter((product) => product.ready);
+  const moduleOrder = ["pos", "attendance", "packflow", "live-assistant"];
+  const readyProducts = dashboardProducts
+    .filter((product) => product.ready)
+    .sort((first, second) => moduleOrder.indexOf(first.moduleId) - moduleOrder.indexOf(second.moduleId));
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4">

@@ -73,7 +73,7 @@ text-muted-foreground
 >
 
 Ikuti langkah berikut agar
-Live Assistant siap digunakan.
+{product.name} siap digunakan.
 
 </p>
 

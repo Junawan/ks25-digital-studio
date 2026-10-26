@@ -89,10 +89,10 @@ export const dashboardProducts: DashboardProduct[] = [
   name: "KS25 Live Assistant",
 
   description:
-    "AI Teleprompter untuk Live Shopping",
+    "Aplikasi teleprompter dan pengelola skrip live shopping.",
 
   longDescription:
-    "KS25 Live Assistant membantu host melakukan live shopping lebih profesional menggunakan AI Teleprompter, Playlist, Generate AI, Bluetooth Remote dan Presenter Mode.",
+    "KS25 Live Assistant adalah aplikasi pendamping live shopping untuk membantu host menyiapkan produk, menyusun urutan presentasi, dan membaca poin penjualan saat siaran. Kelola katalog produk dan playlist, buat draf skrip dengan AI, lalu gunakan teleprompter layar penuh dengan kontrol gulir dan remote Bluetooth yang kompatibel. Persiapan lebih teratur membantu host menyampaikan informasi produk dengan percaya diri di setiap sesi live.",
 
   version: "1.0.0",
 
@@ -199,6 +199,9 @@ export const dashboardProducts: DashboardProduct[] = [
 
     },
 
+    { icon: "🗂️", title: "Katalog Produk", description: "Simpan informasi dan detail produk agar mudah disiapkan untuk sesi live berikutnya." },
+    { icon: "🕘", title: "Riwayat Live", description: "Lihat kembali sesi live yang telah dibuat dan lanjutkan persiapan konten." },
+
   ],
 
   workflows: [
@@ -208,7 +211,7 @@ export const dashboardProducts: DashboardProduct[] = [
       title: "Import Produk",
 
       description:
-        "Masukkan seluruh produk marketplace."
+        "Tambahkan detail produk secara manual atau gunakan fitur impor yang tersedia agar katalog presentasi lebih cepat disiapkan."
 
     },
 
@@ -217,7 +220,7 @@ export const dashboardProducts: DashboardProduct[] = [
       title: "Buat Playlist",
 
       description:
-        "Susun urutan live."
+        "Pilih produk dan atur urutannya menjadi playlist sesuai tema atau jadwal siaran."
 
     },
 
@@ -226,7 +229,7 @@ export const dashboardProducts: DashboardProduct[] = [
       title: "Generate AI",
 
       description:
-        "Buat script AI otomatis."
+        "Gunakan Generate AI untuk membuat draf poin promosi berdasarkan informasi produk, lalu tinjau dan sesuaikan bahasanya."
 
     },
 
@@ -235,7 +238,7 @@ export const dashboardProducts: DashboardProduct[] = [
       title: "Presenter",
 
       description:
-        "Mulai teleprompter."
+        "Buka Presenter Mode untuk membaca skrip melalui teleprompter saat live berlangsung."
 
     },
 
@@ -303,6 +306,9 @@ export const dashboardProducts: DashboardProduct[] = [
 
     },
 
+    { question: "Apakah skrip bisa disesuaikan sebelum siaran?", answer: "Ya. Draf skrip dapat ditinjau dan disunting agar sesuai dengan karakter host, informasi produk, dan gaya komunikasi toko." },
+    { question: "Bagaimana cara menggunakan playlist?", answer: "Pilih produk yang akan dibawakan, susun urutannya, lalu buka playlist di Presenter Mode untuk mengikuti alur presentasi." },
+
   ],
 
   status: "stable",
@@ -318,7 +324,7 @@ export const dashboardProducts: DashboardProduct[] = [
     "Aplikasi kasir modern untuk UMKM.",
 
   longDescription:
-    "KS25 POS membantu mengelola transaksi penjualan, QRIS, stok, laporan penjualan, dan operasional toko secara modern.",
+    "KS25 POS adalah aplikasi kasir digital untuk membantu UMKM mencatat transaksi dan mengelola aktivitas toko dalam satu sistem. Kelola katalog produk, variasi, stok, pelanggan, pemasok, pemasukan, pengeluaran, dan piutang. Pantau riwayat serta laporan penjualan dari aplikasi Android atau dashboard web, dan manfaatkan pemesanan QR untuk memudahkan pelanggan membuat pesanan.",
 
   version: "1.0.0",
 
@@ -326,7 +332,12 @@ export const dashboardProducts: DashboardProduct[] = [
 
   heroImage: "/images/modules/pos2.png",
 
-  screenshots: [],
+  screenshots: [
+    "/ads/ks25-pos-showcase.png",
+    "/ads/pos_transaksi.jpg",
+    "/ads/order_by_qr.jpg",
+    "/ads/ks25-pos-monthly-report-android-frame.png",
+  ],
 
   logo: "/images/modules/pos2.png",
 
@@ -338,13 +349,33 @@ export const dashboardProducts: DashboardProduct[] = [
 
   route: "/pos",
 
-  features: [],
+  features: [
+    { icon: "🧾", title: "Transaksi Kasir", description: "Catat penjualan, kelola keranjang belanja, pilih metode pembayaran, dan telusuri riwayat transaksi toko." },
+    { icon: "📦", title: "Produk dan Stok", description: "Atur katalog, harga, varian, dan jumlah stok produk agar informasi barang tetap tertata." },
+    { icon: "📊", title: "Laporan Penjualan", description: "Tinjau ringkasan dan laporan penjualan untuk membantu mengevaluasi aktivitas usaha." },
+    { icon: "🔳", title: "Pemesanan QR", description: "Sediakan alur pemesanan dengan QR agar pelanggan dapat melihat dan mengirim pesanan secara praktis." },
+    { icon: "👥", title: "Pelanggan dan Kasir", description: "Kelola data pelanggan, pemasok, dan kasir sesuai kebutuhan operasional toko." },
+    { icon: "💰", title: "Keuangan Toko", description: "Catat pengeluaran, pemasukan lain, dan piutang untuk melengkapi pemantauan usaha." },
+  ],
 
-  workflows: [],
+  workflows: [
+    { title: "Siapkan Katalog", description: "Masukkan nama produk, harga, varian, dan stok awal sebelum memulai transaksi." },
+    { title: "Catat Penjualan", description: "Pilih produk ke keranjang, periksa jumlah dan total, lalu lanjutkan proses pembayaran." },
+    { title: "Pantau Aktivitas", description: "Tinjau riwayat transaksi dan laporan untuk mengikuti perkembangan penjualan." },
+    { title: "Kelola Operasional", description: "Perbarui persediaan serta catat pengeluaran, pemasukan lain, dan piutang secara berkala." },
+  ],
 
-  tutorials: [],
+  tutorials: [
+    { title: "Memulai KS25 POS", description: "Buat katalog produk dan lengkapi harga serta stok agar kasir siap digunakan." },
+    { title: "Membuat Transaksi", description: "Pilih barang yang dibeli, periksa keranjang, dan selesaikan transaksi sesuai metode pembayaran." },
+    { title: "Membaca Laporan", description: "Gunakan menu laporan dan riwayat untuk meninjau transaksi pada periode yang dipilih." },
+  ],
 
-  faq: [],
+  faq: [
+    { question: "Apakah KS25 POS bisa digunakan di Android dan web?", answer: "Ya. KS25 dapat diakses melalui aplikasi Android dan dashboard web menggunakan akun usaha Anda." },
+    { question: "Apakah stok produk dapat dikelola dari aplikasi kasir?", answer: "KS25 POS menyediakan pengelolaan katalog dan stok agar data persediaan produk dapat diperbarui saat operasional." },
+    { question: "Apakah tersedia laporan penjualan?", answer: "Ya. Modul POS menyediakan riwayat dan laporan penjualan untuk membantu pemilik usaha meninjau transaksi." },
+  ],
 
   status: "stable",
 
@@ -400,7 +431,7 @@ export const dashboardProducts: DashboardProduct[] = [
     "Absensi karyawan berbasis cloud.",
 
   longDescription:
-    "KS25 Absensi memudahkan pencatatan kehadiran selfie, cuti, informasi, dan laporan absensi secara realtime.",
+    "KS25 Absensi adalah aplikasi absensi karyawan untuk membantu usaha dan perusahaan mencatat kehadiran tim secara teratur. Karyawan dapat melakukan pencatatan kehadiran dengan selfie, sementara pengelola dapat meninjau catatan, mengelola informasi, dan memproses pengajuan cuti. Gunakan modul melalui Android atau web untuk mendukung pemantauan kehadiran dari kantor maupun saat tim bekerja di lapangan.",
 
   version: "1.0.0",
 
@@ -408,7 +439,11 @@ export const dashboardProducts: DashboardProduct[] = [
 
   heroImage: "/images/modules/attendance2.png",
 
-  screenshots: [],
+  screenshots: [
+    "/ads/ks25-attendance-showcase.png",
+    "/ads/absen_selfi.jpg",
+    "/ads/ks25-attendance-leave-android-frame.png",
+  ],
 
   logo: "/images/modules/attendance2.png",
 
@@ -420,13 +455,33 @@ export const dashboardProducts: DashboardProduct[] = [
 
   route: "/attendance",
 
-  features: [],
+  features: [
+    { icon: "🤳", title: "Absensi dengan Selfie", description: "Catat kehadiran menggunakan selfie sebagai bagian dari proses absensi karyawan." },
+    { icon: "🗓️", title: "Catatan Kehadiran", description: "Kelola data kehadiran karyawan agar riwayat kerja tim lebih mudah ditinjau." },
+    { icon: "🏖️", title: "Pengajuan Cuti", description: "Ajukan dan tinjau permintaan cuti karyawan melalui alur yang tersedia di aplikasi." },
+    { icon: "📢", title: "Informasi Tim", description: "Bagikan informasi yang relevan untuk karyawan dalam satu tempat yang terhubung dengan workspace." },
+    { icon: "🏢", title: "Workspace Perusahaan", description: "Atur profil karyawan dan data absensi dalam workspace perusahaan yang sedang aktif." },
+    { icon: "📱", title: "Akses Android dan Web", description: "Gunakan ponsel Android untuk pencatatan praktis atau browser web untuk pengelolaan tim." },
+  ],
 
-  workflows: [],
+  workflows: [
+    { title: "Siapkan Data Karyawan", description: "Lengkapi profil karyawan dan informasi perusahaan sebelum tim mulai melakukan absensi." },
+    { title: "Catat Kehadiran", description: "Karyawan membuka modul absensi dan mengikuti instruksi pencatatan kehadiran dengan selfie." },
+    { title: "Tinjau Riwayat", description: "Pengelola memeriksa catatan kehadiran tim melalui modul yang sesuai." },
+    { title: "Kelola Cuti dan Informasi", description: "Tinjau permintaan cuti dan sampaikan informasi tim melalui fitur yang tersedia." },
+  ],
 
-  tutorials: [],
+  tutorials: [
+    { title: "Mengundang Tim ke Absensi", description: "Siapkan profil anggota tim pada workspace agar mereka dapat menggunakan modul absensi." },
+    { title: "Melakukan Absensi Selfie", description: "Buka halaman absensi, ikuti petunjuk aplikasi, dan kirim pencatatan kehadiran." },
+    { title: "Memproses Pengajuan Cuti", description: "Tinjau detail permintaan cuti dan perbarui statusnya sesuai kebijakan perusahaan." },
+  ],
 
-  faq: [],
+  faq: [
+    { question: "Apakah absensi karyawan menggunakan selfie?", answer: "Ya. KS25 Absensi mendukung pencatatan kehadiran dengan selfie melalui perangkat yang digunakan karyawan." },
+    { question: "Bisakah pengelola memantau absensi melalui web?", answer: "Ya. Modul dapat diakses melalui Android dan web sesuai akun serta workspace perusahaan." },
+    { question: "Apakah KS25 Absensi mendukung pengajuan cuti?", answer: "Ya. Fitur pengajuan cuti membantu karyawan menyampaikan permintaan dan pengelola meninjaunya." },
+  ],
 
   status: "stable",
 
@@ -482,7 +537,7 @@ export const dashboardProducts: DashboardProduct[] = [
     "Pemindaian resi dan monitoring proses packing.",
 
   longDescription:
-    "KS25 PackFlow membantu tim mengelola resi masuk, proses packing, riwayat paket, dan permintaan barang dalam satu dashboard perusahaan.",
+    "KS25 PackFlow adalah aplikasi pengelolaan resi dan proses packing untuk membantu tim operasional memantau paket dari barang masuk hingga selesai diproses. Catat resi dengan scanner barcode atau input manual, pisahkan paket aktif dan pending, lalu cari kembali riwayat paket berdasarkan kode atau tanggal. PackFlow juga menyediakan permintaan barang operasional dalam workspace perusahaan.",
 
   version: "1.0.0",
 
@@ -490,7 +545,10 @@ export const dashboardProducts: DashboardProduct[] = [
 
   heroImage: "/images/modules/packflow2.png",
 
-  screenshots: [],
+  screenshots: [
+    "/ads/ks25-packflow-showcase.png",
+    "/ads/ks25-packflow-active-parcels-android-frame.png",
+  ],
 
   logo: "/images/modules/packflow2.png",
 

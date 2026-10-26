@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Capacitor } from "@capacitor/core";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 import { Button } from "@/components/ui/button";
@@ -15,14 +14,8 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import {
-  ANDROID_UPGRADE_PROMPT_KEY,
   isProPlanActive,
 } from "@/modules/subscription/subscription-policy";
-
-function localDayKey() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-}
 
 export default function AndroidUpgradePrompt() {
   const router = useRouter();
@@ -32,20 +25,15 @@ export default function AndroidUpgradePrompt() {
 
   useEffect(() => {
     if (
-      Capacitor.getPlatform() !== "android" ||
       !user ||
       !workspace ||
       loading ||
+      workspace.company.plan !== "starter" ||
       isProPlanActive(workspace.company)
     ) {
       return;
     }
 
-    const key = `${ANDROID_UPGRADE_PROMPT_KEY}:${user.uid}`;
-    const today = localDayKey();
-    if (window.localStorage.getItem(key) === today) return;
-
-    window.localStorage.setItem(key, today);
     setOpen(true);
   }, [loading, user, workspace]);
 

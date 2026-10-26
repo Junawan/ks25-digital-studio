@@ -22,6 +22,13 @@ export default function ProductScreenshots({
 
 }: Props) {
 
+  const screenshotLabels: Record<string, string[]> = {
+    pos: ["Ringkasan KS25 POS", "Transaksi kasir", "Pemesanan melalui QR", "Laporan penjualan bulanan"],
+    attendance: ["Ringkasan KS25 Absensi", "Absensi selfie karyawan", "Pengajuan cuti karyawan"],
+    packflow: ["Ringkasan KS25 PackFlow", "Daftar paket aktif dan proses packing"],
+    "live-assistant": ["Sampul Live Assistant", "Playlist live", "Katalog produk live", "Teleprompter host", "Generator skrip AI", "Riwayat sesi live"],
+  };
+
   if (
     product.screenshots.length === 0
   ) {
@@ -93,50 +100,26 @@ scroll-smooth
 "
 >
 
-{product.screenshots.map(
-
-(image,index)=>(
-
-<div
-
-key={index}
-
-className="
-min-w-[260px]
-max-w-[260px]
-snap-center
-overflow-hidden
-rounded-3xl
-border
-bg-background
-shadow-lg
-"
-
->
+{product.screenshots.map((image, index) => (
+<figure key={image} className="flex min-w-[280px] max-w-[280px] snap-center flex-col overflow-hidden rounded-3xl border bg-background shadow-lg sm:min-w-[340px] sm:max-w-[340px]">
 
 <Image
 
 src={image}
 
-alt={`${product.name}-${index+1}`}
+alt={`${product.name}: ${screenshotLabels[product.moduleId]?.[index] ?? `tampilan ${index + 1}`}`}
 
-width={300}
+width={900}
 
 height={650}
 
-className="
-h-auto
-w-full
-object-cover
-"
+className="mx-auto h-[320px] w-full object-contain p-2 sm:h-[380px]"
 
 />
 
-</div>
+</figure>
 
-)
-
-)}
+))}
 
 </div>
 

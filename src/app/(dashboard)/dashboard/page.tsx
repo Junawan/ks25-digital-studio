@@ -1,9 +1,6 @@
 "use client";
 
 import { useAndroidBack } from "@/hooks/useAndroidBack";
-import DashboardHero
-from "@/modules/dashboard/components/DashboardHero";
-
 import ProductModuleGrid
 from "@/modules/dashboard/components/ProductModuleGrid";
 
@@ -28,8 +25,6 @@ export default function DashboardPage() {
   return (
 
     <div className="space-y-10">
-
-      <DashboardHero />
 
       <ProductModuleGrid />
 

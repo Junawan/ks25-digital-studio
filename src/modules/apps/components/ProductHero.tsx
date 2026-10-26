@@ -6,12 +6,15 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CheckCircle2,
+  Download,
   Play,
-  Star,
 } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
+import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
+import { useModules } from "@/modules/module/use-modules";
 
 import {
   DashboardProduct,
@@ -31,6 +34,9 @@ export default function ProductHero({
 
   const router =
     useRouter();
+  const { hasModule } = useWorkspace();
+  const { install } = useModules();
+  const installed = hasModule(product.moduleId);
 
   return (
 
@@ -183,52 +189,6 @@ text-white/90
 
 <div
 className="
-mt-8
-
-flex
-
-items-center
-
-gap-1
-"
->
-
-{Array.from({
-
-length:5,
-
-}).map((_,index)=>(
-
-<Star
-
-key={index}
-
-className="
-h-5
-w-5
-fill-yellow-300
-text-yellow-300
-"
-
-/>
-
-))}
-
-<span
-className="
-ml-2
-text-white/80
-"
->
-
-5.0
-
-</span>
-
-</div>
-
-<div
-className="
 mt-6
 
 flex
@@ -241,7 +201,7 @@ gap-3
 "
 >
 
-<Badge
+{installed && <Badge
 className="
 bg-emerald-600
 text-white
@@ -259,6 +219,7 @@ w-4
 Terinstal
 
 </Badge>
+}
 
 </div>
 
@@ -282,27 +243,19 @@ text-violet-700
 hover:bg-white/90
 "
 
-onClick={()=>
-
-router.push(
-product.route
-)
-
-}
+onClick={() => installed ? router.push(product.route) : void install(product.moduleId)}
 
 >
 
-<Play
-className="
-mr-2
-h-5
-w-5
-"
-/>
+{installed ? <Play className="mr-2 h-5 w-5" /> : <Download className="mr-2 h-5 w-5" />}
 
-Buka Aplikasi
+{installed ? "Buka Aplikasi" : "Install Modul"}
 
 </Button>
+
+<Link href={`/aplikasi/${product.moduleId}`} className="mt-4 inline-flex text-sm font-semibold text-white underline underline-offset-4">
+  Baca informasi lengkap {product.name}
+</Link>
 
 </div>
 
