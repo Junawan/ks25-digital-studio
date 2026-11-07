@@ -4,13 +4,13 @@ import ProductModuleCard from "./ProductModuleCard";
 import { dashboardProducts } from "../dashboard.data";
 
 export default function ProductModuleGrid() {
-  const moduleOrder = ["pos", "attendance", "packflow", "live-assistant"];
+  const moduleOrder = ["pos", "attendance", "packflow", "live-assistant", "invitation"];
   const readyProducts = dashboardProducts
     .filter((product) => product.ready)
     .sort((first, second) => moduleOrder.indexOf(first.moduleId) - moduleOrder.indexOf(second.moduleId));
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 sm:gap-4">
       {readyProducts.map((product) => (
         <ProductModuleCard key={product.moduleId} product={product} />
       ))}

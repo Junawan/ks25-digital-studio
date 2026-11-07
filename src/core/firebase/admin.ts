@@ -1,4 +1,4 @@
-import { App, cert, getApp, getApps, initializeApp } from "firebase-admin/app";
+import { App, applicationDefault, cert, getApp, getApps, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 
 let cachedApp: App | undefined;
@@ -30,7 +30,19 @@ function getAdminApp(): App {
     return cachedApp;
   }
 
-  const projectId = process.env.FIREBASE_PROJECT_ID;
+  let firebaseConfig: { projectId?: string; storageBucket?: string } = {};
+  try {
+    if (process.env.FIREBASE_CONFIG?.startsWith("{")) {
+      firebaseConfig = JSON.parse(process.env.FIREBASE_CONFIG);
+    }
+  } catch {
+    // Fall back to the explicit project settings below.
+  }
+
+  const projectId = process.env.FIREBASE_PROJECT_ID
+    || process.env.GOOGLE_CLOUD_PROJECT
+    || process.env.GCLOUD_PROJECT
+    || firebaseConfig.projectId;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   const privateKeyCandidates = [
     process.env.FIREBASE_PRIVATE_KEY,
@@ -38,17 +50,19 @@ function getAdminApp(): App {
   ].map(normalizePrivateKey);
   const privateKey = privateKeyCandidates.find((key) => key.includes("-----BEGIN PRIVATE KEY-----")) ?? "";
 
-  if (!projectId || !clientEmail) {
-    throw new Error("Firebase Admin credentials are missing. Configure FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY in the server environment.");
-  }
-
-  if (!privateKey || !privateKey.includes("-----END PRIVATE KEY-----")) {
-    throw new Error("FIREBASE_PRIVATE_KEY must contain a valid PEM private key. In Vercel, preserve the full key and encode line breaks as \\n.");
-  }
+  const hasServiceAccount = Boolean(
+    projectId
+      && clientEmail
+      && privateKey.includes("-----BEGIN PRIVATE KEY-----")
+      && privateKey.includes("-----END PRIVATE KEY-----")
+  );
 
   cachedApp = initializeApp({
-    credential: cert({ projectId, clientEmail, privateKey }),
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    credential: hasServiceAccount
+      ? cert({ projectId, clientEmail, privateKey })
+      : applicationDefault(),
+    ...(projectId ? { projectId } : {}),
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || firebaseConfig.storageBucket,
   });
   return cachedApp;
 }

@@ -3,8 +3,35 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Invitation documents are isolated from the legacy catch-all rule below.
+    match /invitations/{invitationId} {
+      allow create: if request.auth != null
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.status == 'draft'
+        && request.resource.data.groom is string
+        && request.resource.data.groom.size() <= 120
+        && request.resource.data.bride is string
+        && request.resource.data.bride.size() <= 120;
+      allow get, list, delete: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid;
+      allow update: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.status in ['draft', 'active', 'expired']
+        && request.resource.data.groom is string
+        && request.resource.data.groom.size() <= 120
+        && request.resource.data.bride is string
+        && request.resource.data.bride.size() <= 120;
+
+      match /{subcollection}/{documentId} {
+        allow read, write: if request.auth != null
+          && get(/databases/$(database)/documents/invitations/$(invitationId)).data.ownerUid == request.auth.uid;
+      }
+    }
+
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if request.auth != null
+        && document.split('/')[0] != 'invitations';
     }
 
   }

@@ -18,6 +18,12 @@ export const MODULE_INFO: Record<string, ModuleInfo> = {
     route: "/digital-invitation",
   },
 
+  invitation: {
+    name: "KS25 Invitation",
+    description: "Pembuat undangan digital dengan RSVP, galeri, dan buku tamu",
+    route: "/invitation",
+  },
+
   pos: {
     name: "POS Kasir",
     description: "Point of Sale untuk UMKM",

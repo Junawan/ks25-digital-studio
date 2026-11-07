@@ -3,6 +3,7 @@ import {
   Package,
   Newspaper,
   LifeBuoy,
+  ShieldCheck,
 } from "lucide-react";
 
 export interface NavigationItem {
@@ -14,6 +15,8 @@ export interface NavigationItem {
   href?: string;
 
   external?: string;
+
+  adminOnly?: boolean;
 
 }
 
@@ -59,5 +62,7 @@ export const rootNavigation: NavigationItem[] = [
       "https://wa.me/6285710255464?text=Halo%20KS25%20Digital%20Studio,%20saya%20membutuhkan%20bantuan.",
 
   },
+
+  { label: "Admin", href: "/dashboard/subscription", icon: ShieldCheck, adminOnly: true },
 
 ];

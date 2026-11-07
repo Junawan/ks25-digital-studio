@@ -85,6 +85,8 @@ function getModuleRoute(
       return "/packflow";
     case "attendance":
       return "/attendance";
+    case "invitation":
+      return "/invitation";
 
     default:
       return "/";
@@ -107,6 +109,8 @@ function getModuleIcon(
       return "packflow";
     case "attendance":
       return "attendance";
+    case "invitation":
+      return "live_assistant";
 
     default:
       return "live_assistant";
@@ -219,9 +223,8 @@ async function pinShortcut() {
       <div
   className={`
     relative
-    h-32
-    sm:h-40
-    lg:h-52
+  h-28
+    sm:h-36
     overflow-hidden
     bg-gradient-to-br
     ${product.color}
@@ -240,26 +243,19 @@ async function pinShortcut() {
 
       {/* Content */}
 
-      <div className="space-y-3 p-3 sm:space-y-4 sm:p-5">
+      <div className="space-y-2.5 p-3 sm:p-4">
 
         <div className="flex items-start justify-between">
 
           <div>
 
-            <h3 className="text-sm font-semibold sm:text-lg">
+            <h3 className="text-sm font-semibold sm:text-base">
 
               {product.name}
 
             </h3>
 
-            <p
-              className="
-              mt-1
-              text-xs
-              sm:text-sm
-              text-muted-foreground
-              "
-            >
+            <p className="mt-1 line-clamp-2 text-xs text-muted-foreground sm:text-sm">
 
               {product.description}
 
@@ -355,42 +351,17 @@ async function pinShortcut() {
 
 </div>
 
-        {installed && (
-
-          <div
-  onClick={(e) =>
-    e.stopPropagation()
-  }
->
-
-  <Button
+        {(installed || available) && (
+          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+  {installed ? <Button
     asChild
-    className="
-    w-full
-    bg-emerald-600
-    hover:bg-emerald-700
-    "
+    className="h-9 flex-1 bg-emerald-600 hover:bg-emerald-700"
   >
-
-    <Link
-  href={
-    getModuleRoute(
-      product.moduleId
-    )
-  }
->
-
-      <CheckCircle2
-        className="mr-2 h-4 w-4"
-      />
-
-      Buka Aplikasi
-
+    <Link href={getModuleRoute(product.moduleId)}>
+      <CheckCircle2 className="mr-2 h-4 w-4" /> Buka
     </Link>
-
-  </Button>
-
-  <Button
+  </Button> : <Button className="h-9 flex-1" onClick={() => install(product.moduleId)}><Download className="mr-2 h-4 w-4"/>Install</Button>}
+  {installed && <Button
   variant="outline"
   disabled={
     shortcut.loading ||
@@ -405,7 +376,6 @@ async function pinShortcut() {
 
   }}
 >
-
   {shortcut.pinning ? (
 
     <>
@@ -457,33 +427,7 @@ async function pinShortcut() {
 
   )}
 
-</Button>
-
-</div>
-
-        )}
-
-        {available && (
-
-          <div
-  onClick={(e) =>
-    e.stopPropagation()
-  }
->
-
-  <Button
-    className="w-full"
-    onClick={() =>
-      install(product.moduleId)
-    }
-  >
-
-    <Download className="mr-2 h-4 w-4"/>
-
-    Install
-
-  </Button>
-
+</Button>}
 </div>
 
         )}

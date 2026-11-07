@@ -498,7 +498,7 @@ export const dashboardProducts: DashboardProduct[] = [
   longDescription:
     "KS25 Invitation membantu membuat website undangan digital premium lengkap dengan RSVP, galeri, countdown, dan buku tamu.",
 
-  version: "Coming Soon",
+  version: "1.0.0",
 
   image: "/images/modules/invitation2.png",
 
@@ -512,19 +512,38 @@ export const dashboardProducts: DashboardProduct[] = [
 
   color: "from-pink-500 to-rose-500",
 
-  ready: false,
+  ready: true,
 
-  route: "#",
+  route: "/invitation",
 
-  features: [],
+  features: [
+    { icon: "💌", title: "Tema undangan", description: "Pilih desain Luxury Black atau Elegant Gold untuk halaman undangan Anda." },
+    { icon: "💑", title: "Profil pasangan", description: "Lengkapi data mempelai, keluarga, cerita perjalanan, dan foto." },
+    { icon: "🗓️", title: "Detail acara", description: "Tampilkan jadwal akad dan resepsi beserta lokasi acara." },
+    { icon: "📷", title: "Galeri dan musik", description: "Tambahkan foto, lagu, peta, dan informasi hadiah digital." },
+    { icon: "🎉", title: "RSVP dan ucapan", description: "Terima konfirmasi kehadiran dan pesan dari para tamu." },
+  ],
 
-  workflows: [],
+  workflows: [
+    { title: "Buat undangan", description: "Masukkan nama pasangan dan tanggal acara untuk membuat draf undangan." },
+    { title: "Lengkapi tampilan", description: "Pilih tema, isi informasi keluarga dan acara, lalu unggah foto serta musik." },
+    { title: "Periksa pratinjau", description: "Tinjau tampilan undangan dan pastikan tautan lokasi serta rekening sudah benar." },
+    { title: "Aktifkan dan bagikan", description: "Aktifkan undangan lalu bagikan tautan personal kepada para tamu." },
+  ],
 
-  tutorials: [],
+  tutorials: [
+    { title: "Membuat draf undangan", description: "Buka menu Buat undangan, isi nama pasangan dan tanggal acara." },
+    { title: "Mengedit detail undangan", description: "Lengkapi foto, detail acara, galeri, lokasi, musik, dan informasi hadiah." },
+    { title: "Membagikan undangan", description: "Aktifkan draf dan salin tautan undangan untuk dibagikan kepada tamu." },
+  ],
 
-  faq: [],
+  faq: [
+    { question: "Apakah saya bisa mengubah undangan setelah dibuat?", answer: "Ya. Draf dapat diperbarui melalui menu edit sebelum dan sesudah dibagikan." },
+    { question: "Apakah tamu perlu membuat akun?", answer: "Tidak. Tamu membuka tautan undangan secara langsung." },
+    { question: "Apa saja tema yang tersedia?", answer: "Saat ini tersedia tema Luxury Black dan Elegant Gold." },
+  ],
 
-  status: "coming-soon",
+  status: "stable",
 
 },
 

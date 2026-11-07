@@ -105,6 +105,13 @@ product={product}
   product={product}
 />
 
+{product.faq.length > 0 && <section className="mx-auto max-w-4xl space-y-4">
+  <div><p className="text-sm font-semibold text-violet-700">Pertanyaan umum</p><h2 className="mt-1 text-2xl font-bold">Tentang {product.name}</h2></div>
+  <div className="divide-y rounded-2xl border bg-background px-5">{product.faq.map((item) => <details key={item.question} className="group py-4"><summary className="cursor-pointer list-none font-semibold marker:hidden">{item.question}<span className="float-right text-violet-600 group-open:rotate-45">＋</span></summary><p className="mt-3 leading-7 text-muted-foreground">{item.answer}</p></details>)}</div>
+</section>}
+
+<div className="text-center"><Link className="text-sm font-medium text-violet-700 underline underline-offset-4" href="/dashboard">Kembali ke semua modul</Link></div>
+
 </div>
 
   );

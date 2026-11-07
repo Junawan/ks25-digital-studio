@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 
 import { rootNavigation } from "./root-navigation";
+import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
 export default function RootBottomNavigation() {
 
@@ -14,6 +15,9 @@ export default function RootBottomNavigation() {
 
   const router =
   useRouter();
+  const { workspace } = useWorkspace();
+  const isAdmin = workspace?.user.role === "owner" || workspace?.user.role === "admin" || workspace?.user.isSystemAdmin;
+  const menus = rootNavigation.filter((item) => !item.adminOnly || isAdmin);
 
   return (
 
@@ -32,13 +36,10 @@ export default function RootBottomNavigation() {
     >
 
       <div
-        className="
-        grid
-        grid-cols-4
-        "
+        className="grid grid-cols-4"
       >
 
-        {rootNavigation.map((item) => {
+        {menus.map((item) => {
 
           const active =
   item.href
