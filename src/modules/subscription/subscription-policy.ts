@@ -1,13 +1,9 @@
-import { addMonths } from "date-fns";
+import { addDays } from "date-fns";
 
 import { appConfig } from "@/core/config/app.config";
 import type { Company } from "@/modules/company/company.types";
 
-export const WEB_STARTER_PERIOD_MONTHS =
-  appConfig.subscription.webStarterMonths;
-const WEB_STARTER_POLICY_START = new Date(
-  appConfig.subscription.webStarterPolicyStartsAt,
-);
+export const WEB_STARTER_PERIOD_DAYS = appConfig.subscription.webStarterDays;
 export const ANDROID_UPGRADE_PROMPT_KEY = "ks25-android-upgrade-prompt";
 
 export function toSubscriptionDate(value: unknown): Date | null {
@@ -37,9 +33,7 @@ export function toSubscriptionDate(value: unknown): Date | null {
 
 export function getWebStarterExpiresAt(company: Company | null | undefined) {
   const createdAt = toSubscriptionDate(company?.createdAt);
-  return createdAt && createdAt >= WEB_STARTER_POLICY_START
-    ? addMonths(createdAt, WEB_STARTER_PERIOD_MONTHS)
-    : null;
+  return createdAt ? addDays(createdAt, WEB_STARTER_PERIOD_DAYS) : null;
 }
 
 export function isProPlanActive(

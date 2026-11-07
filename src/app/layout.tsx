@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/core/providers/AuthProvider";
 import { WorkspaceProvider } from "@/core/workspace/WorkspaceProvider";
 import { Toaster } from "sonner";
+import AdMobStartup from "@/shared/ads/AdMobStartup";
 
 
 const geistSans = Geist({
@@ -39,6 +40,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <AuthProvider>
     <WorkspaceProvider>
+
+  <AdMobStartup />
 
   {children}
 

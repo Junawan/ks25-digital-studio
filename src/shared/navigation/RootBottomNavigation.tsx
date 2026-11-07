@@ -34,7 +34,7 @@ export default function RootBottomNavigation() {
       <div
         className="
         grid
-        grid-cols-5
+        grid-cols-4
         "
       >
 

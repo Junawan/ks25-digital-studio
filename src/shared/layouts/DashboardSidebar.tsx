@@ -24,7 +24,7 @@ export default function DashboardSidebar() {
         </h2>
 
         <p className="mt-1 text-sm text-muted-foreground">
-          {workspace?.company?.plan ?? "Free"}
+          Web gratis 14 hari · Android gratis
         </p>
       </div>
 

@@ -61,20 +61,21 @@ export default function WebFreePlanGate({
           Masa gratis web berakhir
         </p>
         <h1 className="mt-3 text-2xl font-bold sm:text-3xl">
-          Paket gratis di web hanya 1 bulan
+          Penggunaan gratis hanya tersedia di aplikasi Android
         </h1>
         <p className="mt-4 text-muted-foreground">
-          Paket gratis di web hanya 1 bulan, jika ingin tetap menggunakan paket
-          gratis maka gunakan aplikasi android atau upgrade paket anda ke pro
+          Masa gratis web berlangsung selama 14 hari sejak akun dibuat. Untuk
+          melanjutkan penggunaan melalui web, silakan berlangganan. Anda juga
+          dapat melanjutkan secara gratis melalui aplikasi Android.
         </p>
         <div className="mt-7 flex flex-col gap-3 sm:flex-row">
           <Button asChild className="flex-1">
-            <a href={PLAY_STORE_URL} target="_blank" rel="noreferrer">
-              Instal aplikasi Android
-            </a>
+            <Link href="/dashboard/subscription">Lihat paket langganan</Link>
           </Button>
           <Button asChild variant="outline" className="flex-1">
-            <Link href="/dashboard/subscription">Upgrade ke PRO</Link>
+            <a href={PLAY_STORE_URL} target="_blank" rel="noreferrer">
+              Gunakan aplikasi Android
+            </a>
           </Button>
         </div>
       </section>

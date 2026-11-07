@@ -1,5 +1,5 @@
 import { UserCredential, deleteUser } from "firebase/auth";
-import { addMonths } from "date-fns";
+import { addDays } from "date-fns";
 import { v4 as uuid } from "uuid";
 
 import { authService } from "./auth.service";
@@ -8,7 +8,7 @@ import type { RegisterInput } from "./types";
 import { companyService } from "@/modules/company/company.service";
 import { userService } from "@/modules/user/user.service";
 import { subscriptionService } from "@/modules/subscription/subscription.service";
-import { WEB_STARTER_PERIOD_MONTHS } from "@/modules/subscription/subscription-policy";
+import { WEB_STARTER_PERIOD_DAYS } from "@/modules/subscription/subscription-policy";
 
 export class RegisterService {
   async execute(input: RegisterInput): Promise<UserCredential> {
@@ -19,7 +19,7 @@ export class RegisterService {
       const companyId = uuid();
 
       const now = new Date();
-      const trialEndsAt = addMonths(now, WEB_STARTER_PERIOD_MONTHS);
+      const trialEndsAt = addDays(now, WEB_STARTER_PERIOD_DAYS);
 
       await companyService.create({
   id: companyId,

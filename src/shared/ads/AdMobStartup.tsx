@@ -1,49 +1,46 @@
 "use client";
 
 import { Capacitor } from "@capacitor/core";
-import { useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
-import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
-import { isProPlanActive } from "@/modules/subscription/subscription-policy";
-
-import {
-  prepareModuleTransitionInterstitial,
-  showModuleTransitionInterstitial,
-} from "@/shared/ads/admob-consent";
+import { App } from "@capacitor/app";
+import { useEffect } from "react";
+import { prepareAppOpenAd, requestAdMobConsent, showAppOpenAd } from "@/shared/ads/admob-consent";
 
 export default function AdMobStartup() {
-  const pathname = usePathname();
-  const previousPathname = useRef(pathname);
-  const { workspace, loading } = useWorkspace();
-
   useEffect(() => {
-    if (Capacitor.getPlatform() !== "android" || loading) return;
-    if (isProPlanActive(workspace?.company)) return;
+    if (Capacitor.getPlatform() !== "android") return;
 
-    void prepareModuleTransitionInterstitial();
+    const launchCountKey = "ks25-admob-app-open-count";
+    const previousLaunchCount = Number(localStorage.getItem(launchCountKey) || 0);
+    const launchCount = Number.isFinite(previousLaunchCount)
+      ? previousLaunchCount + 1
+      : 1;
+    localStorage.setItem(launchCountKey, String(launchCount));
+    let active = true;
+    let wasBackgrounded = false;
 
-    if (previousPathname.current === pathname) return;
-    previousPathname.current = pathname;
+    const prepare = async () => {
+      if (!(await requestAdMobConsent()) || !active) return;
+      await prepareAppOpenAd();
+      // Avoid showing an ad on a brand-new install; show from the second launch.
+      if (active && launchCount > 1) await showAppOpenAd();
+    };
 
-    const isDashboardOrModule =
-      pathname === "/dashboard" ||
-      [
-        "/dashboard/apps",
-        "/pos",
-        "/packflow",
-        "/attendance",
-        "/scanner",
-        "/marketplace",
-        "/live-assistant",
-        "/my-apps",
-      ].some((basePath) => pathname === basePath || pathname.startsWith(`${basePath}/`));
+    void prepare();
+    const listener = App.addListener("appStateChange", ({ isActive }) => {
+      if (!isActive) {
+        wasBackgrounded = true;
+        return;
+      }
+      if (!wasBackgrounded) return;
+      wasBackgrounded = false;
+      void showAppOpenAd();
+    });
 
-    if (isDashboardOrModule && !isProPlanActive(workspace?.company)) {
-      void prepareModuleTransitionInterstitial().then(
-        showModuleTransitionInterstitial,
-      );
-    }
-  }, [loading, pathname, workspace?.company]);
+    return () => {
+      active = false;
+      void listener.then((handle) => handle.remove());
+    };
+  }, []);
 
   return null;
 }

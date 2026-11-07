@@ -2,7 +2,6 @@ import {
   Home,
   Grid2x2,
   LayoutDashboard,
-  CreditCard,
   User,
   Settings,
 } from "lucide-react";
@@ -32,12 +31,6 @@ export const navigationItems: NavigationItem[] = [
     title: "Marketplace",
     href: "/dashboard/marketplace",
     icon: Grid2x2,
-  },
-  {
-    id: "subscription",
-    title: "Subscription",
-    href: "/dashboard/subscription",
-    icon: CreditCard,
   },
   {
     id: "profile",

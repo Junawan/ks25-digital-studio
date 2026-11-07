@@ -82,9 +82,9 @@ export default function CurrentPlanCard() {
             </p>
 
             <p className="font-medium">
-  {plan === "starter"
-    ? "Android tanpa batas waktu · Web 1 bulan"
-    : expired}
+              {plan === "starter"
+                ? "Android tanpa batas waktu · Web 14 hari"
+                : expired}
 </p>
 
           </div>

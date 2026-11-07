@@ -16,6 +16,10 @@ export const sidebarItems: SidebarItem[] = [
     title: "My Apps",
     href: "/my-apps",
   },
+  {
+    title: "Paket Langganan",
+    href: "/dashboard/subscription",
+  },
   // Installed Modules
 
   {

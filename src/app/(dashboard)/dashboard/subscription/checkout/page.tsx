@@ -6,23 +6,17 @@ import CheckoutCard from "@/modules/subscription/components/CheckoutCard";
 import { useAndroidBack } from "@/hooks/useAndroidBack";
 
 export default function SubscriptionCheckoutPage() {
+  const params = useSearchParams();
+  const plan = params.get("plan") ?? "pro";
 
-  const params =
-    useSearchParams();
-
-  const plan =
-    params.get("plan") ?? "pro";
+  useAndroidBack(() => {
+    window.history.back();
+    return true;
+  });
 
   return (
-
     <div className="mx-auto max-w-3xl">
-
-      <CheckoutCard
-        plan={plan}
-      />
-
+      <CheckoutCard plan={plan} />
     </div>
-
   );
-
 }

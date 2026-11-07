@@ -7,7 +7,6 @@ import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
 import { Button } from "@/components/ui/button";
 import { useActiveEmployee } from "@/modules/employee-profile/EmployeeIdentityProvider";
-import { isProPlanActive } from "@/modules/subscription/subscription-policy";
 
 import { ShieldCheck, UserRoundX, } from "lucide-react";
 
@@ -38,7 +37,6 @@ export default function AccountMenu({
     company,
     user,
   } = workspace;
-  const plan = isProPlanActive(company) ? "pro" : "starter";
 
   const content = (
 
@@ -88,53 +86,6 @@ export default function AccountMenu({
       </div>
 
       <div className="mt-6 space-y-3">
-
-        <Button
-          variant="outline"
-          className="w-full justify-between"
-          onClick={() => {
-
-            onClose();
-
-            router.push(
-              "/dashboard/subscription"
-            );
-
-          }}
-        >
-
-          <span>
-            💳 Paket Langganan
-          </span>
-
-          <span className="capitalize font-semibold text-violet-600">
-
-            {plan}
-
-          </span>
-
-        </Button>
-
-        {plan === "starter" && (
-
-          <Button
-            className="w-full"
-            onClick={() => {
-
-              onClose();
-
-              router.push(
-                "/dashboard/subscription"
-              );
-
-            }}
-          >
-
-            🚀 Upgrade ke PRO
-
-          </Button>
-
-        )}
 
         <Button
           variant="outline"

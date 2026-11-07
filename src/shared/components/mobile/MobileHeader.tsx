@@ -9,6 +9,7 @@ import {
   X,
   LayoutDashboard,
   Grid2x2,
+  CreditCard,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -198,6 +199,17 @@ export default function MobileHeader({
                 }
                 title="My Apps"
                 href="/my-apps"
+                onClick={() =>
+                  setOpen(false)
+                }
+              />
+
+              <MenuItem
+                icon={
+                  <CreditCard className="h-5 w-5" />
+                }
+                title="Paket Langganan"
+                href="/dashboard/subscription"
                 onClick={() =>
                   setOpen(false)
                 }

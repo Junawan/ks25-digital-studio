@@ -5,9 +5,6 @@ import { App } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 
 import { useAndroidBack } from "@/hooks/useAndroidBack";
-import { showModuleTransitionInterstitial } from "@/shared/ads/admob-consent";
-import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
-import { isProPlanActive } from "@/modules/subscription/subscription-policy";
 
 interface AndroidBackHandlerProps {
   href?: string;
@@ -21,8 +18,6 @@ export default function AndroidBackHandler({
   onBack,
 }: AndroidBackHandlerProps) {
   const router = useRouter();
-  const { workspace } = useWorkspace();
-
   useAndroidBack(() => {
     // Beri kesempatan halaman menangani Back sendiri
     const handled = onBack?.();
@@ -42,16 +37,7 @@ export default function AndroidBackHandler({
 
     // Push ke halaman tertentu
     if (href) {
-      if (href === "/dashboard" || href === "/dashboard/") {
-        const navigate = () => router.push(href);
-        if (isProPlanActive(workspace?.company)) {
-          navigate();
-        } else {
-          void showModuleTransitionInterstitial().finally(navigate);
-        }
-      } else {
-        router.push(href);
-      }
+      router.push(href);
       return true;
     }
 

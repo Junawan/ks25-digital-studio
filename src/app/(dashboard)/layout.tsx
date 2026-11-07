@@ -13,8 +13,6 @@ import { EmployeeIdentityProvider } from "@/modules/employee-profile/EmployeeIde
 import PlayStoreUpdatePrompt from "@/shared/components/native/PlayStoreUpdatePrompt";
 import PushNotificationRegistration from "@/modules/notification/PushNotificationRegistration";
 import DashboardBannerAd from "@/shared/ads/DashboardBannerAd";
-import AdMobStartup from "@/shared/ads/AdMobStartup";
-import AndroidUpgradePrompt from "@/shared/components/subscription/AndroidUpgradePrompt";
 import WebFreePlanGate from "@/shared/components/subscription/WebFreePlanGate";
 
 interface Props {
@@ -58,11 +56,8 @@ export default function DashboardLayout({
       <EmployeeIdentityProvider>
       <DeepLinkProvider>
 
-      <AndroidUpgradePrompt />
       <PlayStoreUpdatePrompt />
       <PushNotificationRegistration />
-      <AdMobStartup />
-
       {mobile ? (
 
         <MobileShell>

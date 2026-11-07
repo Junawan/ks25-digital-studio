@@ -2,7 +2,7 @@ import { Capacitor } from "@capacitor/core";
 import {
   AdMob,
   AdmobConsentStatus,
-  InterstitialAdPluginEvents,
+  AppOpenAdPluginEvents,
 } from "@capacitor-community/admob";
 import { getAdUnitId } from "@/shared/ads/inline-native-ad-bridge";
 
@@ -33,77 +33,72 @@ export function requestAdMobConsent(): Promise<boolean> {
   return consentRequest;
 }
 
-const LAST_TRANSITION_AD_KEY = "ks25-admob-last-module-transition";
-const MIN_TRANSITION_INTERVAL_MS = 5 * 60 * 1000;
-let interstitialReady = false;
-let interstitialLoading: Promise<void> | undefined;
-let transitionShowing = false;
+let appOpenReady = false;
+let appOpenLoading: Promise<void> | undefined;
+let appOpenShowing = false;
 
-export async function prepareModuleTransitionInterstitial(): Promise<void> {
-  if (interstitialReady) return;
-  if (interstitialLoading) return interstitialLoading;
+export async function prepareAppOpenAd(): Promise<void> {
+  if (Capacitor.getPlatform() !== "android" || appOpenReady) return;
+  if (appOpenLoading) return appOpenLoading;
 
-  interstitialLoading = (async () => {
+  appOpenLoading = (async () => {
     if (!(await requestAdMobConsent())) return;
+    const adId = await getAdUnitId("app-open");
+    if (!adId) {
+      console.warn("Configure NEXT_PUBLIC_ADMOB_APP_OPEN_AD_UNIT_ID to enable production App Open ads.");
+      return;
+    }
     try {
-      await AdMob.prepareInterstitial({ adId: await getAdUnitId("interstitial") });
-      interstitialReady = true;
+      await AdMob.loadAppOpen({ adId });
+      appOpenReady = true;
     } catch (error) {
-      console.warn("AdMob transition interstitial was not loaded:", error);
+      console.warn("AdMob App Open ad was not loaded:", error);
     }
   })().finally(() => {
-    interstitialLoading = undefined;
+    appOpenLoading = undefined;
   });
 
-  return interstitialLoading;
+  return appOpenLoading;
 }
 
-export async function showModuleTransitionInterstitial(): Promise<void> {
-  if (
-    Capacitor.getPlatform() !== "android" ||
-    !interstitialReady ||
-    transitionShowing
-  ) return;
-
-  const lastShown = Number(localStorage.getItem(LAST_TRANSITION_AD_KEY) || 0);
-  if (Date.now() - lastShown < MIN_TRANSITION_INTERVAL_MS) return;
-
-  transitionShowing = true;
-  let resolveClosed: () => void = () => undefined;
-  const closed = new Promise<void>((resolve) => (resolveClosed = resolve));
-  let dismissedHandle: Awaited<ReturnType<typeof AdMob.addListener>> | undefined;
-  let failedHandle: Awaited<ReturnType<typeof AdMob.addListener>> | undefined;
-  let showedHandle: Awaited<ReturnType<typeof AdMob.addListener>> | undefined;
+export async function showAppOpenAd(): Promise<void> {
+  if (Capacitor.getPlatform() !== "android" || !appOpenReady || appOpenShowing) return;
+  const adId = await getAdUnitId("app-open");
+  if (!adId) return;
 
   try {
-    dismissedHandle = await AdMob.addListener(
-      InterstitialAdPluginEvents.Dismissed,
-      () => resolveClosed(),
-    );
-    failedHandle = await AdMob.addListener(
-      InterstitialAdPluginEvents.FailedToShow,
-      () => resolveClosed(),
-    );
-    showedHandle = await AdMob.addListener(
-      InterstitialAdPluginEvents.Showed,
-      () => localStorage.setItem(LAST_TRANSITION_AD_KEY, String(Date.now())),
-    );
-    await AdMob.showInterstitial({ adId: await getAdUnitId("interstitial") });
-    interstitialReady = false;
-    await Promise.race([
-      closed,
-      new Promise<void>((resolve) => window.setTimeout(resolve, 90_000)),
-    ]);
+    const loaded = await AdMob.isAppOpenLoaded({ adId });
+    if (!loaded.value) {
+      appOpenReady = false;
+      return;
+    }
   } catch (error) {
-    console.warn("AdMob transition interstitial could not be shown:", error);
+    appOpenReady = false;
+    console.warn("AdMob App Open ad is no longer available:", error);
+    void prepareAppOpenAd();
+    return;
+  }
+
+  appOpenShowing = true;
+  appOpenReady = false;
+  let finish: () => void = () => undefined;
+  const closed = new Promise<void>((resolve) => (finish = resolve));
+  let closedHandle: Awaited<ReturnType<typeof AdMob.addListener>> | undefined;
+  let failedHandle: Awaited<ReturnType<typeof AdMob.addListener>> | undefined;
+
+  try {
+    closedHandle = await AdMob.addListener(AppOpenAdPluginEvents.Closed, finish);
+    failedHandle = await AdMob.addListener(AppOpenAdPluginEvents.FailedToShow, finish);
+    await AdMob.hideBanner().catch(() => undefined);
+    window.dispatchEvent(new Event("ks25:app-open-ad-start"));
+    await AdMob.showAppOpen({ adId });
+    await Promise.race([closed, new Promise<void>((resolve) => window.setTimeout(resolve, 60_000))]);
+  } catch (error) {
+    console.warn("AdMob App Open ad could not be shown:", error);
   } finally {
-    interstitialReady = false;
-    transitionShowing = false;
-    await Promise.all([
-      dismissedHandle?.remove(),
-      failedHandle?.remove(),
-      showedHandle?.remove(),
-    ]);
-    void prepareModuleTransitionInterstitial();
+    appOpenShowing = false;
+    window.dispatchEvent(new Event("ks25:app-open-ad-end"));
+    await Promise.all([closedHandle?.remove(), failedHandle?.remove()]);
+    void prepareAppOpenAd();
   }
 }

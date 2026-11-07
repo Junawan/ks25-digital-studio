@@ -12,7 +12,6 @@ export const appConfig = {
   },
 
   subscription: {
-    webStarterMonths: 1,
-    webStarterPolicyStartsAt: "2026-10-16T00:00:00+07:00",
+    webStarterDays: 14,
   },
 } as const;

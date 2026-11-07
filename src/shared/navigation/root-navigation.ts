@@ -1,7 +1,6 @@
 import {
   LayoutDashboard,
   Package,
-  CreditCard,
   Newspaper,
   LifeBuoy,
 } from "lucide-react";
@@ -37,16 +36,6 @@ export const rootNavigation: NavigationItem[] = [
     href: "/my-apps",
 
     icon: Package,
-
-  },
-
-  {
-
-    label: "Langganan",
-
-    href: "/dashboard/subscription",
-
-    icon: CreditCard,
 
   },
 
