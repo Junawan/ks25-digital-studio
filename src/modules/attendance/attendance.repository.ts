@@ -57,8 +57,9 @@ export const attendanceRepository = {
     });
   },
   async uploadSelfie(companyId: string, date: string, nik: string, stage: string, file: Blob) {
+    const compressedFile = await compressSelfie(file);
     const target = ref(storage, `attendance/${companyId}/${date}/${encodeURIComponent(nik)}_${stage}_${Date.now()}.jpg`);
-    await uploadBytes(target, file, { contentType: "image/jpeg" });
+    await uploadBytes(target, compressedFile, { contentType: "image/jpeg" });
     return getDownloadURL(target);
   },
   async articles(companyId: string): Promise<AttendanceArticle[]> {
@@ -105,3 +106,40 @@ export const attendanceRepository = {
     });
   },
 };
+
+async function compressSelfie(file: Blob): Promise<Blob> {
+  const maxDimension = 1280;
+  const maxBytes = 500 * 1024;
+  const bitmap = await createImageBitmap(file);
+  try {
+    const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Tidak dapat memproses foto selfie.");
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+
+    let quality = 0.78;
+    let result = await canvasToJpeg(canvas, quality);
+    while (result.size > maxBytes && quality > 0.45) {
+      quality = Math.max(0.45, quality - 0.1);
+      result = await canvasToJpeg(canvas, quality);
+    }
+    while (result.size > maxBytes && Math.max(canvas.width, canvas.height) > 640) {
+      canvas.width = Math.round(canvas.width * 0.8);
+      canvas.height = Math.round(canvas.height * 0.8);
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      result = await canvasToJpeg(canvas, 0.65);
+    }
+    return result;
+  } finally {
+    bitmap.close();
+  }
+}
+
+function canvasToJpeg(canvas: HTMLCanvasElement, quality: number): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Gagal mengompres foto selfie.")), "image/jpeg", quality);
+  });
+}
