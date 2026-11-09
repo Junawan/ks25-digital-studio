@@ -8,7 +8,6 @@ import { packflowRepository } from "@/modules/packflow/packflow.repository";
 import type { PackflowHistoryRecord, PackflowRecord, SupplyRequest } from "@/modules/packflow/packflow.types";
 import { notificationService } from "@/modules/notification/notification.service";
 import { useActiveEmployee } from "@/modules/employee-profile/EmployeeIdentityProvider";
-import { attendanceRepository } from "@/modules/attendance/attendance.repository";
 import { BarcodeService } from "@/modules/pos/shared/barcode/services/BarcodeService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -363,23 +362,16 @@ export default function PackflowPage() {
         status: "menunggu",
       });
       try {
-        let notificationReceiver = workspace!.company.ownerId;
-        try {
-          const adminPin = await attendanceRepository.adminPin(company.id);
-          notificationReceiver = String(adminPin.data()?.createdBy || notificationReceiver);
-        } catch (error) {
-          console.warn("Admin PIN recipient unavailable, using company owner:", error);
-        }
-        await notificationService.createForCompany(company.id, notificationReceiver, {
+        await notificationService.broadcastCompany(company.id, {
           module: "packflow",
           type: "supply-request",
           priority: "normal",
           title: "Permintaan barang baru",
-          message: `${employeeName} meminta ${itemName} (NIK ${employee.nik}).`,
+          message: `${employeeName} (NIK ${employee.nik}) meminta ${itemName}.`,
           actionUrl: "/packflow",
           sourceId: requestRef.id,
         });
-        return "Permintaan barang terkirim dan notifikasi dikirim ke pembuat PIN admin atau owner perusahaan.";
+        return "Permintaan barang terkirim dan notifikasi dikirim ke seluruh karyawan perusahaan.";
       } catch (error) {
         console.error("Supply request notification failed:", error);
         return "Permintaan barang terkirim, tetapi notifikasi belum dapat dikirim.";

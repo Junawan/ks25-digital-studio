@@ -1,5 +1,5 @@
 import {
-  addDoc, collection, doc, getDoc, getDocs, orderBy, query, runTransaction, updateDoc, where,
+  addDoc, arrayUnion, collection, doc, getDoc, getDocs, orderBy, query, runTransaction, updateDoc, where,
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { db, storage } from "@/core/firebase";
@@ -102,9 +102,13 @@ export const attendanceRepository = {
     await runTransaction(db, async (transaction) => {
       const snapshot = await transaction.get(ref);
       if (snapshot.exists()) throw new Error("PIN admin sudah dibuat.");
-      transaction.set(ref, { companyId, hash, salt, createdBy, createdAt: new Date() });
+      transaction.set(ref, { companyId, hash, salt, createdBy, usedBy: createdBy ? [createdBy] : [], createdAt: new Date() });
     });
   },
+  markAdminPinUsed: (companyId: string, userId: string) => updateDoc(
+    doc(db, COLLECTIONS.admin, encodeURIComponent(companyId)),
+    { usedBy: arrayUnion(userId) },
+  ),
 };
 
 async function compressSelfie(file: Blob): Promise<Blob> {

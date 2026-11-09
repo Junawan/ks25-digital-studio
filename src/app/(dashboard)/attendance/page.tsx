@@ -13,6 +13,7 @@ import type { AttendanceArticle, AttendanceEmployee, AttendanceRecord, Attendanc
 import { notificationService } from "@/modules/notification/notification.service";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
+import { toast } from "sonner";
 
 type Section = "dashboard" | "absensi" | "riwayat" | "informasi" | "admin" | "cuti" | "pengaturan";
 const AttendanceDownload = registerPlugin<{ save: (options: { fileName: string; mimeType: string; data: string }) => Promise<void> }>("AttendanceDownload");
@@ -41,7 +42,6 @@ export default function AttendancePage() {
   const [employeeInfo, setEmployeeInfo] = useState<AttendanceEmployee | null>(null); const [leaves, setLeaves] = useState<LeaveRequest[]>([]); const [articles, setArticles] = useState<AttendanceArticle[]>([]);
   const [locations, setLocations] = useState<AttendanceWorkLocation[]>([]); const [locationName, setLocationName] = useState(""); const [locationLat, setLocationLat] = useState(""); const [locationLng, setLocationLng] = useState(""); const [locationRadius, setLocationRadius] = useState("100");
   const [notice, setNotice] = useState(""); const [busy, setBusy] = useState(false); const [adminReady, setAdminReady] = useState<boolean | null>(null); const [admin, setAdmin] = useState(false);
-  const [reportLoadedFor, setReportLoadedFor] = useState("");
   const [selectedAttendance, setSelectedAttendance] = useState<AttendanceRecord | null>(null);
   const [pin, setPin] = useState(""); const [pinConfirm, setPinConfirm] = useState(""); const [from, setFrom] = useState(nowDate()); const [to, setTo] = useState(nowDate()); const [reportFrom, setReportFrom] = useState(nowDate()); const [reportTo, setReportTo] = useState(nowDate());
   const [hireDate, setHireDate] = useState(""); const [camera, setCamera] = useState(false); const [photo, setPhoto] = useState<Blob | null>(null); const [photoUrl, setPhotoUrl] = useState(""); const [articleTitle, setArticleTitle] = useState(""); const [articleBody, setArticleBody] = useState("");
@@ -127,20 +127,27 @@ export default function AttendancePage() {
         for (let offset = 0; offset < bytes.length; offset += 0x8000) binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
         await AttendanceDownload.save({ fileName: name, mimeType: blob.type, data: btoa(binary) });
         setNotice("File berhasil disimpan di folder Unduhan/KS25.");
+        toast.success("File Excel berhasil diunduh", { description: "Tersimpan di folder Unduhan/KS25." });
         return;
       }
       const file = new File([blob], name, { type: blob.type });
       if ((navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches) && navigator.share && navigator.canShare?.({ files: [file] })) {
-        void navigator.share({ files: [file], title: "Data Absensi" })
-          .then(() => setNotice("File terbuka pada menu berbagi perangkat. Pilih Simpan atau Unduh untuk menyimpan."))
-          .catch((error: unknown) => { if (error instanceof Error && error.name === "AbortError") setNotice("Penyimpanan file dibatalkan."); else { console.error("Attendance file sharing failed:", error); setNotice("Menu simpan perangkat tidak tersedia. Coba unduh file dari browser."); } });
+        await navigator.share({ files: [file], title: "Data Absensi" });
+        setNotice("File berhasil dibagikan dari menu perangkat.");
+        toast.success("File Excel siap dibagikan");
         return;
       }
       const url = URL.createObjectURL(blob); const link = document.createElement("a");
       link.href = url; link.download = name; link.style.display = "none"; document.body.appendChild(link); link.click(); link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
       setNotice("File Data Absensi siap diunduh. Jika tidak tersimpan otomatis, periksa folder Unduhan browser.");
-    } catch (error) { console.error("Attendance Excel export failed:", error); setNotice("File Excel gagal dibuat. Coba lagi atau periksa ruang penyimpanan perangkat."); }
+      toast.success("File Excel berhasil diunduh");
+    } catch (error) {
+      console.error("Attendance Excel export failed:", error);
+      const cancelled = error instanceof Error && error.name === "AbortError";
+      setNotice(cancelled ? "Penyimpanan file dibatalkan." : "File Excel gagal dibuat. Coba lagi atau periksa ruang penyimpanan perangkat.");
+      if (!cancelled) toast.error("File Excel gagal diunduh");
+    }
   }
   async function history() { if (!companyId || !employee) return; if (from > to) { setNotice("Tanggal awal harus sebelum tanggal akhir."); return; } setBusy(true); try { setHistoryRows(await attendanceRepository.history(companyId, employee.nik, from, to)); setNotice(""); } catch { setNotice("Riwayat belum dapat dimuat."); } finally { setBusy(false); } }
   const fetchReportRows = useCallback(async (start: string, end: string): Promise<AttendanceRecord[]> => {
@@ -166,21 +173,32 @@ export default function AttendancePage() {
     });
   }, [companyId]);
   const loadReport = useCallback(async () => {
-    setReportRows([]); setReportLoadedFor("");
+    setReportRows([]);
     if (!companyId) return; const days = (new Date(toDate(reportTo)).getTime() - new Date(toDate(reportFrom)).getTime()) / 86400000;
     if (reportFrom > reportTo || days > 30) { setNotice("Rentang ekspor maksimal 31 hari."); return; }
     try {
       const rows = await fetchReportRows(reportFrom, reportTo);
-      setReportRows(rows); setReportLoadedFor(reportFrom + ":" + reportTo); setNotice("");
+      setReportRows(rows); setNotice("");
     } catch { setNotice("Rekap gagal dimuat."); }
   }, [companyId, reportFrom, reportTo, fetchReportRows]);
-  function exportReport() {
+  async function exportReport() {
     if (!companyId) { setNotice("Perusahaan belum dipilih."); return; }
     const days = (new Date(toDate(reportTo)).getTime() - new Date(toDate(reportFrom)).getTime()) / 86400000;
     if (reportFrom > reportTo || days > 30) { setNotice("Rentang ekspor maksimal 31 hari."); return; }
-    if (reportLoadedFor !== reportFrom + ":" + reportTo) { setNotice("Data pada rentang ini sedang dimuat. Coba lagi sebentar."); return; }
-    if (!reportRows.length) { setNotice("Tidak ada data absensi pada rentang tanggal ini."); return; }
-    exportExcel(reportRows, "Data-Absensi-" + reportFrom + "-" + reportTo + ".xlsx", reportFrom, reportTo);
+    setBusy(true);
+    setNotice("Mengambil data laporan…");
+    try {
+      const rows = await fetchReportRows(reportFrom, reportTo);
+      setReportRows(rows);
+      if (!rows.length) { setNotice("Tidak ada data absensi pada rentang tanggal ini."); return; }
+      await exportExcel(rows, "Data-Absensi-" + reportFrom + "-" + reportTo + ".xlsx", reportFrom, reportTo);
+    } catch (error) {
+      console.error("Attendance report export failed:", error);
+      setNotice(error instanceof Error ? error.message : "Rekap gagal diekspor. Periksa koneksi dan coba lagi.");
+      toast.error("Ekspor laporan gagal");
+    } finally {
+      setBusy(false);
+    }
   }
   function toDate(s: string) { return s + "T00:00:00"; }
   useEffect(() => { if (admin && section === "admin") void loadReport(); }, [admin, section, loadReport]);
@@ -189,7 +207,7 @@ export default function AttendancePage() {
     try {
       const doc = await attendanceRepository.adminPin(companyId);
       if (!doc.exists()) { if (!isOwnerAdmin) { setNotice("Hanya akun owner/admin perusahaan yang dapat membuat PIN admin pertama."); return; } if (pin.length < 6 || pin !== pinConfirm) { setNotice("Buat PIN admin minimal 6 angka dan pastikan konfirmasinya sama."); return; } const salt = crypto.getRandomValues(new Uint8Array(16)); await attendanceRepository.saveAdminPin(companyId, await hashPin(pin, salt), toHex(salt), workspace?.user.userId || ""); setAdminReady(true); setAdmin(true); setNotice("PIN admin berhasil dibuat."); }
-      else { const d = doc.data(); const salt = Uint8Array.from((String(d.salt).match(/.{1,2}/g) || []).map((x) => parseInt(x, 16))); if (await hashPin(pin, salt) !== d.hash) { setNotice("PIN admin tidak sesuai."); return; } setAdmin(true); setNotice(""); }
+      else { const d = doc.data(); const salt = Uint8Array.from((String(d.salt).match(/.{1,2}/g) || []).map((x) => parseInt(x, 16))); if (await hashPin(pin, salt) !== d.hash) { setNotice("PIN admin tidak sesuai."); return; } const userId = workspace?.user.userId; if (userId) { try { await attendanceRepository.markAdminPinUsed(companyId, userId); } catch (error) { console.warn("Could not record admin PIN access for notifications:", error); } } setAdmin(true); setNotice(""); }
       setPin(""); setPinConfirm("");
     } catch (e) { setNotice(e instanceof Error ? e.message : "PIN admin gagal diproses."); } finally { setBusy(false); }
   }
@@ -199,7 +217,7 @@ export default function AttendancePage() {
     const end = new Date(toDate(leaveTo)); const cursor = new Date(toDate(leaveFrom)); if (leaveFrom > leaveTo || (end.getTime() - cursor.getTime()) / 86400000 > 30) { setNotice("Rentang pengajuan maksimal 31 hari."); return; }
     const dates: string[] = []; while (cursor <= end) { dates.push(nowString(cursor)); cursor.setDate(cursor.getDate() + 1); }
     if (dates.length > remain) { setNotice("Jumlah hari pengajuan melebihi sisa kuota."); return; } setBusy(true);
-    try { await attendanceRepository.addLeave({ companyId, employeeNik: employee.nik, employeeName: employee.fullName, dates, reason, status: "Menunggu" }); let receiver = workspace?.company.ownerId || ""; try { const pinDoc = await attendanceRepository.adminPin(companyId); receiver = String(pinDoc.data()?.createdBy || receiver); } catch (error) { console.warn("Admin PIN recipient unavailable, using company owner:", error); } if (receiver) { try { await notificationService.createForCompany(companyId, receiver, { module: "attendance", type: "update", priority: "high", title: "Pengajuan cuti baru", message: employee.fullName + " mengajukan cuti " + dates.length + " hari, " + prettyDate(leaveFrom) + " sampai " + prettyDate(leaveTo) + ".", actionUrl: "/attendance", sourceId: null }); } catch (notificationError) { console.error("Admin notification could not be created", notificationError); } } setReason(""); await refresh(); setNotice("Pengajuan cuti dikirim ke admin."); }
+    try { const leaveRef = await attendanceRepository.addLeave({ companyId, employeeNik: employee.nik, employeeName: employee.fullName, dates, reason, status: "Menunggu" }); let recipients: string[] = []; try { const pinDoc = await attendanceRepository.adminPin(companyId); const pin = pinDoc.data(); recipients = [...new Set([...(Array.isArray(pin?.usedBy) ? pin.usedBy.filter((id): id is string => typeof id === "string") : []), ...(typeof pin?.createdBy === "string" ? [pin.createdBy] : [])])]; } catch (error) { console.warn("Admin PIN recipients unavailable:", error); } if (!recipients.length && workspace?.company.ownerId) recipients = [workspace.company.ownerId]; const message = employee.fullName + " mengajukan cuti " + dates.length + " hari, " + prettyDate(leaveFrom) + " sampai " + prettyDate(leaveTo) + "."; const results = await Promise.allSettled(recipients.map((receiverId) => notificationService.createForCompany(companyId, receiverId, { module: "attendance", type: "update", priority: "high", title: "Pengajuan cuti baru", message, actionUrl: "/attendance", sourceId: leaveRef.id }))); if (results.some((result) => result.status === "rejected")) console.error("Some admin leave notifications could not be created", results); setReason(""); await refresh(); setNotice("Pengajuan cuti dikirim ke admin yang pernah menggunakan PIN."); }
     catch { setNotice("Pengajuan cuti gagal dikirim."); } finally { setBusy(false); }
   }
   function nowString(d: Date) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }

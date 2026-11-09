@@ -14,7 +14,10 @@ interface NotificationDocument {
   title: string;
   message: string;
   actionUrl: string;
+  sourceId: string | null;
 }
+
+const SYSTEM_ADMIN_EMAIL = "jujunjunawan2@gmail.com";
 
 export async function POST(request: Request) {
   const authorization = request.headers.get("authorization") || "";
@@ -37,7 +40,31 @@ export async function POST(request: Request) {
 
     const user = userSnapshot.data()!;
     const notification = notificationSnapshot.data() as NotificationDocument;
-    if (user.status !== "active" || user.companyId !== notification.companyId || notification.receiverType === "system-admin") {
+    if (user.status !== "active") {
+      return Response.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    let systemAdminUserId: string | null = null;
+    if (notification.receiverType === "system-admin") {
+      if (notification.module !== "subscription" || notification.type !== "payment" || !notification.sourceId || user.companyId !== notification.companyId) {
+        return Response.json({ error: "Forbidden" }, { status: 403 });
+      }
+      const paymentSnapshot = await adminDb.collection("subscription-payments").doc(notification.sourceId).get();
+      const payment = paymentSnapshot.data();
+      if (!paymentSnapshot.exists || payment?.status !== "pending" || payment.companyId !== user.companyId || payment.ownerId !== decoded.uid) {
+        return Response.json({ error: "Forbidden" }, { status: 403 });
+      }
+      try {
+        const target = await auth.getUserByEmail(SYSTEM_ADMIN_EMAIL);
+        const targetProfile = await adminDb.collection("users").doc(target.uid).get();
+        if (targetProfile.exists && targetProfile.data()?.status === "active" && targetProfile.data()?.isSystemAdmin === true) {
+          systemAdminUserId = target.uid;
+        }
+      } catch (error) {
+        console.warn("Subscription notification recipient is not available:", error);
+      }
+      if (!systemAdminUserId) return Response.json({ sent: false, reason: "recipient-unavailable" });
+    } else if (user.companyId !== notification.companyId) {
       return Response.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -53,11 +80,12 @@ export async function POST(request: Request) {
     if (!maySend) return Response.json({ sent: false, duplicate: true });
 
     try {
-      const tokenSnapshot = await adminDb.collection("company_push_devices")
-        .where("companyId", "==", notification.companyId).get();
+      const tokenSnapshot = systemAdminUserId
+        ? await adminDb.collection("company_push_devices").where("userId", "==", systemAdminUserId).get()
+        : await adminDb.collection("company_push_devices").where("companyId", "==", notification.companyId).get();
       const targets = tokenSnapshot.docs.filter((entry) => {
         const target = entry.data();
-        return notification.receiverType === "company" || target.userId === notification.receiverId;
+        return systemAdminUserId ? target.userId === systemAdminUserId : notification.receiverType === "company" || target.userId === notification.receiverId;
       }).map((entry) => ({ id: entry.id, token: String(entry.data().token || "") })).filter((entry) => entry.token.length > 0);
 
       let successCount = 0;
