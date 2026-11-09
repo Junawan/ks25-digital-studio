@@ -5,8 +5,10 @@ import { useTheme } from "@/modules/invitation/theme/ThemeProvider";
 
 export default function LuxuryBlackRsvp({
   slug,
+  demo = false,
 }: {
   slug: string;
+  demo?: boolean;
 }) {
 
   const theme = useTheme();
@@ -24,6 +26,8 @@ export default function LuxuryBlackRsvp({
   useState("");
 
   const handleSubmit = async () => {
+
+  if (demo) return;
 
   try {
 
@@ -91,7 +95,13 @@ ${theme.text.primary}
           className="w-56 mx-auto my-6"
         />
 
-        <div className="space-y-4">
+        {demo ? (
+          <div className="rounded-2xl border border-current/20 p-5 text-sm">
+            <p className="font-semibold">Contoh konfirmasi kehadiran</p>
+            <p className="mt-2 opacity-80">Form RSVP akan aktif pada undangan yang Anda buat.</p>
+            <button type="button" disabled className={`${theme.rsvp.button} mt-4 cursor-not-allowed opacity-60`}>Mode demo</button>
+          </div>
+        ) : <div className="space-y-4">
 
           <input
             type="text"
@@ -158,7 +168,7 @@ ${theme.rsvp.helperText}
             Kirim RSVP
           </button>
 
-        </div>
+        </div>}
 
         <img
           src={theme.rsvp.divider}

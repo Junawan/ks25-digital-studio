@@ -5,16 +5,19 @@ import { useTheme } from "@/modules/invitation/theme/ThemeProvider";
 
 export default function LuxuryBlackWishes({
   slug,
+  demoMessages,
 }: {
   slug: string;
+  demoMessages?: { id: string; name: string; message: string }[];
 }) {
 
   const theme = useTheme();
 
   const [messages, setMessages] =
-    useState<any[]>([]);
+    useState<{ id: string; name: string; message: string }[]>(demoMessages ?? []);
 
   useEffect(() => {
+    if (demoMessages) return;
 
     const load = async () => {
 
@@ -24,7 +27,7 @@ export default function LuxuryBlackWishes({
 
     load();
 
-  }, [slug]);
+  }, [slug, demoMessages]);
 
   return (
     <section className="py-12">

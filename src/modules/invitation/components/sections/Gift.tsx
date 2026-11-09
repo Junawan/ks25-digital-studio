@@ -2,13 +2,17 @@ import { useTheme } from "@/modules/invitation/theme/ThemeProvider";
 
 export default function LuxuryBlackGift({
   data,
+  demo = false,
 }: {
-  data: any;
+  data: { bankName: string; accountNumber: string; accountName: string; qrisImage?: string };
+  demo?: boolean;
 }) {
 
   const theme = useTheme();
 
   const copyAccount = () => {
+
+  if (demo) return;
 
   navigator.clipboard.writeText(
     data.accountNumber
@@ -105,9 +109,10 @@ ${theme.gift.accountName}
 
         <button
           onClick={copyAccount}
+          disabled={demo}
           className={theme.gift.button}
         >
-          Salin Nomor Rekening
+          {demo ? "Contoh rekening" : "Salin Nomor Rekening"}
         </button>
 
       </div>

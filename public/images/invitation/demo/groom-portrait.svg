@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 700" role="img" aria-label="Ilustrasi potret mempelai pria">
+  <defs><linearGradient id="suit" x2="1" y2="1"><stop stop-color="#f0e8d6"/><stop offset="1" stop-color="#786747"/></linearGradient><linearGradient id="gold" x2="1" y2="1"><stop stop-color="#f6dfa0"/><stop offset="1" stop-color="#a8782c"/></linearGradient></defs>
+  <ellipse cx="300" cy="350" rx="267" ry="325" fill="none" stroke="url(#gold)" stroke-width="9"/><ellipse cx="300" cy="350" rx="248" ry="306" fill="none" stroke="#bd984e" stroke-opacity=".5" stroke-width="3"/>
+  <path d="M83 690c13-163 67-270 217-270s204 107 217 270Z" fill="url(#suit)"/><path d="m254 422 46 46 46-46 47 268H207Z" fill="#fffaf0"/><path d="m254 422 46 46-37 78-58-94Zm92 0-46 46 37 78 58-94Z" fill="#786747"/>
+  <ellipse cx="300" cy="309" rx="110" ry="142" fill="#c58d6d"/><path d="M187 309c-3-143 54-208 131-194 74 13 103 76 104 184-34-42-86-64-148-57-32 4-61 23-87 67Z" fill="#211910"/><path d="M244 331h17m78 0h17" stroke="#38231d" stroke-width="9" stroke-linecap="round"/><path d="M266 385q34 24 68 0" fill="none" stroke="#8d4c40" stroke-width="8" stroke-linecap="round"/>
+  <path d="M300 478v82m-52-47 52 51 52-51" fill="none" stroke="#bf9848" stroke-width="7"/>
+</svg>

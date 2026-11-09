@@ -46,20 +46,26 @@ from "@/modules/invitation/components/common/ThemeLayout";
 
 import Reveal
 from "@/modules/invitation/components/common/Reveal";
+import type { DemoInvitation } from "@/modules/invitation/data/demoInvitations";
 
 export default function InvitationClient({
   slug,
   guestName,
+  demoData,
 }: {
   slug: string;
   guestName?: string;
+  demoData?: DemoInvitation;
 }) {
   const {
-    data,
-    loading,
-  } = useInvitation(slug);
+    data: invitation,
+    loading: invitationLoading,
+  } = useInvitation(slug, !demoData);
+  const data = demoData ?? invitation;
+  const loading = demoData ? false : invitationLoading;
 
   useEffect(() => {
+  if (demoData) return;
   if (new URLSearchParams(window.location.search).get("preview") === "1") return;
 
   const key =
@@ -86,7 +92,7 @@ export default function InvitationClient({
 
   addView();
 
-}, [slug]);
+}, [slug, demoData]);
 
   if (loading) {
     return (
@@ -168,10 +174,11 @@ coverImage={data.coverImage}
 />
 
 </Reveal>
-<Rsvp slug={slug} />
+<Rsvp slug={slug} demo={Boolean(demoData)} />
 
 <Wishes
     slug={slug}
+    demoMessages={demoData?.demoMessages}
 />
 
 <Location
@@ -184,6 +191,7 @@ coverImage={data.coverImage}
 
     <Gift
     data={data}
+    demo={Boolean(demoData)}
 />
 
 </Reveal>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Ilustrasi cincin dan bunga keemasan">
+  <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0b0a08"/><stop offset="1" stop-color="#392713"/></linearGradient><linearGradient id="gold" x2="1" y2="1"><stop stop-color="#fff0a6"/><stop offset=".5" stop-color="#c28b2c"/><stop offset="1" stop-color="#714518"/></linearGradient></defs>
+  <rect width="1200" height="800" fill="url(#bg)"/><path d="M0 670Q250 550 500 700T1200 620V800H0Z" fill="#080706"/>
+  <g fill="none" stroke="url(#gold)" stroke-width="18"><circle cx="520" cy="390" r="175"/><circle cx="680" cy="390" r="175"/></g><path d="m600 188 37 54 64-7-26 58 39 51-65 2-34 55-25-60-64-13 46-45-15-63 59 28Z" fill="url(#gold)"/>
+  <g fill="url(#gold)" stroke="#f2d989" stroke-width="5"><circle cx="180" cy="205" r="37"/><circle cx="232" cy="230" r="37"/><circle cx="210" cy="284" r="37"/><circle cx="156" cy="278" r="37"/><circle cx="145" cy="225" r="37"/><circle cx="1010" cy="545" r="37"/><circle cx="1060" cy="570" r="37"/><circle cx="1038" cy="625" r="37"/><circle cx="984" cy="619" r="37"/><circle cx="975" cy="565" r="37"/></g>
+  <g fill="none" stroke="#83915b" stroke-width="13"><path d="M188 329q-65 85-122 96m920 11q76 57 130 74M206 337q27 80 8 154m789-22q-27 67-20 124"/></g>
+  <text x="600" y="735" text-anchor="middle" fill="#e5c77c" font-family="serif" font-size="28" letter-spacing="7">A PROMISE FOR ALWAYS</text>
+</svg>

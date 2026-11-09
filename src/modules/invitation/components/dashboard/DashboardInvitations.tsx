@@ -534,10 +534,10 @@ parent & tanggal tidak dapat diubah
               <div className="mt-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
 
                 <Link
-                  href={`/undangan/${item.slug}?preview=1`}
+                  href={item.status === "active" ? `/undangan/${item.slug}` : `/undangan/${item.slug}?preview=1`}
                   className="inline-flex min-h-10 items-center justify-center rounded-lg border px-3 py-2 text-center text-sm"
                 >
-                  Preview
+                  {item.status === "active" ? "Buka Undangan" : "Preview"}
                 </Link>
 
                 <Link
