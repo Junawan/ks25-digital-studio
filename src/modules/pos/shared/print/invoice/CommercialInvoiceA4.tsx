@@ -22,7 +22,8 @@ export default function CommercialInvoiceA4({ company, transaction, details }: P
 
   return <>
     <InvoiceStyles />
-    <main className="invoice-page p-10 text-sm">
+    <main className="invoice-page">
+      <div className="invoice-content p-10 text-sm">
       <header className="flex items-start justify-between gap-8 border-b-2 border-black pb-6">
         <div>
           <h1 className="text-3xl font-bold tracking-wide">COMMERCIAL INVOICE</h1>
@@ -87,6 +88,7 @@ export default function CommercialInvoiceA4({ company, transaction, details }: P
         {transaction.paidAmount > 0 && <p className="mt-1"><span className="font-semibold">Amount paid:</span> {formatMoney(transaction.paidAmount)}</p>}
         <p className="mt-1">Currency: {details.currency}{details.currency !== "IDR" ? ` (exchange rate: 1 ${details.currency} = ${details.idrPerCurrency.toLocaleString("en-US")} IDR)` : ""}</p>
       </section>
+      </div>
     </main>
   </>;
 }

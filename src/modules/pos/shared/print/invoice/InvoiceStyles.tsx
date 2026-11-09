@@ -3,7 +3,7 @@ export default function InvoiceStyles() {
     <style jsx global>{`
       @page {
         size: A4 portrait;
-        margin: 12mm;
+        margin: 0;
       }
 
       html,
@@ -19,6 +19,7 @@ export default function InvoiceStyles() {
       .invoice-page {
         width: 210mm;
         min-height: 297mm;
+        box-sizing: border-box;
         margin: 0 auto;
         background: white;
         color: black;
@@ -36,8 +37,8 @@ export default function InvoiceStyles() {
         }
 
         .invoice-page {
-          width: 100%;
-          min-height: auto;
+          width: 210mm;
+          min-height: 297mm;
           margin: 0;
           box-shadow: none;
         }

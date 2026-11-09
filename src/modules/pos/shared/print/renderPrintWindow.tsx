@@ -15,7 +15,37 @@ export async function renderPrintWindow(
     const content = renderToStaticMarkup(element);
     const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
       .map((node) => node.outerHTML).join("\n");
-    const html = `<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title>${styles}<style>@page{size:A4;margin:0}html,body{margin:0;padding:0;background:white}</style></head><body>${content}</body></html>`;
+    const fitInvoicePages = `<script>
+      (() => {
+        const fitPages = () => {
+          document.querySelectorAll('.invoice-page').forEach((page) => {
+            page.style.setProperty('box-sizing', 'border-box', 'important');
+            page.style.setProperty('width', '794px', 'important');
+            page.style.setProperty('height', '1123px', 'important');
+            page.style.setProperty('min-height', '0', 'important');
+            page.style.setProperty('margin', '0', 'important');
+            page.style.setProperty('padding', '0', 'important');
+            page.style.setProperty('overflow', 'hidden', 'important');
+            page.style.setProperty('position', 'relative', 'important');
+            const content = page.querySelector('.invoice-content');
+            if (!content) return;
+            content.style.setProperty('box-sizing', 'border-box', 'important');
+            content.style.setProperty('width', '794px', 'important');
+            content.style.setProperty('padding', '38px', 'important');
+            content.style.setProperty('transform', 'none', 'important');
+            const naturalWidth = Math.max(content.scrollWidth, 1);
+            const naturalHeight = Math.max(content.scrollHeight, 1);
+            const scale = Math.min(1, 794 / naturalWidth, 1123 / naturalHeight);
+            content.style.setProperty('transform-origin', 'top left', 'important');
+            content.style.setProperty('transform', 'scale(' + scale + ')', 'important');
+            content.style.setProperty('margin-left', ((794 - naturalWidth * scale) / 2) + 'px', 'important');
+          });
+        };
+        if (document.readyState === 'complete') fitPages();
+        else window.addEventListener('load', fitPages, { once: true });
+      })();
+    </script>`;
+    const html = `<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=794,initial-scale=1"><title>Invoice</title>${styles}<style>@page{size:A4 portrait;margin:0}html,body{width:794px;margin:0;padding:0;background:white}body{color:#000}</style></head><body>${content}${fitInvoicePages}</body></html>`;
     const fileName = `${title.replace(/[\\/:*?"<>|]/g, "-")}.pdf`;
     await PdfDownload.save({ fileName, html });
     toast.success(`PDF tersimpan di Unduhan/KS25: ${fileName}`);

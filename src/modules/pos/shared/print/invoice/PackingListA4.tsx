@@ -19,7 +19,8 @@ export default function PackingListA4({ company, transaction, details, forceNewP
 
   return <>
     <InvoiceStyles />
-    <main className="invoice-page p-10 text-sm" style={forceNewPage ? { breakBefore: "page", pageBreakBefore: "always" } : undefined}>
+    <main className="invoice-page" style={forceNewPage ? { breakBefore: "page", pageBreakBefore: "always" } : undefined}>
+      <div className="invoice-content p-10 text-sm">
       <header className="flex items-start justify-between gap-8 border-b-2 border-black pb-6">
         <div>
           <h1 className="text-3xl font-bold tracking-wide">PACKING LIST</h1>
@@ -79,6 +80,7 @@ export default function PackingListA4({ company, transaction, details, forceNewP
           <div className="flex justify-between"><span>Total volume ({details.packageCount} packages)</span><span className="font-semibold">{totalVolumeCbm.toLocaleString("en-US", { maximumFractionDigits: 3 })} CBM</span></div>
         </div>
       </section>
+      </div>
     </main>
   </>;
 }

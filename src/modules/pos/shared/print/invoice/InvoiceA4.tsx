@@ -25,7 +25,8 @@ export default function InvoiceA4({
     <>
       <InvoiceStyles />
 
-      <div className="invoice-page p-10">
+      <div className="invoice-page">
+        <div className="invoice-content p-10">
 
         <Header
           company={company}
@@ -49,6 +50,7 @@ export default function InvoiceA4({
           settings={settings}
         />
 
+        </div>
       </div>
     </>
   );

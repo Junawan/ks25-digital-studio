@@ -56,7 +56,7 @@ public class PdfDownloadPlugin extends Plugin {
             handler.postDelayed(() -> startPdfRender(webView, call, pdfName, handler, timeout, settled, renderStarted), 5000);
             try {
                 webView.setLayoutParams(new ViewGroup.LayoutParams(794, 1123));
-                webView.getSettings().setJavaScriptEnabled(false);
+                webView.getSettings().setJavaScriptEnabled(true);
                 webView.setWebViewClient(new android.webkit.WebViewClient() {
                     @Override
                     public void onPageFinished(WebView view, String url) {
@@ -73,8 +73,9 @@ public class PdfDownloadPlugin extends Plugin {
     private void startPdfRender(WebView webView, PluginCall call, String fileName, Handler handler, Runnable timeout, AtomicBoolean settled, AtomicBoolean renderStarted) {
         if (settled.get() || !renderStarted.compareAndSet(false, true)) return;
         try {
-            webView.measure(View.MeasureSpec.makeMeasureSpec(794, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1123, View.MeasureSpec.AT_MOST));
-            webView.layout(0, 0, 794, Math.max(1123, webView.getMeasuredHeight()));
+            int contentHeight = Math.max(1123, (int) Math.ceil(webView.getContentHeight() * webView.getScale()));
+            webView.measure(View.MeasureSpec.makeMeasureSpec(794, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(contentHeight, View.MeasureSpec.EXACTLY));
+            webView.layout(0, 0, 794, contentHeight);
             // The temporary WebView is not attached to the activity view tree, so
             // View.postDelayed may never run. Schedule PDF generation on the main
             // looper directly instead.
@@ -112,9 +113,11 @@ public class PdfDownloadPlugin extends Plugin {
                         PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber + 1).create();
                         PdfDocument.Page page = document.startPage(pageInfo);
                         page.getCanvas().drawColor(android.graphics.Color.WHITE);
-                        webView.scrollTo(0, pageNumber * viewportHeight);
+                        page.getCanvas().save();
                         page.getCanvas().scale(pageScale, pageScale);
+                        page.getCanvas().translate(0, -pageNumber * viewportHeight);
                         webView.draw(page.getCanvas());
+                        page.getCanvas().restore();
                         document.finishPage(page);
                     }
 

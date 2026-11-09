@@ -23,7 +23,10 @@ export default function PushNotificationRegistration() {
         listeners.push(await PushNotifications.addListener("registration", (registration) => {
           if (!active) return;
           window.localStorage.setItem("ks25:push-token", registration.value);
-          void savePushDevice(registration.value).catch((error) => console.error("FCM device registration could not be saved:", error));
+          void savePushDevice(registration.value).catch((error) => {
+            const reason = error instanceof Error ? error.message : String(error);
+            console.error(`FCM device registration could not be saved: ${reason}`, error);
+          });
         }));
         listeners.push(await PushNotifications.addListener("registrationError", (error) => {
           console.error("FCM registration failed:", error.error);

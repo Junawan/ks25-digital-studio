@@ -24,9 +24,9 @@ export async function POST(request: Request) {
     const adminDb = getAdminDb();
     const userSnapshot = await adminDb.collection("users").doc(identity.uid).get();
     const user = userSnapshot.data();
-    if (!userSnapshot.exists || user?.status !== "active" || typeof user.companyId !== "string") {
-      return Response.json({ error: "Forbidden" }, { status: 403 });
-    }
+    if (!userSnapshot.exists) return Response.json({ error: "user_profile_not_found" }, { status: 403 });
+    if (user?.status !== "active") return Response.json({ error: "user_profile_inactive" }, { status: 403 });
+    if (typeof user.companyId !== "string" || !user.companyId) return Response.json({ error: "company_not_found" }, { status: 403 });
     const id = createHash("sha256").update(token).digest("hex");
     await adminDb.collection("company_push_devices").doc(id).set({
       companyId: user.companyId,
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "Invalid request" }, { status: error.message === "unauthorized" ? 401 : 400 });
     }
     console.error("FCM device registration failed:", error);
-    return Response.json({ error: "Device registration failed" }, { status: 503 });
+    return Response.json({ error: "registration_service_unavailable" }, { status: 503 });
   }
 }
 
