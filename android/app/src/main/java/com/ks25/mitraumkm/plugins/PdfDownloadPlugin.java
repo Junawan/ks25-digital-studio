@@ -75,7 +75,10 @@ public class PdfDownloadPlugin extends Plugin {
         try {
             webView.measure(View.MeasureSpec.makeMeasureSpec(794, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1123, View.MeasureSpec.AT_MOST));
             webView.layout(0, 0, 794, Math.max(1123, webView.getMeasuredHeight()));
-            webView.postDelayed(() -> writePdf(webView, call, fileName, handler, timeout, settled), 700);
+            // The temporary WebView is not attached to the activity view tree, so
+            // View.postDelayed may never run. Schedule PDF generation on the main
+            // looper directly instead.
+            handler.postDelayed(() -> writePdf(webView, call, fileName, handler, timeout, settled), 700);
         } catch (Exception error) {
             fail(call, webView, null, error, handler, timeout, settled);
         }
