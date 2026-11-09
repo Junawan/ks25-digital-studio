@@ -65,11 +65,7 @@ export default function UpgradeBanner() {
 
           <p className="mt-3 max-w-2xl">
 
-            Nikmati seluruh fitur premium,
-            AI tanpa batas,
-            backup cloud,
-            prioritas support,
-            dan akses modul terbaru.
+            Semua fitur aplikasi tetap dapat digunakan gratis. Berlangganan PRO (opsional) untuk memakai aplikasi tanpa iklan.
 
           </p>
 

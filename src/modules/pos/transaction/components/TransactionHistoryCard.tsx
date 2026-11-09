@@ -369,7 +369,7 @@ export default function TransactionHistoryCard({
 
   {printing
     ? "Menyiapkan..."
-    : "Invoice"}
+    : "Download Invoice"}
 </Button>
 
           <Button

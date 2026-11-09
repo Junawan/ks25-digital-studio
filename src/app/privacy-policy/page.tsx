@@ -90,7 +90,7 @@ export default function PrivacyPolicyPage() {
           </ul>
 
           <p>
-            Aplikasi Android dapat menampilkan iklan banner dan App Open
+            Aplikasi Android dapat menampilkan iklan banner
             melalui Google AdMob. Versi web tidak menampilkan iklan AdMob.
           </p>
         </section>

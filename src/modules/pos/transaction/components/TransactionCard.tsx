@@ -146,7 +146,7 @@ export default function TransactionCard({
             >
               <FileText className="mr-2 h-4 w-4" />
 
-              Cetak Invoice
+              Download Invoice / Cetak
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />

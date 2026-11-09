@@ -22,8 +22,7 @@ export const invitationThemes: InvitationTheme[] = [
 
     status: "active",
 
-    demo:
-      "/invitation",
+    demo: "/undangan/demo-luxury-black",
       premium:true,
 
   },
@@ -48,8 +47,7 @@ export const invitationThemes: InvitationTheme[] = [
 
     status: "active",
 
-    demo:
-      "/invitation",
+    demo: "/undangan/demo-elegant-gold",
       premium:true,
 
   },

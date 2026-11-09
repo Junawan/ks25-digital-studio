@@ -138,7 +138,7 @@ export default function PackingListOptionsDialog({ open, onOpenChange, transacti
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>Batal</Button>
-              <Button type="submit" disabled={!transaction}>Cetak Packing List</Button>
+              <Button type="submit" disabled={!transaction}>Download PDF / Cetak</Button>
             </DialogFooter>
           </div>
         </form>

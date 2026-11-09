@@ -1,11 +1,26 @@
 "use client";
 
 import { createRoot } from "react-dom/client";
+import { renderToStaticMarkup } from "react-dom/server";
+import { Capacitor, registerPlugin } from "@capacitor/core";
+import { toast } from "sonner";
+
+const PdfDownload = registerPlugin<{ save(options: { fileName: string; html: string }): Promise<void> }>("PdfDownload");
 
 export async function renderPrintWindow(
   element: React.ReactElement,
   title = "Print"
 ) {
+  if (Capacitor.getPlatform() === "android") {
+    const content = renderToStaticMarkup(element);
+    const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
+      .map((node) => node.outerHTML).join("\n");
+    const html = `<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title>${styles}<style>@page{size:A4;margin:0}html,body{margin:0;padding:0;background:white}</style></head><body>${content}</body></html>`;
+    const fileName = `${title.replace(/[\\/:*?"<>|]/g, "-")}.pdf`;
+    await PdfDownload.save({ fileName, html });
+    toast.success(`PDF tersimpan di Unduhan/KS25: ${fileName}`);
+    return;
+  }
   const printWindow = window.open(
     "",
     "_blank",

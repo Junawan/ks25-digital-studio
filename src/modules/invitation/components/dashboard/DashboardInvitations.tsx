@@ -31,9 +31,17 @@ type Invitation = {
 
   eventDate: string;
 
-  activatedAt?: any;
+  coverImage?: string;
+  groomImage?: string;
+  brideImage?: string;
+  mapsUrl?: string;
+  bankName?: string;
+  accountNumber?: string;
+  musicUrl?: string;
+  gallery?: string[];
+  activatedAt?: unknown;
 
-  expiredAt?: any;
+  expiredAt?: unknown;
 };
 
 export default function DashboardInvitations() {
@@ -46,12 +54,12 @@ export default function DashboardInvitations() {
   const [loading, setLoading] =
     useState(true);
 
-    const getProgress = (item: any) => {
+    const getProgress = (item: Invitation) => {
 
   let total = 0;
   let filled = 0;
 
-  const fields = [
+  const fields: Array<string | number | undefined> = [
     item.groom,
     item.bride,
     item.coverImage,
@@ -259,14 +267,7 @@ console.log(
 
     <div className="mt-10">
 
-      <div
-        className="
-        flex
-        justify-between
-        items-center
-        mb-8
-        "
-      >
+      <div className="mb-8">
 
         <h2
           className="
@@ -276,23 +277,6 @@ console.log(
         >
           Undangan Saya
         </h2>
-
-        {items.length === 0 && (
-
-  <Link
-    href="/dashboard/create"
-    className="
-    px-5
-    py-3
-    rounded-xl
-    bg-black
-    text-white
-    "
-  >
-    + Buat Undangan
-  </Link>
-
-)}
 
       </div>
 
@@ -547,47 +531,25 @@ parent & tanggal tidak dapat diubah
 
 </p>
 
-              <div
-                className="
-                flex
-                gap-3
-                mt-6
-                "
-              >
+              <div className="mt-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
 
                 <Link
                   href={`/undangan/${item.slug}?preview=1`}
-                  className="
-                  px-4
-                  py-2
-                  rounded-lg
-                  border
-                  "
+                  className="inline-flex min-h-10 items-center justify-center rounded-lg border px-3 py-2 text-center text-sm"
                 >
                   Preview
                 </Link>
 
                 <Link
                   href={`/invitation/${item.slug}/edit`}
-                  className="
-                  px-4
-                  py-2
-                  rounded-lg
-                  bg-black
-                  text-white
-                  "
+                  className="inline-flex min-h-10 items-center justify-center rounded-lg bg-black px-3 py-2 text-center text-sm text-white"
                 >
                   Edit
                 </Link>
 
                 <Link
                       href={`/invitation/${item.slug}`}
-                      className="
-                      px-4 py-2
-                      rounded-xl
-                      bg-[#9A7B45]
-                      text-white
-                      "
+                      className="inline-flex min-h-10 items-center justify-center rounded-xl bg-[#9A7B45] px-3 py-2 text-center text-sm text-white"
                     >
                       Data
                     </Link>
@@ -596,11 +558,7 @@ parent & tanggal tidak dapat diubah
                   onClick={() =>
                     copyLink(item.slug)
                   }
-                  className="
-                  px-4 py-2
-                  rounded-xl
-                  border
-                  "
+                  className="inline-flex min-h-10 items-center justify-center rounded-xl border px-3 py-2 text-center text-sm"
                 >
                   Copy Link
                 </button>
@@ -609,12 +567,7 @@ parent & tanggal tidak dapat diubah
                   onClick={() =>
                     copyGuestLink(item.slug)
                   }
-                  className="
-                  px-4 py-2
-                  rounded-xl
-                  bg-green-500
-                  text-white
-                  "
+                  className="inline-flex min-h-10 items-center justify-center rounded-xl bg-green-500 px-3 py-2 text-center text-sm text-white"
                 >
                   Copy Link + Nama
                 </button>
@@ -625,12 +578,7 @@ parent & tanggal tidak dapat diubah
                       item.slug
                     )
                   }
-                  className="
-                  px-4 py-2
-                  rounded-xl
-                  bg-green-600
-                  text-white
-                  "
+                  className="inline-flex min-h-10 items-center justify-center rounded-xl bg-green-600 px-3 py-2 text-center text-sm text-white"
                 >
                   WhatsApp
                 </button>

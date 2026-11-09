@@ -239,6 +239,13 @@ const [
   setAndroidScanning,
 ] = useState(false);
 
+useEffect(() => {
+  window.dispatchEvent(new CustomEvent("ks25:scanner-mode", { detail: { active: androidScanning || scannerOpen } }));
+  return () => {
+    window.dispatchEvent(new CustomEvent("ks25:scanner-mode", { detail: { active: false } }));
+  };
+}, [androidScanning, scannerOpen]);
+
 const [
   pairingStartedAt,
   setPairingStartedAt,

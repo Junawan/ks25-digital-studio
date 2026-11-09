@@ -4,20 +4,13 @@ import Link from "next/link";
 
 import { usePathname } from "next/navigation";
 
-import { useRouter } from "next/navigation";
-
 import { rootNavigation } from "./root-navigation";
-import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
 export default function RootBottomNavigation() {
 
   const pathname = usePathname();
 
-  const router =
-  useRouter();
-  const { workspace } = useWorkspace();
-  const isAdmin = workspace?.user.role === "owner" || workspace?.user.role === "admin" || workspace?.user.isSystemAdmin;
-  const menus = rootNavigation.filter((item) => !item.adminOnly || isAdmin);
+  const menus = rootNavigation;
 
   return (
 
@@ -35,9 +28,7 @@ export default function RootBottomNavigation() {
       "
     >
 
-      <div
-        className="grid grid-cols-4"
-      >
+      <div className="grid grid-cols-5">
 
         {menus.map((item) => {
 
@@ -51,39 +42,18 @@ export default function RootBottomNavigation() {
 
           return (
 
-            <button
-
+            <Link
   key={item.label}
-
-  onClick={() => {
-
-    if (item.external) {
-
-      window.open(
-        item.external,
-        "_blank"
-      );
-
-      return;
-
-    }
-
-    if (item.href) {
-
-      router.push(
-        item.href
-      );
-
-    }
-
-  }}
+  href={item.href ?? item.external ?? "/dashboard"}
+  target={item.external ? "_blank" : undefined}
+  rel={item.external ? "noreferrer" : undefined}
 
   className="
   flex
   flex-col
   items-center
   gap-1
-  py-3
+  py-2.5
   transition
   "
 
@@ -100,8 +70,8 @@ export default function RootBottomNavigation() {
               <span
                 className={
                   active
-                    ? "text-violet-500 text-sm"
-                    : "text-zinc-500 text-sm"
+                    ? "text-violet-500 text-xs"
+                    : "text-zinc-500 text-xs"
                 }
               >
 
@@ -109,7 +79,7 @@ export default function RootBottomNavigation() {
 
               </span>
 
-            </button>
+            </Link>
 
           );
 

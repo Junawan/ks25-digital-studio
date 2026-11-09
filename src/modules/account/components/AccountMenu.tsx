@@ -6,9 +6,10 @@ import { authService } from "@/core/auth/auth.service";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { useActiveEmployee } from "@/modules/employee-profile/EmployeeIdentityProvider";
 
-import { ShieldCheck, UserRoundX, } from "lucide-react";
+import { CreditCard, ShieldCheck, UserRoundX, } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -86,6 +87,10 @@ export default function AccountMenu({
       </div>
 
       <div className="mt-6 space-y-3">
+
+        <Button asChild variant="outline" className="w-full justify-start" onClick={onClose}>
+          <Link href="/dashboard/subscription"><CreditCard className="mr-2 h-4 w-4" /> Paket Langganan PRO</Link>
+        </Button>
 
         <Button
           variant="outline"

@@ -106,7 +106,7 @@ export default function CommercialInvoiceOptionsDialog({ open, onOpenChange, tra
           <DialogDescription>Invoice domestik tetap menggunakan desain dan isi yang sekarang. Opsi ekspor mencetak Commercial Invoice dan Packing List dalam satu proses.</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Button variant="outline" onClick={() => { onSelect("domestic"); handleOpenChange(false); }}>Invoice Domestik</Button>
+          <Button variant="outline" onClick={() => { onSelect("domestic"); handleOpenChange(false); }}>Download PDF Invoice Domestik</Button>
           <Button type="button" variant="outline" onClick={() => document.getElementById("commercial-invoice-details")?.scrollIntoView({ behavior: "smooth" })}>Commercial Invoice + Packing List (Ekspor)</Button>
         </div>
         <form ref={formRef} onSubmit={printCommercialInvoice}>
@@ -147,7 +147,7 @@ export default function CommercialInvoiceOptionsDialog({ open, onOpenChange, tra
         </section>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>Batal</Button>
-          <Button type="submit" disabled={!transaction || !hasRequiredExportDetails}>Cetak Invoice + Packing List</Button>
+          <Button type="submit" disabled={!transaction || !hasRequiredExportDetails}>Download PDF / Cetak Invoice + Packing List</Button>
         </DialogFooter>
         </form>
       </DialogContent>

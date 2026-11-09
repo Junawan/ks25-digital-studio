@@ -3,7 +3,7 @@ import {
   Package,
   Newspaper,
   LifeBuoy,
-  ShieldCheck,
+  CreditCard,
 } from "lucide-react";
 
 export interface NavigationItem {
@@ -15,8 +15,6 @@ export interface NavigationItem {
   href?: string;
 
   external?: string;
-
-  adminOnly?: boolean;
 
 }
 
@@ -63,6 +61,6 @@ export const rootNavigation: NavigationItem[] = [
 
   },
 
-  { label: "Admin", href: "/dashboard/subscription", icon: ShieldCheck, adminOnly: true },
+  { label: "Langganan", href: "/dashboard/subscription", icon: CreditCard },
 
 ];

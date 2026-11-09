@@ -23,8 +23,7 @@ export default function SubscriptionPage() {
       <div>
         <h1 className="text-3xl font-bold">Paket Langganan</h1>
         <p className="mt-2 text-muted-foreground">
-          Web gratis selama 14 hari. Penggunaan gratis tanpa batas tersedia di
-          aplikasi Android.
+          Aplikasi Android tetap gratis tanpa batas. PRO bersifat opsional untuk menghilangkan iklan banner dan membuka akses web setelah masa gratis.
         </p>
       </div>
 
@@ -35,10 +34,11 @@ export default function SubscriptionPage() {
           plan="starter"
           title="Starter"
           price="Gratis"
-          description="Pilih akses gratis melalui aplikasi Android atau coba KS25 lewat web selama 14 hari."
+          description="Gunakan seluruh fitur Android gratis tanpa batas dengan iklan banner."
           features={[
             "Semua fitur dan modul aplikasi",
             "Gratis tanpa batas waktu di Android",
+            "Iklan hanya berupa banner di halaman utama",
             "Gratis 14 hari melalui web",
           ]}
           current={!proActive}
@@ -47,9 +47,10 @@ export default function SubscriptionPage() {
           plan="pro"
           title="Pro"
           price="Rp20.000 / bulan"
-          description="Akses berlangganan untuk penggunaan melalui web."
+          description="Langganan opsional untuk menggunakan aplikasi tanpa iklan dan melanjutkan akses web."
           features={[
             "Semua fitur dan modul",
+            "Tanpa iklan di aplikasi Android",
             "Akses web setelah masa gratis berakhir",
             "Generate AI tanpa batas",
             "Backup Cloud dan prioritas support",

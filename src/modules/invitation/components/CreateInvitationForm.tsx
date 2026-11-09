@@ -13,7 +13,7 @@ import { useAuth } from "@/modules/invitation/providers/AuthProvider";
 
 import { auth } from "@/modules/invitation/lib/firebase";
 
-export default function CreateInvitationForm() {
+export default function CreateInvitationForm({ initialTheme = "luxury-black" }: { initialTheme?: string }) {
 
     const router = useRouter();
     const { user, profile } = useAuth();
@@ -28,16 +28,15 @@ export default function CreateInvitationForm() {
     useState("");
 
     const [theme, setTheme] =
-  useState("luxury-black");
+  useState(initialTheme === "elegant-gold" ? "elegant-gold" : "luxury-black");
 
-    const [loveStory, setLoveStory] =
-  useState([
+  const loveStory = [
     {
       year: "",
       title: "",
       description: "",
     },
-  ]);
+  ];
 
   function toTitleCase(text: string) {
 
