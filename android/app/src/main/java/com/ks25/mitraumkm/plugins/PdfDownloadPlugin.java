@@ -53,20 +53,14 @@ public class PdfDownloadPlugin extends Plugin {
                 call.reject("Pembuatan PDF melewati batas waktu. Coba lagi.");
             };
             handler.postDelayed(timeout, 45000);
+            handler.postDelayed(() -> startPdfRender(webView, call, pdfName, handler, timeout, settled, renderStarted), 5000);
             try {
                 webView.setLayoutParams(new ViewGroup.LayoutParams(794, 1123));
                 webView.getSettings().setJavaScriptEnabled(false);
                 webView.setWebViewClient(new android.webkit.WebViewClient() {
                     @Override
                     public void onPageFinished(WebView view, String url) {
-                        if (settled.get() || !renderStarted.compareAndSet(false, true)) return;
-                        try {
-                            view.measure(View.MeasureSpec.makeMeasureSpec(794, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1123, View.MeasureSpec.AT_MOST));
-                            view.layout(0, 0, 794, Math.max(1123, view.getMeasuredHeight()));
-                            view.postDelayed(() -> writePdf(view, call, pdfName, handler, timeout, settled), 700);
-                        } catch (Exception error) {
-                            fail(call, view, null, error, handler, timeout, settled);
-                        }
+                        startPdfRender(view, call, pdfName, handler, timeout, settled, renderStarted);
                     }
                 });
                 webView.loadDataWithBaseURL("https://www.ks25studio.web.id/", html, "text/html", "UTF-8", null);
@@ -74,6 +68,17 @@ public class PdfDownloadPlugin extends Plugin {
                 fail(call, webView, null, error, handler, timeout, settled);
             }
         });
+    }
+
+    private void startPdfRender(WebView webView, PluginCall call, String fileName, Handler handler, Runnable timeout, AtomicBoolean settled, AtomicBoolean renderStarted) {
+        if (settled.get() || !renderStarted.compareAndSet(false, true)) return;
+        try {
+            webView.measure(View.MeasureSpec.makeMeasureSpec(794, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1123, View.MeasureSpec.AT_MOST));
+            webView.layout(0, 0, 794, Math.max(1123, webView.getMeasuredHeight()));
+            webView.postDelayed(() -> writePdf(webView, call, fileName, handler, timeout, settled), 700);
+        } catch (Exception error) {
+            fail(call, webView, null, error, handler, timeout, settled);
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)

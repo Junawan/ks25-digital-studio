@@ -105,9 +105,19 @@ export default function CommercialInvoiceOptionsDialog({ open, onOpenChange, tra
           <DialogTitle>Pilih jenis invoice</DialogTitle>
           <DialogDescription>Invoice domestik tetap menggunakan desain dan isi yang sekarang. Opsi ekspor mencetak Commercial Invoice dan Packing List dalam satu proses.</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Button variant="outline" onClick={() => { onSelect("domestic"); handleOpenChange(false); }}>Download PDF Invoice Domestik</Button>
-          <Button type="button" variant="outline" onClick={() => document.getElementById("commercial-invoice-details")?.scrollIntoView({ behavior: "smooth" })}>Commercial Invoice + Packing List (Ekspor)</Button>
+        <div className="grid grid-cols-1 gap-2">
+          <Button type="button" variant="outline" className="h-auto min-h-16 w-full justify-start whitespace-normal px-4 py-3 text-left" onClick={() => { onSelect("domestic"); handleOpenChange(false); }}>
+            <span className="flex flex-col items-start gap-1">
+              <span className="font-semibold">Invoice Domestik</span>
+              <span className="text-xs font-normal text-muted-foreground">Download PDF dengan format invoice penjualan biasa.</span>
+            </span>
+          </Button>
+          <Button type="button" variant="outline" className="h-auto min-h-16 w-full justify-start whitespace-normal px-4 py-3 text-left" onClick={() => document.getElementById("commercial-invoice-details")?.scrollIntoView({ behavior: "smooth" })}>
+            <span className="flex flex-col items-start gap-1">
+              <span className="font-semibold">Commercial Invoice + Packing List</span>
+              <span className="text-xs font-normal text-muted-foreground">Lengkapi detail ekspor di bawah untuk mencetak kedua dokumen.</span>
+            </span>
+          </Button>
         </div>
         <form ref={formRef} onSubmit={printCommercialInvoice}>
         <section id="commercial-invoice-details" className="space-y-4 border-t pt-4">
