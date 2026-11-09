@@ -3,17 +3,16 @@ package com.ks25.mitraumkm.plugins;
 import android.content.ContentValues;
 import android.net.Uri;
 import android.os.Build;
-import android.os.CancellationSignal;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
-import android.print.PageRange;
-import android.print.PrintAttributes;
-import android.print.PrintDocumentAdapter;
-import android.print.PrintDocumentInfo;
+import android.graphics.pdf.PdfDocument;
 import android.provider.MediaStore;
 import android.webkit.WebView;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.RequiresApi;
+
+import java.io.FileOutputStream;
 
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -55,6 +54,7 @@ public class PdfDownloadPlugin extends Plugin {
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     private void writePdf(WebView webView, PluginCall call, String fileName) {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
@@ -67,43 +67,39 @@ public class PdfDownloadPlugin extends Plugin {
             if (uri == null) throw new IllegalStateException("Android tidak dapat membuat file PDF.");
             ParcelFileDescriptor descriptor = getContext().getContentResolver().openFileDescriptor(uri, "w");
             if (descriptor == null) throw new IllegalStateException("File PDF tidak dapat ditulis.");
-            Uri savedUri = uri;
-            PrintDocumentAdapter adapter = webView.createPrintDocumentAdapter(fileName);
-            PrintAttributes attributes = new PrintAttributes.Builder()
-                    .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
-                    .setResolution(new PrintAttributes.Resolution("pdf", "PDF", 300, 300))
-                    .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
-                    .build();
-            adapter.onLayout(null, attributes, new CancellationSignal(), new PrintDocumentAdapter.LayoutResultCallback() {
-                @Override
-                public void onLayoutFinished(PrintDocumentInfo info, boolean changed) {
-                    adapter.onWrite(new PageRange[]{PageRange.ALL_PAGES}, descriptor, new CancellationSignal(), new PrintDocumentAdapter.WriteResultCallback() {
-                        @Override
-                        public void onWriteFinished(PageRange[] pages) {
-                            try {
-                                descriptor.close();
-                                ContentValues complete = new ContentValues();
-                                complete.put(MediaStore.Downloads.IS_PENDING, 0);
-                                getContext().getContentResolver().update(savedUri, complete, null, null);
-                                webView.destroy();
-                                call.resolve();
-                            } catch (Exception error) {
-                                fail(call, webView, savedUri, error);
-                            }
-                        }
 
-                        @Override
-                        public void onWriteFailed(CharSequence error) {
-                            fail(call, webView, savedUri, new IllegalStateException(String.valueOf(error)));
-                        }
-                    });
-                }
+            PdfDocument document = new PdfDocument();
+            try {
+                    int pageWidth = 595;
+                    int pageHeight = 842;
+                    float pageScale = pageWidth / (float) webView.getWidth();
+                    int viewportHeight = Math.max(1, Math.round(pageHeight / pageScale));
+                    int contentHeight = Math.max(webView.getHeight(), Math.round(webView.getContentHeight() * webView.getScale()));
+                    int pageCount = Math.max(1, (int) Math.ceil(contentHeight / (double) viewportHeight));
 
-                @Override
-                public void onLayoutFailed(CharSequence error) {
-                    fail(call, webView, savedUri, new IllegalStateException(String.valueOf(error)));
-                }
-            }, null);
+                    for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
+                        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber + 1).create();
+                        PdfDocument.Page page = document.startPage(pageInfo);
+                        page.getCanvas().drawColor(android.graphics.Color.WHITE);
+                        webView.scrollTo(0, pageNumber * viewportHeight);
+                        page.getCanvas().scale(pageScale, pageScale);
+                        webView.draw(page.getCanvas());
+                        document.finishPage(page);
+                    }
+
+                    try (FileOutputStream output = new ParcelFileDescriptor.AutoCloseOutputStream(descriptor)) {
+                        document.writeTo(output);
+                        output.flush();
+                    }
+            } finally {
+                document.close();
+            }
+
+            ContentValues complete = new ContentValues();
+            complete.put(MediaStore.Downloads.IS_PENDING, 0);
+            getContext().getContentResolver().update(uri, complete, null, null);
+            webView.destroy();
+            call.resolve();
         } catch (Exception error) {
             if (uri != null) getContext().getContentResolver().delete(uri, null, null);
             webView.destroy();
@@ -111,9 +107,4 @@ public class PdfDownloadPlugin extends Plugin {
         }
     }
 
-    private void fail(PluginCall call, WebView webView, Uri uri, Exception error) {
-        getContext().getContentResolver().delete(uri, null, null);
-        webView.destroy();
-        call.reject("PDF gagal disimpan ke Unduhan.", error);
-    }
 }
