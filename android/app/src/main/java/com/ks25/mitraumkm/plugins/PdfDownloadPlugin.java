@@ -33,11 +33,11 @@ public class PdfDownloadPlugin extends Plugin {
           document.querySelectorAll('.invoice-page').forEach((page) => {
             page.style.setProperty('box-sizing', 'border-box', 'important');
             page.style.setProperty('width', '794px', 'important');
-            page.style.setProperty('height', '1123px', 'important');
+            page.style.setProperty('height', 'auto', 'important');
             page.style.setProperty('min-height', '0', 'important');
             page.style.setProperty('margin', '0', 'important');
             page.style.setProperty('padding', '0', 'important');
-            page.style.setProperty('overflow', 'hidden', 'important');
+            page.style.setProperty('overflow', 'visible', 'important');
             let content = page.querySelector('.invoice-content');
             if (!content) {
               content = document.createElement('div');
@@ -47,19 +47,21 @@ public class PdfDownloadPlugin extends Plugin {
             }
             content.style.setProperty('box-sizing', 'border-box', 'important');
             content.style.setProperty('width', '794px', 'important');
+            content.style.setProperty('height', 'auto', 'important');
+            content.style.setProperty('max-height', 'none', 'important');
+            content.style.setProperty('overflow', 'visible', 'important');
             content.style.setProperty('max-width', 'none', 'important');
             content.style.setProperty('padding', '38px', 'important');
             content.style.setProperty('margin-left', '0', 'important');
             content.style.setProperty('transform', 'none', 'important');
             const naturalWidth = Math.max(content.scrollWidth, content.getBoundingClientRect().width, 1);
             const naturalHeight = Math.max(content.scrollHeight, 1);
-            // Android's PDF viewers may open at a zoom larger than page-fit.
-            // A compact content scale prevents the invoice header/table from being
-            // clipped on phones while preserving the full A4 page dimensions.
-            const scale = Math.min(0.7, 794 / naturalWidth, 1123 / naturalHeight);
+            // Fit width only; the output PDF page grows to the content height.
+            const scale = Math.min(1, 794 / naturalWidth);
             content.style.setProperty('transform-origin', 'top left', 'important');
             content.style.setProperty('transform', 'scale(' + scale + ')', 'important');
             content.style.setProperty('margin-left', Math.max(0, (794 - naturalWidth * scale) / 2) + 'px', 'important');
+            page.style.setProperty('height', Math.ceil(naturalHeight * scale + 8) + 'px', 'important');
           });
           return document.documentElement.scrollHeight;
         })()
@@ -125,7 +127,7 @@ public class PdfDownloadPlugin extends Plugin {
     private void startPdfRender(WebView webView, PluginCall call, String fileName, Handler handler, Runnable timeout, AtomicBoolean settled, AtomicBoolean renderStarted) {
         if (settled.get() || !renderStarted.compareAndSet(false, true)) return;
         try {
-            int contentHeight = Math.max(1123, (int) Math.ceil(webView.getContentHeight() * webView.getScale()));
+            int contentHeight = Math.max(1, (int) Math.ceil(webView.getContentHeight() * webView.getScale()));
             webView.measure(View.MeasureSpec.makeMeasureSpec(794, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(contentHeight, View.MeasureSpec.EXACTLY));
             webView.layout(0, 0, 794, contentHeight);
             // The temporary WebView is not attached to the activity view tree, so
@@ -155,23 +157,17 @@ public class PdfDownloadPlugin extends Plugin {
             PdfDocument document = new PdfDocument();
             try {
                     int pageWidth = 595;
-                    int pageHeight = 842;
                     float pageScale = pageWidth / (float) webView.getWidth();
-                    int viewportHeight = Math.max(1, Math.round(pageHeight / pageScale));
                     int contentHeight = Math.max(webView.getHeight(), Math.round(webView.getContentHeight() * webView.getScale()));
-                    int pageCount = Math.max(1, (int) Math.ceil(contentHeight / (double) viewportHeight));
-
-                    for (int pageNumber = 0; pageNumber < pageCount; pageNumber++) {
-                        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber + 1).create();
-                        PdfDocument.Page page = document.startPage(pageInfo);
-                        page.getCanvas().drawColor(android.graphics.Color.WHITE);
-                        page.getCanvas().save();
-                        page.getCanvas().scale(pageScale, pageScale);
-                        page.getCanvas().translate(0, -pageNumber * viewportHeight);
-                        webView.draw(page.getCanvas());
-                        page.getCanvas().restore();
-                        document.finishPage(page);
-                    }
+                    int pageHeight = Math.max(842, (int) Math.ceil(contentHeight * pageScale));
+                    PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create();
+                    PdfDocument.Page page = document.startPage(pageInfo);
+                    page.getCanvas().drawColor(android.graphics.Color.WHITE);
+                    page.getCanvas().save();
+                    page.getCanvas().scale(pageScale, pageScale);
+                    webView.draw(page.getCanvas());
+                    page.getCanvas().restore();
+                    document.finishPage(page);
 
                     try (FileOutputStream output = new ParcelFileDescriptor.AutoCloseOutputStream(descriptor)) {
                         document.writeTo(output);

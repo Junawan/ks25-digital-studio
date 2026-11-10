@@ -68,9 +68,13 @@ function getAdminApp(): App {
       && privateKey.includes("-----BEGIN PRIVATE KEY-----")
       && privateKey.includes("-----END PRIVATE KEY-----")
   );
+  const runningOnGoogleCloud = Boolean(process.env.K_SERVICE || process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT);
 
   cachedApp = initializeApp({
-    credential: hasServiceAccount
+    // App Hosting/Cloud Run provides Application Default Credentials for its
+    // attached runtime service account. Prefer ADC there over possibly stale
+    // service-account secrets; keep explicit credentials for local hosting.
+    credential: hasServiceAccount && !runningOnGoogleCloud
       ? cert({ projectId, clientEmail, privateKey })
       : applicationDefault(),
     ...(projectId ? { projectId } : {}),

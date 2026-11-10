@@ -21,7 +21,7 @@ async function authenticate(request: Request) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("Firebase ID token verification failed:", { code, message, expectedProjectId, tokenAudience });
     if (code.startsWith("auth/")) throw new Error(`invalid-id-token:${code}`);
-    throw new Error("admin-auth-unavailable");
+    throw new Error(`admin-auth-unavailable:${code}`);
   }
 }
 
@@ -79,8 +79,8 @@ export async function POST(request: Request) {
     if (error instanceof Error && error.message.startsWith("invalid-id-token:")) {
       return Response.json({ error: "invalid-id-token", code: error.message.slice("invalid-id-token:".length) }, { status: 401 });
     }
-    if (error instanceof Error && error.message === "admin-auth-unavailable") {
-      return Response.json({ error: "firebase_admin_auth_unavailable" }, { status: 503 });
+    if (error instanceof Error && error.message.startsWith("admin-auth-unavailable:")) {
+      return Response.json({ error: "firebase_admin_auth_unavailable", code: error.message.split(":").at(-1) }, { status: 503 });
     }
     console.error("FCM device registration failed:", error);
     return Response.json({ error: "registration_service_unavailable" }, { status: 503 });
@@ -104,8 +104,8 @@ export async function DELETE(request: Request) {
     if (error instanceof Error && error.message.startsWith("invalid-id-token:")) {
       return Response.json({ error: "invalid-id-token", code: error.message.slice("invalid-id-token:".length) }, { status: 401 });
     }
-    if (error instanceof Error && error.message === "admin-auth-unavailable") {
-      return Response.json({ error: "firebase_admin_auth_unavailable" }, { status: 503 });
+    if (error instanceof Error && error.message.startsWith("admin-auth-unavailable:")) {
+      return Response.json({ error: "firebase_admin_auth_unavailable", code: error.message.split(":").at(-1) }, { status: 503 });
     }
     console.error("FCM device removal failed:", error);
     return Response.json({ error: "Device removal failed" }, { status: 503 });

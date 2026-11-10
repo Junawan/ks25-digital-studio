@@ -21,26 +21,31 @@ export async function renderPrintWindow(
           document.querySelectorAll('.invoice-page').forEach((page) => {
             page.style.setProperty('box-sizing', 'border-box', 'important');
             page.style.setProperty('width', '794px', 'important');
-            page.style.setProperty('height', '1123px', 'important');
+            page.style.setProperty('height', 'auto', 'important');
             page.style.setProperty('min-height', '0', 'important');
             page.style.setProperty('margin', '0', 'important');
             page.style.setProperty('padding', '0', 'important');
-            page.style.setProperty('overflow', 'hidden', 'important');
+            page.style.setProperty('overflow', 'visible', 'important');
             page.style.setProperty('position', 'relative', 'important');
             const content = page.querySelector('.invoice-content');
             if (!content) return;
             content.style.setProperty('box-sizing', 'border-box', 'important');
             content.style.setProperty('width', '794px', 'important');
+            content.style.setProperty('height', 'auto', 'important');
+            content.style.setProperty('max-height', 'none', 'important');
+            content.style.setProperty('overflow', 'visible', 'important');
             content.style.setProperty('padding', '38px', 'important');
             content.style.setProperty('transform', 'none', 'important');
+            content.style.setProperty('margin-left', '0', 'important');
             const naturalWidth = Math.max(content.scrollWidth, 1);
             const naturalHeight = Math.max(content.scrollHeight, 1);
-            // Keep invoices compact on Android PDF viewers; their initial zoom often
-            // opens above page-fit, so the printable content must leave safe margins.
-            const scale = Math.min(0.7, 794 / naturalWidth, 1123 / naturalHeight);
+            // Fit the width only. The native PDF page grows to the content height,
+            // which keeps every invoice line on one page instead of clipping A4.
+            const scale = Math.min(1, 794 / naturalWidth);
             content.style.setProperty('transform-origin', 'top left', 'important');
             content.style.setProperty('transform', 'scale(' + scale + ')', 'important');
             content.style.setProperty('margin-left', ((794 - naturalWidth * scale) / 2) + 'px', 'important');
+            page.style.setProperty('height', Math.ceil(naturalHeight * scale + 8) + 'px', 'important');
           });
         };
         if (document.readyState === 'complete') fitPages();
