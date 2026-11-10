@@ -116,18 +116,26 @@ public class PdfDownloadPlugin extends Plugin {
     private void fitAndStartPdfRender(WebView webView, PluginCall call, String fileName, Handler handler, Runnable timeout, AtomicBoolean settled, AtomicBoolean renderStarted) {
         if (settled.get() || renderStarted.get()) return;
         try {
-            webView.evaluateJavascript(FIT_A4_SCRIPT, result ->
-                startPdfRender(webView, call, fileName, handler, timeout, settled, renderStarted)
-            );
+            webView.evaluateJavascript(FIT_A4_SCRIPT, result -> {
+                int measuredDocumentHeight = 0;
+                try {
+                    if (result != null) measuredDocumentHeight = (int) Math.ceil(Double.parseDouble(result.replace("\"", "")));
+                } catch (NumberFormatException ignored) {
+                    // The fallback below preserves a drawable viewport if DOM metrics are unavailable.
+                }
+                startPdfRender(webView, call, fileName, handler, timeout, settled, renderStarted, measuredDocumentHeight);
+            });
         } catch (Exception error) {
             fail(call, webView, null, error, handler, timeout, settled);
         }
     }
 
-    private void startPdfRender(WebView webView, PluginCall call, String fileName, Handler handler, Runnable timeout, AtomicBoolean settled, AtomicBoolean renderStarted) {
+    private void startPdfRender(WebView webView, PluginCall call, String fileName, Handler handler, Runnable timeout, AtomicBoolean settled, AtomicBoolean renderStarted, int measuredDocumentHeight) {
         if (settled.get() || !renderStarted.compareAndSet(false, true)) return;
         try {
-            int contentHeight = Math.max(1, (int) Math.ceil(webView.getContentHeight() * webView.getScale()));
+            // DOM metrics from evaluateJavascript are reliable for detached WebViews;
+            // getContentHeight() can still be zero before the view receives layout.
+            int contentHeight = Math.max(1123, Math.max(measuredDocumentHeight, (int) Math.ceil(webView.getContentHeight() * webView.getScale())));
             webView.measure(View.MeasureSpec.makeMeasureSpec(794, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(contentHeight, View.MeasureSpec.EXACTLY));
             webView.layout(0, 0, 794, contentHeight);
             // The temporary WebView is not attached to the activity view tree, so
