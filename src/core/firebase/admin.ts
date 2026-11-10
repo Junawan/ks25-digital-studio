@@ -23,13 +23,7 @@ function normalizePrivateKey(value: string | undefined): string {
   return key.trim();
 }
 
-function getAdminApp(): App {
-  if (cachedApp) return cachedApp;
-  if (getApps().length > 0) {
-    cachedApp = getApp();
-    return cachedApp;
-  }
-
+function getFirebaseConfig(): { projectId?: string; storageBucket?: string } {
   let firebaseConfig: { projectId?: string; storageBucket?: string } = {};
   try {
     if (process.env.FIREBASE_CONFIG?.startsWith("{")) {
@@ -38,12 +32,29 @@ function getAdminApp(): App {
   } catch {
     // Fall back to the explicit project settings below.
   }
+  return firebaseConfig;
+}
 
-  const projectId = process.env.FIREBASE_PROJECT_ID
-    || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+export function getAdminProjectId(): string | undefined {
+  const firebaseConfig = getFirebaseConfig();
+  // Auth ID tokens are minted by the client Firebase project. Keep Admin Auth
+  // pointed at that same project when a stale FIREBASE_PROJECT_ID secret exists.
+  return process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    || process.env.FIREBASE_PROJECT_ID
     || process.env.GOOGLE_CLOUD_PROJECT
     || process.env.GCLOUD_PROJECT
     || firebaseConfig.projectId;
+}
+
+function getAdminApp(): App {
+  if (cachedApp) return cachedApp;
+  if (getApps().length > 0) {
+    cachedApp = getApp();
+    return cachedApp;
+  }
+
+  const firebaseConfig = getFirebaseConfig();
+  const projectId = getAdminProjectId();
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   const privateKeyCandidates = [
     process.env.FIREBASE_PRIVATE_KEY,

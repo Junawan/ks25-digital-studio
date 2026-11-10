@@ -53,7 +53,10 @@ public class PdfDownloadPlugin extends Plugin {
             content.style.setProperty('transform', 'none', 'important');
             const naturalWidth = Math.max(content.scrollWidth, content.getBoundingClientRect().width, 1);
             const naturalHeight = Math.max(content.scrollHeight, 1);
-            const scale = Math.min(1, 794 / naturalWidth, 1123 / naturalHeight);
+            // Android's PDF viewers may open at a zoom larger than page-fit.
+            // A compact content scale prevents the invoice header/table from being
+            // clipped on phones while preserving the full A4 page dimensions.
+            const scale = Math.min(0.7, 794 / naturalWidth, 1123 / naturalHeight);
             content.style.setProperty('transform-origin', 'top left', 'important');
             content.style.setProperty('transform', 'scale(' + scale + ')', 'important');
             content.style.setProperty('margin-left', Math.max(0, (794 - naturalWidth * scale) / 2) + 'px', 'important');

@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { FieldValue } from "firebase-admin/firestore";
-import { getAdminAuth, getAdminDb } from "@/core/firebase/admin";
+import { getAdminAuth, getAdminDb, getAdminProjectId } from "@/core/firebase/admin";
 
 export const runtime = "nodejs";
 
@@ -8,10 +8,31 @@ async function authenticate(request: Request) {
   const authorization = request.headers.get("authorization") || "";
   const idToken = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
   if (!idToken) throw new Error("unauthorized");
+  const tokenAudience = readTokenAudience(idToken);
+  const expectedProjectId = getAdminProjectId();
+  if (expectedProjectId && tokenAudience && tokenAudience !== expectedProjectId) {
+    console.error("FCM device auth project mismatch:", { expectedProjectId, tokenAudience });
+    throw new Error("firebase-project-mismatch");
+  }
   try {
     return await (await getAdminAuth()).verifyIdToken(idToken);
+  } catch (error) {
+    const code = error && typeof error === "object" && "code" in error ? String(error.code) : "unknown";
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("Firebase ID token verification failed:", { code, message, expectedProjectId, tokenAudience });
+    if (code.startsWith("auth/")) throw new Error(`invalid-id-token:${code}`);
+    throw new Error("admin-auth-unavailable");
+  }
+}
+
+function readTokenAudience(idToken: string): string | null {
+  try {
+    const encodedPayload = idToken.split(".")[1];
+    if (!encodedPayload) return null;
+    const payload = JSON.parse(Buffer.from(encodedPayload, "base64url").toString("utf8")) as { aud?: unknown };
+    return typeof payload.aud === "string" ? payload.aud : null;
   } catch {
-    throw new Error("invalid-id-token");
+    return null;
   }
 }
 
@@ -51,9 +72,15 @@ export async function POST(request: Request) {
     }))).filter((notificationId): notificationId is string => Boolean(notificationId));
     return Response.json({ registered: true, pendingNotificationIds });
   } catch (error) {
-    if (error instanceof Error && ["unauthorized", "invalid-id-token", "invalid-token"].includes(error.message)) {
+    if (error instanceof Error && ["unauthorized", "invalid-token", "firebase-project-mismatch"].includes(error.message)) {
       const status = error.message === "invalid-token" ? 400 : 401;
       return Response.json({ error: error.message }, { status });
+    }
+    if (error instanceof Error && error.message.startsWith("invalid-id-token:")) {
+      return Response.json({ error: "invalid-id-token", code: error.message.slice("invalid-id-token:".length) }, { status: 401 });
+    }
+    if (error instanceof Error && error.message === "admin-auth-unavailable") {
+      return Response.json({ error: "firebase_admin_auth_unavailable" }, { status: 503 });
     }
     console.error("FCM device registration failed:", error);
     return Response.json({ error: "registration_service_unavailable" }, { status: 503 });
@@ -70,9 +97,15 @@ export async function DELETE(request: Request) {
     if (deviceSnapshot.exists && deviceSnapshot.data()?.userId === identity.uid) await deviceRef.delete();
     return Response.json({ removed: true });
   } catch (error) {
-    if (error instanceof Error && ["unauthorized", "invalid-id-token", "invalid-token"].includes(error.message)) {
+    if (error instanceof Error && ["unauthorized", "invalid-token", "firebase-project-mismatch"].includes(error.message)) {
       const status = error.message === "invalid-token" ? 400 : 401;
       return Response.json({ error: error.message }, { status });
+    }
+    if (error instanceof Error && error.message.startsWith("invalid-id-token:")) {
+      return Response.json({ error: "invalid-id-token", code: error.message.slice("invalid-id-token:".length) }, { status: 401 });
+    }
+    if (error instanceof Error && error.message === "admin-auth-unavailable") {
+      return Response.json({ error: "firebase_admin_auth_unavailable" }, { status: 503 });
     }
     console.error("FCM device removal failed:", error);
     return Response.json({ error: "Device removal failed" }, { status: 503 });

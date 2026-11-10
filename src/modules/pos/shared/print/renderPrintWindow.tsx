@@ -35,7 +35,9 @@ export async function renderPrintWindow(
             content.style.setProperty('transform', 'none', 'important');
             const naturalWidth = Math.max(content.scrollWidth, 1);
             const naturalHeight = Math.max(content.scrollHeight, 1);
-            const scale = Math.min(1, 794 / naturalWidth, 1123 / naturalHeight);
+            // Keep invoices compact on Android PDF viewers; their initial zoom often
+            // opens above page-fit, so the printable content must leave safe margins.
+            const scale = Math.min(0.7, 794 / naturalWidth, 1123 / naturalHeight);
             content.style.setProperty('transform-origin', 'top left', 'important');
             content.style.setProperty('transform', 'scale(' + scale + ')', 'important');
             content.style.setProperty('margin-left', ((794 - naturalWidth * scale) / 2) + 'px', 'important');
