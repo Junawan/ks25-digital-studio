@@ -34,7 +34,7 @@ console.log(
   return (
     <div className="flex items-start justify-between gap-8 border-b pb-6">
 
-      <div className="flex flex-1 gap-4">
+      <div className="flex min-w-0 flex-1 gap-4">
 
         {settings.logoUrl && (
           <img
@@ -48,14 +48,14 @@ console.log(
 />
         )}
 
-        <div>
+        <div className="min-w-0 [overflow-wrap:anywhere]">
 
-          <h1 className="text-2xl font-bold uppercase">
+          <h1 className="break-words text-2xl font-bold uppercase">
             {company.name}
           </h1>
 
           {settings.address && (
-            <p className="text-sm">
+            <p className="break-words text-sm">
               {settings.address}
             </p>
           )}
@@ -97,7 +97,7 @@ console.log(
 
       </div>
 
-      <div className="w-[260px] shrink-0">
+      <div className="w-[260px] min-w-0 shrink-0 break-words">
 
         <h2 className="text-3xl font-bold text-right">
           INVOICE

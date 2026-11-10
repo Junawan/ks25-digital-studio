@@ -88,6 +88,11 @@ export async function POST(request: Request) {
         return systemAdminUserId ? target.userId === systemAdminUserId : notification.receiverType === "company" || target.userId === notification.receiverId;
       }).map((entry) => ({ id: entry.id, token: String(entry.data().token || "") })).filter((entry) => entry.token.length > 0);
 
+      if (!targets.length) {
+        await jobRef.set({ status: "waiting_for_device", successCount: 0, failureCount: 0, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+        return Response.json({ sent: false, reason: "no_registered_devices", deviceCount: 0 });
+      }
+
       let successCount = 0;
       let failureCount = 0;
       const messaging = await getAdminMessaging();
@@ -119,7 +124,7 @@ export async function POST(request: Request) {
         await Promise.all(invalidTokenDocs.map((id) => adminDb.collection("company_push_devices").doc(id).delete()));
       }
 
-      await jobRef.set({ status: "sent", successCount, failureCount, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+      await jobRef.set({ status: successCount > 0 ? "sent" : "failed", successCount, failureCount, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
       return Response.json({ sent: successCount > 0, successCount, failureCount, deviceCount: targets.length });
     } catch (error) {
       await jobRef.set({ status: "failed", updatedAt: FieldValue.serverTimestamp() }, { merge: true });

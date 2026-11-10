@@ -24,6 +24,44 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 
 @CapacitorPlugin(name = "PdfDownload")
 public class PdfDownloadPlugin extends Plugin {
+    private static final String FIT_A4_SCRIPT = """
+        (() => {
+          document.documentElement.style.setProperty('width', '794px', 'important');
+          document.body.style.setProperty('width', '794px', 'important');
+          document.body.style.setProperty('margin', '0', 'important');
+          document.body.style.setProperty('padding', '0', 'important');
+          document.querySelectorAll('.invoice-page').forEach((page) => {
+            page.style.setProperty('box-sizing', 'border-box', 'important');
+            page.style.setProperty('width', '794px', 'important');
+            page.style.setProperty('height', '1123px', 'important');
+            page.style.setProperty('min-height', '0', 'important');
+            page.style.setProperty('margin', '0', 'important');
+            page.style.setProperty('padding', '0', 'important');
+            page.style.setProperty('overflow', 'hidden', 'important');
+            let content = page.querySelector('.invoice-content');
+            if (!content) {
+              content = document.createElement('div');
+              content.className = 'invoice-content';
+              while (page.firstChild) content.appendChild(page.firstChild);
+              page.appendChild(content);
+            }
+            content.style.setProperty('box-sizing', 'border-box', 'important');
+            content.style.setProperty('width', '794px', 'important');
+            content.style.setProperty('max-width', 'none', 'important');
+            content.style.setProperty('padding', '38px', 'important');
+            content.style.setProperty('margin-left', '0', 'important');
+            content.style.setProperty('transform', 'none', 'important');
+            const naturalWidth = Math.max(content.scrollWidth, content.getBoundingClientRect().width, 1);
+            const naturalHeight = Math.max(content.scrollHeight, 1);
+            const scale = Math.min(1, 794 / naturalWidth, 1123 / naturalHeight);
+            content.style.setProperty('transform-origin', 'top left', 'important');
+            content.style.setProperty('transform', 'scale(' + scale + ')', 'important');
+            content.style.setProperty('margin-left', Math.max(0, (794 - naturalWidth * scale) / 2) + 'px', 'important');
+          });
+          return document.documentElement.scrollHeight;
+        })()
+        """;
+
     @PluginMethod
     public void save(PluginCall call) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
@@ -53,14 +91,14 @@ public class PdfDownloadPlugin extends Plugin {
                 call.reject("Pembuatan PDF melewati batas waktu. Coba lagi.");
             };
             handler.postDelayed(timeout, 45000);
-            handler.postDelayed(() -> startPdfRender(webView, call, pdfName, handler, timeout, settled, renderStarted), 5000);
+            handler.postDelayed(() -> fitAndStartPdfRender(webView, call, pdfName, handler, timeout, settled, renderStarted), 5000);
             try {
                 webView.setLayoutParams(new ViewGroup.LayoutParams(794, 1123));
                 webView.getSettings().setJavaScriptEnabled(true);
                 webView.setWebViewClient(new android.webkit.WebViewClient() {
                     @Override
                     public void onPageFinished(WebView view, String url) {
-                        startPdfRender(view, call, pdfName, handler, timeout, settled, renderStarted);
+                        fitAndStartPdfRender(view, call, pdfName, handler, timeout, settled, renderStarted);
                     }
                 });
                 webView.loadDataWithBaseURL("https://www.ks25studio.web.id/", html, "text/html", "UTF-8", null);
@@ -68,6 +106,17 @@ public class PdfDownloadPlugin extends Plugin {
                 fail(call, webView, null, error, handler, timeout, settled);
             }
         });
+    }
+
+    private void fitAndStartPdfRender(WebView webView, PluginCall call, String fileName, Handler handler, Runnable timeout, AtomicBoolean settled, AtomicBoolean renderStarted) {
+        if (settled.get() || renderStarted.get()) return;
+        try {
+            webView.evaluateJavascript(FIT_A4_SCRIPT, result ->
+                startPdfRender(webView, call, fileName, handler, timeout, settled, renderStarted)
+            );
+        } catch (Exception error) {
+            fail(call, webView, null, error, handler, timeout, settled);
+        }
     }
 
     private void startPdfRender(WebView webView, PluginCall call, String fileName, Handler handler, Runnable timeout, AtomicBoolean settled, AtomicBoolean renderStarted) {

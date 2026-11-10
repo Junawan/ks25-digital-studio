@@ -26,7 +26,15 @@ async function requestRemoteDelivery(notificationId: string) {
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ notificationId }),
     });
-    if (!response.ok) console.warn("Push notification delivery was not accepted:", response.status);
+    const result = await response.json().catch(() => null) as { sent?: boolean; reason?: string; successCount?: number; deviceCount?: number; error?: string } | null;
+    if (!response.ok || result?.sent === false) {
+      console.warn("Push notification was saved in the app but could not be delivered to devices:", {
+        notificationId,
+        status: response.status,
+        reason: result?.reason || result?.error || "delivery_not_confirmed",
+        deviceCount: result?.deviceCount,
+      });
+    }
   } catch (error) {
     console.warn("Push notification delivery could not be requested:", error);
   }

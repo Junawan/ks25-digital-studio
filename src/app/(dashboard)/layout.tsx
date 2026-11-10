@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/core/providers/AuthProvider";
 
 import AuthGuard from "@/core/auth/AuthGuard";
 
@@ -25,6 +28,9 @@ export default function DashboardLayout({
 
   const [mobile, setMobile] =
     useState(false);
+  const pathname = usePathname();
+  const { user } = useAuth();
+  const guestRoute = pathname === "/dashboard" || pathname === "/dashboard/profile" || /^\/dashboard\/apps\/[^/]+$/.test(pathname || "");
 
   useEffect(() => {
 
@@ -47,6 +53,22 @@ export default function DashboardLayout({
         update);
 
   }, []);
+
+  if (guestRoute && !user) {
+    return (
+      <div className="min-h-screen bg-muted/20">
+        <header className="sticky top-0 z-40 flex min-h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur sm:px-6">
+          <Link href="/dashboard" className="font-bold text-violet-700">KS25 Digital Studio</Link>
+          <div className="flex items-center gap-2">
+            <Link className="rounded-lg px-3 py-2 text-sm font-medium" href={`/login?next=${encodeURIComponent(pathname || "/dashboard")}`}>Masuk</Link>
+            <Link className="rounded-lg bg-violet-700 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-800" href={`/register?next=${encodeURIComponent(pathname || "/dashboard")}`}>Ayo Mulai</Link>
+          </div>
+        </header>
+        <main className="mx-auto max-w-7xl p-4 pb-24 md:p-6">{children}<DashboardBannerAd /></main>
+        {mobile && <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 border-t bg-background md:hidden"><Link href="/dashboard" className="py-3 text-center text-sm font-medium">Dashboard</Link><Link href="/dashboard/profile" className="py-3 text-center text-sm font-medium">Profil</Link></nav>}
+      </div>
+    );
+  }
 
   return (
 

@@ -22,6 +22,7 @@ import {
 } from "../dashboard.data";
 
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
+import { useAuth } from "@/core/providers/AuthProvider";
 import { useShortcut } from "@/hooks/useShortcut";
 import { Capacitor } from "@capacitor/core";
 import { toast } from "sonner";
@@ -40,6 +41,7 @@ export default function ProductModuleCard({
 
     const { hasModule } =
   useWorkspace();
+  const { user } = useAuth();
 
   const installed =
   hasModule(
@@ -360,7 +362,7 @@ async function pinShortcut() {
     <Link href={getModuleRoute(product.moduleId)}>
       <CheckCircle2 className="mr-2 h-4 w-4" /> Buka
     </Link>
-  </Button> : <Button className="h-9 flex-1" onClick={() => install(product.moduleId)}><Download className="mr-2 h-4 w-4"/>Install</Button>}
+  </Button> : <Button className="h-9 flex-1" onClick={() => install(product.moduleId)}>{user ? <Download className="mr-2 h-4 w-4"/> : null}{user ? "Install" : "Ayo Mulai"}</Button>}
   {installed && <Button
   variant="outline"
   disabled={

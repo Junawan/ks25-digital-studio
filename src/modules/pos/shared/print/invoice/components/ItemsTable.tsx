@@ -9,7 +9,7 @@ export default function ItemsTable({
   transaction,
 }: Props) {
   return (
-    <table className="mt-6 w-full border-collapse text-sm">
+    <table className="mt-6 w-full table-fixed border-collapse text-sm">
 
       <thead>
 
@@ -56,7 +56,7 @@ export default function ItemsTable({
               {item.qty}
             </td>
 
-            <td className="border px-3 py-3">
+            <td className="break-words border px-3 py-3 [overflow-wrap:anywhere]">
 
               <div className="font-semibold">
                 {item.productName}
@@ -70,11 +70,11 @@ export default function ItemsTable({
 
             </td>
 
-            <td className="border px-3 py-3 text-right whitespace-nowrap">
+            <td className="break-words border px-3 py-3 text-right">
               {formatCurrency(item.price)}
             </td>
 
-            <td className="border px-3 py-3 text-right whitespace-nowrap">
+            <td className="break-words border px-3 py-3 text-right">
               {formatCurrency(item.subtotal)}
             </td>
 

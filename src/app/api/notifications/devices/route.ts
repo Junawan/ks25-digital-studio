@@ -8,7 +8,11 @@ async function authenticate(request: Request) {
   const authorization = request.headers.get("authorization") || "";
   const idToken = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
   if (!idToken) throw new Error("unauthorized");
-  return (await getAdminAuth()).verifyIdToken(idToken);
+  try {
+    return await (await getAdminAuth()).verifyIdToken(idToken);
+  } catch {
+    throw new Error("invalid-id-token");
+  }
 }
 
 async function readPayload(request: Request) {
@@ -35,10 +39,21 @@ export async function POST(request: Request) {
       platform: "android",
       updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true });
-    return Response.json({ registered: true });
+    const waitingJobs = await adminDb.collection("notification_push_jobs").where("status", "==", "waiting_for_device").limit(50).get();
+    const pendingNotificationIds = (await Promise.all(waitingJobs.docs.map(async (job) => {
+      const notificationSnapshot = await adminDb.collection("notifications").doc(job.id).get();
+      const notification = notificationSnapshot.data();
+      if (!notification) return null;
+      const companyBroadcast = notification.receiverType === "company";
+      const userNotification = notification.receiverType === "user" && notification.receiverId === identity.uid;
+      const sameCompany = notification.companyId === user.companyId;
+      return sameCompany && (companyBroadcast || userNotification) ? job.id : null;
+    }))).filter((notificationId): notificationId is string => Boolean(notificationId));
+    return Response.json({ registered: true, pendingNotificationIds });
   } catch (error) {
-    if (error instanceof Error && (error.message === "unauthorized" || error.message === "invalid-token")) {
-      return Response.json({ error: "Invalid request" }, { status: error.message === "unauthorized" ? 401 : 400 });
+    if (error instanceof Error && ["unauthorized", "invalid-id-token", "invalid-token"].includes(error.message)) {
+      const status = error.message === "invalid-token" ? 400 : 401;
+      return Response.json({ error: error.message }, { status });
     }
     console.error("FCM device registration failed:", error);
     return Response.json({ error: "registration_service_unavailable" }, { status: 503 });
@@ -55,8 +70,9 @@ export async function DELETE(request: Request) {
     if (deviceSnapshot.exists && deviceSnapshot.data()?.userId === identity.uid) await deviceRef.delete();
     return Response.json({ removed: true });
   } catch (error) {
-    if (error instanceof Error && (error.message === "unauthorized" || error.message === "invalid-token")) {
-      return Response.json({ error: "Invalid request" }, { status: error.message === "unauthorized" ? 401 : 400 });
+    if (error instanceof Error && ["unauthorized", "invalid-id-token", "invalid-token"].includes(error.message)) {
+      const status = error.message === "invalid-token" ? 400 : 401;
+      return Response.json({ error: error.message }, { status });
     }
     console.error("FCM device removal failed:", error);
     return Response.json({ error: "Device removal failed" }, { status: 503 });

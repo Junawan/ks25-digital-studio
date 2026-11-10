@@ -42,7 +42,8 @@ export function useRegister() {
         password: values.password,
       });
 
-      router.replace("/dashboard");
+      const requested = new URLSearchParams(window.location.search).get("next");
+      router.replace(requested?.startsWith("/") && !requested.startsWith("//") ? requested : "/dashboard");
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);

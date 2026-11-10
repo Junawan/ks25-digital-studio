@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
 import { useModules } from "@/modules/module/use-modules";
+import { useAuth } from "@/core/providers/AuthProvider";
 
 import {
   DashboardProduct,
@@ -35,6 +36,7 @@ export default function ProductHero({
   const router =
     useRouter();
   const { hasModule } = useWorkspace();
+  const { user } = useAuth();
   const { install } = useModules();
   const installed = hasModule(product.moduleId);
 
@@ -223,7 +225,7 @@ Terinstal
 
 </div>
 
-<Button
+{user ? <Button
 
 size="lg"
 
@@ -251,7 +253,10 @@ onClick={() => installed ? router.push(product.route) : void install(product.mod
 
 {installed ? "Buka Aplikasi" : "Install Modul"}
 
-</Button>
+</Button> : <div className="mt-8 flex flex-wrap items-center gap-3">
+  <Button asChild size="lg" className="h-12 rounded-xl bg-white px-8 text-violet-700 hover:bg-white/90"><Link href={`/register?next=${encodeURIComponent(`/dashboard/apps/${product.moduleId}`)}`}>Ayo Mulai</Link></Button>
+  <Link className="text-sm font-semibold text-white underline underline-offset-4" href={`/login?next=${encodeURIComponent(`/dashboard/apps/${product.moduleId}`)}`}>Sudah punya akun? Masuk</Link>
+</div>}
 
 <Link href={`/aplikasi/${product.moduleId}`} className="mt-4 inline-flex text-sm font-semibold text-white underline underline-offset-4">
   Baca informasi lengkap {product.name}

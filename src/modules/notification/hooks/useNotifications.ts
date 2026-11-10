@@ -37,7 +37,10 @@ export function useNotifications() {
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
       setNotifications(rows);
       setLoading(false);
-    }, () => setLoading(false));
+    }, (error) => {
+      console.error("Tidak dapat memuat notifikasi Firestore:", error);
+      setLoading(false);
+    });
   }, [workspace]);
 
   return { notifications, loading, refresh: async () => {} };

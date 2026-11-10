@@ -14,10 +14,22 @@ async function sendDeviceRequest(method: "POST" | "DELETE", token: string) {
     const reason = typeof detail?.error === "string" ? detail.error : "server_error";
     throw new Error(`Pendaftaran perangkat notifikasi gagal (${response.status}: ${reason}).`);
   }
+  return await response.json().catch(() => ({})) as { pendingNotificationIds?: string[] };
 }
 
 export async function savePushDevice(token: string) {
-  await sendDeviceRequest("POST", token);
+  const result = await sendDeviceRequest("POST", token);
+  const user = auth.currentUser;
+  if (!user) return;
+  const idToken = await user.getIdToken();
+  for (const notificationId of result.pendingNotificationIds || []) {
+    const response = await fetch("/api/notifications/push", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+      body: JSON.stringify({ notificationId }),
+    });
+    if (!response.ok) console.warn("A notification waiting for a device could not be retried:", notificationId, response.status);
+  }
 }
 
 export async function removePushDevice(token: string) {
