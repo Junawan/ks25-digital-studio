@@ -28,7 +28,7 @@ export default function CreateInvitationForm({ initialTheme = "luxury-black" }: 
     useState("");
 
     const [theme, setTheme] =
-  useState(initialTheme === "elegant-gold" ? "elegant-gold" : "luxury-black");
+  useState(["elegant-gold", "modern-editorial"].includes(initialTheme) ? initialTheme : "luxury-black");
 
   const loveStory = [
     {
@@ -52,6 +52,11 @@ export default function CreateInvitationForm({ initialTheme = "luxury-black" }: 
 
   if (!user || !profile) {
     alert("Silakan login terlebih dahulu.");
+    return;
+  }
+
+  if (!groom.trim() || !bride.trim() || !date) {
+    alert("Lengkapi nama kedua mempelai dan tanggal acara terlebih dahulu.");
     return;
   }
 
@@ -105,76 +110,72 @@ export default function CreateInvitationForm({ initialTheme = "luxury-black" }: 
 };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow">
+    <div className="mx-auto max-w-2xl rounded-3xl bg-white p-5 shadow sm:p-8">
+      <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-[#9A7B45]">Langkah 1 dari 2</p>
+      <h1 className="text-3xl font-bold">Mulai buat undangan</h1>
+      <p className="mb-7 mt-2 text-sm text-zinc-600">Isi informasi dasar dulu. Setelah ini, Anda bisa melengkapi foto, lokasi, cerita, dan detail acara.</p>
 
-      <select
-  value={theme}
-  onChange={(e) =>
-    setTheme(e.target.value)
-  }
-  className="
-  w-full
-  border
-  p-4
-  rounded-xl
-  "
->
+      <section className="mb-6 rounded-2xl border border-zinc-200 p-4 sm:p-5">
+        <h2 className="text-lg font-semibold">Pilih tampilan undangan</h2>
+        <p className="mb-3 mt-1 text-sm text-zinc-500">Tema masih bisa diganti nanti.</p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {[{id:"luxury-black", title:"Luxury Black", desc:"Elegan dengan nuansa gelap"}, {id:"elegant-gold", title:"Elegant Gold", desc:"Hangat dengan aksen keemasan"}, {id:"modern-editorial", title:"Modern Editorial", desc:"Sage lembut dengan sentuhan terracotta"}].map((option) => (
+            <button key={option.id} type="button" onClick={() => setTheme(option.id)} className={`rounded-xl border p-4 text-left transition ${theme === option.id ? "border-[#9A7B45] bg-amber-50 ring-2 ring-[#9A7B45]/30" : "border-zinc-200 hover:border-zinc-400"}`} aria-pressed={theme === option.id}>
+              <span className="block font-semibold">{option.title}</span><span className="mt-1 block text-sm text-zinc-500">{option.desc}</span>
+            </button>
+          ))}
+        </div>
+      </section>
 
-  <option value="luxury-black">
-    Luxury Black
-  </option>
-
-  <option value="elegant-gold">
-    Elegant Gold
-  </option>
-
-</select>
-
-      <h1 className="text-4xl font-bold mb-8">
-        Buat Undangan
-      </h1>
-
-      <div className="space-y-4">
+      <section className="space-y-4 rounded-2xl border border-zinc-200 p-4 sm:p-5">
+        <h2 className="text-lg font-semibold">Informasi dasar</h2>
 
         <input
           type="text"
-          placeholder="Nama Pria"
+          placeholder="Nama lengkap mempelai pria"
           value={groom}
           onChange={(e) =>
             setGroom(
               toTitleCase(e.target.value))
           }
           className="w-full border p-4 rounded-xl"
+          aria-label="Nama mempelai pria"
         />
 
         <input
           type="text"
-          placeholder="Nama Wanita"
+          placeholder="Nama lengkap mempelai wanita"
           value={bride}
           onChange={(e) =>
             setBride(
               toTitleCase(e.target.value))
           }
           className="w-full border p-4 rounded-xl"
+          aria-label="Nama mempelai wanita"
         />
 
+        <label className="block text-sm font-medium text-zinc-700" htmlFor="invitation-date">Tanggal dan waktu acara utama</label>
+
         <input
+          id="invitation-date"
           type="datetime-local"
           value={date}
           onChange={(e) =>
             setDate(e.target.value)
           }
-          className="w-full border p-4 rounded-xl"
+          className="w-full rounded-xl border border-zinc-300 p-4 focus:border-[#9A7B45] focus:outline-none focus:ring-2 focus:ring-[#9A7B45]/20"
         />
+        <p className="text-xs text-zinc-500">Tanggal ini digunakan sebagai hitung mundur di undangan.</p>
 
         <button
+  type="button"
   onClick={createInvitation}
-  className="bg-[#9A7B45] text-white px-6 py-4 rounded-xl"
+  className="w-full rounded-xl bg-[#9A7B45] px-6 py-4 font-semibold text-white transition hover:bg-[#876c3d] sm:w-auto"
 >
-  Buat Undangan & Lengkapi Data
+  Lanjutkan & lengkapi undangan
 </button>
 
-      </div>
+      </section>
 
     </div>
   );

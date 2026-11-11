@@ -52,4 +52,17 @@ export const invitationThemes: InvitationTheme[] = [
 
   },
 
+  {
+    id: "modern-editorial",
+    slug: "modern-editorial",
+    name: "Modern Editorial",
+    description: "Tampilan modern bernuansa sage dan terracotta dengan layout lapang serta sentuhan editorial.",
+    image: "/images/invitation/preview/modern-editorial.png",
+    badge: "Baru",
+    category: "Modern",
+    status: "active",
+    demo: "/undangan/demo-modern-editorial",
+    premium: false,
+  },
+
 ];

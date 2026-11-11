@@ -17,7 +17,6 @@ export default function AudioPlayer({
     useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-
     const audio =
       audioRef.current;
 

@@ -1,4 +1,4 @@
-export const themes = {
+const baseThemes = {
   "luxury-black": {
     background: "bg-black",
 
@@ -604,4 +604,129 @@ bottomRight:
 },
 },
 
+};
+
+const editorialBase = baseThemes["elegant-gold"];
+const editorialDivider = "/images/invitation/modern-editorial/divider.svg";
+const editorialFrame = "/images/invitation/modern-editorial/frame.svg";
+const editorialBranch = "/images/invitation/modern-editorial/branch.svg";
+
+export const themes = {
+  ...baseThemes,
+  "modern-editorial": {
+    ...editorialBase,
+    background: "bg-[#f7f5ef]",
+    font: {
+      ...editorialBase.font,
+      heading: "font-[family-name:var(--font-title)] tracking-wide",
+      body: "font-[family-name:var(--font-title)]",
+    },
+    text: {
+      ...editorialBase.text,
+      primary: "text-[#596b55]",
+      secondary: "text-[#77766e]",
+      accent: "text-[#b87965]",
+      body: "text-[#494c43]",
+    },
+    wrapper: {
+      ...editorialBase.wrapper,
+      background: "bg-[#f7f5ef]",
+      coverFrame: editorialFrame,
+      heroDivider: editorialDivider,
+      bottomDivider: editorialDivider,
+      guestFrame: editorialFrame,
+      button: "bg-[#596b55] hover:bg-[#475744]",
+      subtitle: "text-[#b87965]",
+      guestTitle: "text-[#596b55]",
+      guestName: "text-[#b87965]",
+      guestNote: "text-[#77766e]",
+    },
+    hero: {
+      ...editorialBase.hero,
+      topOrnament: editorialDivider,
+      divider: editorialDivider,
+      dividerBottom: editorialDivider,
+    },
+    opening: { ...editorialBase.opening, ornament: editorialDivider },
+    couple: {
+      ...editorialBase.couple,
+      leftOrnament: editorialBranch,
+      rightOrnament: editorialBranch,
+      titleOrnament: editorialDivider,
+      centerImage: editorialDivider,
+      divider: editorialDivider,
+      photoFrame: editorialFrame,
+    },
+    loveStory: {
+      ...editorialBase.loveStory,
+      frame: editorialFrame,
+      divider: editorialDivider,
+      card: "rounded-3xl border border-[#d8ddd2] bg-white/90 shadow-sm",
+      imageBorder: "border-[#d8ddd2]",
+    },
+    events: { ...editorialBase.events, titleDivider: editorialDivider, frame: editorialFrame, bottomDivider: editorialDivider },
+    gallery: {
+      ...editorialBase.gallery,
+      divider: editorialDivider,
+      card: "rounded-3xl border border-[#d8ddd2] bg-white shadow-sm",
+    },
+    countdown: {
+      ...editorialBase.countdown,
+      frame: editorialFrame,
+      divider: editorialDivider,
+      heartColor: "text-[#b87965]",
+      card: "rounded-3xl border border-[#d8ddd2] bg-white/80 shadow-sm",
+      number: "text-[#596b55]",
+      label: "text-[#77766e]",
+    },
+    rsvp: {
+      ...editorialBase.rsvp,
+      frame: editorialFrame,
+      divider: editorialDivider,
+      input: "w-full rounded-xl border border-[#d8ddd2] bg-white px-4 py-3 text-[#494c43]",
+      textarea: "w-full min-h-[140px] rounded-xl border border-[#d8ddd2] bg-white px-5 py-4 text-[#494c43] placeholder:text-zinc-400 leading-7 resize-none focus:outline-none focus:ring-2 focus:ring-[#9aaa91]/40 transition",
+      button: "w-full rounded-full bg-[#596b55] py-4 font-semibold text-white transition hover:bg-[#475744]",
+    },
+    wishes: {
+      ...editorialBase.wishes,
+      divider: editorialDivider,
+      card: "rounded-2xl border border-[#d8ddd2] bg-white p-5 shadow-sm",
+      name: "text-[#596b55]",
+      message: "text-[#494c43]",
+    },
+    location: {
+      ...editorialBase.location,
+      frame: editorialFrame,
+      divider: editorialDivider,
+      card: "rounded-3xl border border-[#d8ddd2] bg-white p-8 shadow-sm",
+      place: "text-[#494c43]",
+      button: "mt-8 inline-block rounded-full bg-[#596b55] px-8 py-4 text-white transition hover:bg-[#475744]",
+    },
+    gift: {
+      ...editorialBase.gift,
+      frame: editorialFrame,
+      divider: editorialDivider,
+      card: "rounded-3xl border border-[#d8ddd2] bg-white p-8 shadow-sm",
+      qrisCard: "mt-10 rounded-3xl border border-[#d8ddd2] bg-white p-6 shadow-sm",
+      bankLabel: "text-[#77766e]",
+      bankName: "text-[#596b55]",
+      accountNumber: "text-[#494c43]",
+      accountName: "text-[#77766e]",
+      button: "mt-6 rounded-full bg-[#596b55] px-8 py-3 text-white transition hover:bg-[#475744]",
+    },
+    bottomNav: {
+      ...editorialBase.bottomNav,
+      background: "bg-[#fffefa]/90",
+      border: "border-[#d8ddd2]",
+      icon: "text-[#596b55]",
+      active: "bg-[#596b55] text-white",
+      shadow: "shadow-lg shadow-[#596b55]/10",
+    },
+    backgroundCorner: {
+      topLeft: editorialBranch,
+      topRight: editorialBranch,
+      bottomLeft: editorialBranch,
+      bottomRight: editorialBranch,
+    },
+  },
 };

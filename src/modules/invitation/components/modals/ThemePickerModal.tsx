@@ -144,7 +144,7 @@ font-bold
 
 </h3>
 
-{item.premium && (
+{item.badge && (
 
 <span
 className="
@@ -158,7 +158,7 @@ font-semibold
 "
 >
 
-Premium
+{item.badge}
 
 </span>
 

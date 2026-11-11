@@ -50,6 +50,8 @@ const router = useRouter();
 
   const [loading, setLoading] =
     useState(true);
+  const [saving, setSaving] = useState(false);
+  const [savedMessage, setSavedMessage] = useState("");
 
     const [ownerUid, setOwnerUid] =
   useState("");
@@ -401,8 +403,10 @@ setOwnerUid(
 
   }, [slug]);
 
-  const save =
-  async () => {
+  const save = async () => {
+    setSaving(true);
+    setSavedMessage("");
+    try {
 
     console.log(
       "GALLERY SAAT DISIMPAN:",
@@ -462,9 +466,13 @@ updatedAt: serverTimestamp(),
       }
     );
 
-    alert(
-      "Berhasil disimpan"
-    );
+    setSavedMessage("Perubahan berhasil disimpan.");
+    } catch (error) {
+      console.error("Gagal menyimpan undangan:", error);
+      setSavedMessage("Belum berhasil menyimpan. Periksa koneksi lalu coba lagi.");
+    } finally {
+      setSaving(false);
+    }
 };
 
   if (loading) {
@@ -472,13 +480,21 @@ updatedAt: serverTimestamp(),
   }
 
   return (
-    <div className="max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow">
+    <div className="mx-auto max-w-3xl rounded-3xl bg-white p-5 shadow sm:p-8">
 
-      <h1 className="text-4xl font-bold mb-8">
-        Edit Undangan
-      </h1>
+      <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-[#9A7B45]">Langkah 2 dari 2 · Lengkapi undangan</p>
+      <h1 className="mb-2 text-3xl font-bold">Detail undangan</h1>
+      <p className="mb-7 text-sm leading-6 text-zinc-600">Isi bagian yang Anda perlukan. Foto dan rekening bersifat opsional. Tekan simpan kapan saja agar perubahan tidak hilang.</p>
+      <nav aria-label="Bagian form undangan" className="mb-6 flex flex-wrap gap-2">
+        {[{ id: "detail-acara", label: "Mempelai & acara" }, { id: "foto-lokasi", label: "Foto & lokasi" }, { id: "cerita-tampilan", label: "Cerita & tampilan" }].map((item) => (
+          <a key={item.id} href={`#${item.id}`} className="rounded-full border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 hover:border-[#9A7B45] hover:text-[#765d32]">{item.label}</a>
+        ))}
+      </nav>
 
-      <div className="space-y-4">
+      <div className="space-y-8 [&_input]:w-full [&_input]:rounded-xl [&_input]:border [&_input]:border-zinc-300 [&_input]:bg-white [&_input]:p-3.5 [&_input]:text-sm [&_input]:focus:border-[#9A7B45] [&_input]:focus:outline-none [&_textarea]:w-full [&_textarea]:rounded-xl [&_textarea]:border [&_textarea]:border-zinc-300 [&_textarea]:p-3.5">
+
+        <section id="detail-acara" className="scroll-mt-6 space-y-4 rounded-2xl border border-zinc-200 p-4 sm:p-5">
+          <div><h2 className="text-lg font-semibold">1. Mempelai & tanggal acara</h2><p className="mt-1 text-sm text-zinc-500">Nama dan tanggal utama akan tampil di bagian depan undangan.</p></div>
 
         <input
           value={groom}
@@ -488,7 +504,7 @@ updatedAt: serverTimestamp(),
               e.target.value
             ))
           }
-          className="w-full border p-4 rounded-xl"
+          placeholder="Nama lengkap mempelai pria"
         />
 
         <input
@@ -499,7 +515,7 @@ updatedAt: serverTimestamp(),
               e.target.value
             ))
           }
-          className="w-full border p-4 rounded-xl"
+          placeholder="Nama lengkap mempelai wanita"
         />
 
         <input
@@ -585,9 +601,7 @@ updatedAt: serverTimestamp(),
           className="w-full border p-4 rounded-xl"
         />
 
-        <h3 className="font-semibold mt-8">
-  Akad Nikah
-</h3>
+        <div className="border-t pt-4"><h3 className="font-semibold">Akad nikah</h3><p className="mt-1 text-sm text-zinc-500">Tuliskan jadwal dan tempat akad, contoh: Minggu, 20 Juni 2027.</p></div>
 
 <input
   value={akadDate}
@@ -625,9 +639,7 @@ updatedAt: serverTimestamp(),
   className="w-full border p-4 rounded-xl"
 />
 
-<h3 className="font-semibold mt-8">
-  Resepsi
-</h3>
+<div className="border-t pt-4"><h3 className="font-semibold">Resepsi</h3><p className="mt-1 text-sm text-zinc-500">Jika tidak ada resepsi, bagian ini boleh dikosongkan.</p></div>
 
 <input
   value={resepsiDate}
@@ -665,7 +677,12 @@ updatedAt: serverTimestamp(),
   className="w-full border p-4 rounded-xl"
 />
 
-        <h3>Cover</h3>
+        </section>
+
+        <section id="foto-lokasi" className="scroll-mt-6 space-y-4 rounded-2xl border border-zinc-200 p-4 sm:p-5">
+<div><h2 className="text-lg font-semibold">2. Foto & lokasi</h2><p className="mt-1 text-sm text-zinc-500">Pilih foto yang jelas. Tautan Google Maps bisa disalin dari tombol Bagikan di Google Maps.</p></div>
+
+        <h3 className="font-medium">Foto sampul</h3>
 
 <ImageUpload
   path={`covers/${slug}`}
@@ -674,7 +691,7 @@ updatedAt: serverTimestamp(),
   }
 />
 
-<h3>Foto Pria</h3>
+<h3 className="font-medium">Foto mempelai pria</h3>
 
 <ImageUpload
   path={`groom/${slug}`}
@@ -683,7 +700,7 @@ updatedAt: serverTimestamp(),
   }
 />
 
-<h3>Foto Wanita</h3>
+<h3 className="font-medium">Foto mempelai wanita</h3>
 
 <ImageUpload
   path={`bride/${slug}`}
@@ -692,7 +709,7 @@ updatedAt: serverTimestamp(),
   }
 />
 
-<h3>QRIS</h3>
+<h3 className="font-medium">QRIS untuk hadiah (opsional)</h3>
 
 <ImageUpload
   path={`qris/${slug}`}
@@ -708,7 +725,7 @@ updatedAt: serverTimestamp(),
       e.target.value
     )
   }
-  placeholder="Google Maps URL"
+  placeholder="Tautan Google Maps lokasi acara"
   className="w-full border p-4 rounded-xl"
 />
 
@@ -720,7 +737,7 @@ updatedAt: serverTimestamp(),
       e.target.value
     ))
   }
-  placeholder="Nama Bank"
+  placeholder="Nama bank (opsional)"
   className="w-full border p-4 rounded-xl"
 />
 
@@ -731,7 +748,7 @@ updatedAt: serverTimestamp(),
       e.target.value
     )
   }
-  placeholder="Nomor Rekening"
+  placeholder="Nomor rekening"
   className="w-full border p-4 rounded-xl"
 />
 
@@ -743,13 +760,14 @@ updatedAt: serverTimestamp(),
       e.target.value
     ))
   }
-  placeholder="Nama Pemilik Rekening"
+  placeholder="Nama pemilik rekening"
   className="w-full border p-4 rounded-xl"
 />
 
-<h3 className="font-semibold mt-8">
-  Lagu Undangan
-</h3>
+        </section>
+
+        <section id="cerita-tampilan" className="scroll-mt-6 space-y-4 rounded-2xl border border-zinc-200 p-4 sm:p-5">
+<div><h2 className="text-lg font-semibold">3. Musik & tampilan</h2><p className="mt-1 text-sm text-zinc-500">Unggah MP3 milik Anda untuk musik latar. Pengunjung dapat memutarnya setelah membuka undangan.</p></div>
 
 <MusicUpload
   path={`music/${slug}`}
@@ -847,7 +865,7 @@ Ganti Tema
 
 <div className="mt-10">
 
-  <h3 className="text-xl font-semibold mb-5">
+        <h3 className="text-xl font-semibold mb-2">
 
     Opening
 
@@ -974,9 +992,8 @@ Pilih Template Opening
 
 <div className="mt-10">
 
-  <h3 className="text-xl font-semibold mb-4">
-    Love Story
-  </h3>
+  <h3 className="text-xl font-semibold mb-1">Cerita perjalanan kalian</h3>
+  <p className="mb-4 text-sm text-zinc-500">Tambahkan beberapa momen penting. Bagian ini boleh dikosongkan atau dihapus.</p>
 
   {loveStory.map(
     (story, index) => (
@@ -1012,6 +1029,7 @@ Pilih Template Opening
           rounded-lg
           mb-3
           "
+          aria-label={`Tahun cerita ${index + 1}`}
         />
 
         <input
@@ -1036,6 +1054,7 @@ Pilih Template Opening
           rounded-lg
           mb-3
           "
+          aria-label={`Judul cerita ${index + 1}`}
         />
 
         <textarea
@@ -1061,6 +1080,7 @@ Pilih Template Opening
           rounded-lg
           h-28
           "
+          aria-label={`Isi cerita ${index + 1}`}
         />
 
         <h4 className="font-medium mb-2">
@@ -1143,9 +1163,7 @@ Pilih Template Opening
     + Tambah Story
   </button>
 
-  <h3 className="font-semibold mt-8">
-  Gallery
-</h3>
+  <div className="mt-8 border-t pt-5"><h3 className="font-semibold">Galeri foto</h3><p className="mt-1 text-sm text-zinc-500">Pilih foto momen yang ingin dibagikan di undangan.</p></div>
 
 <GalleryUpload
   slug={slug}
@@ -1191,12 +1209,14 @@ Pilih Template Opening
 
 </div>
 
-        <button
-          onClick={save}
-          className="bg-[#9A7B45] text-white px-6 py-4 rounded-xl"
-        >
-          Simpan
-        </button>
+        </section>
+
+        <div className="sticky bottom-3 z-20 flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white/95 p-3 shadow-lg backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+          <p aria-live="polite" className={`text-sm ${savedMessage.startsWith("Belum") ? "text-red-600" : "text-emerald-700"}`}>{savedMessage || "Simpan perubahan sebelum meninggalkan halaman."}</p>
+          <button type="button" onClick={save} disabled={saving} className="w-full rounded-xl bg-[#9A7B45] px-7 py-3.5 font-semibold text-white transition hover:bg-[#876c3d] disabled:cursor-wait disabled:opacity-60 sm:w-auto">
+            {saving ? "Menyimpan…" : "Simpan perubahan"}
+          </button>
+        </div>
 
       </div>
 
