@@ -28,7 +28,7 @@ export default function CreateInvitationForm({ initialTheme = "luxury-black" }: 
     useState("");
 
     const [theme, setTheme] =
-  useState(["elegant-gold", "modern-editorial"].includes(initialTheme) ? initialTheme : "luxury-black");
+  useState(["elegant-gold", "modern-editorial", "aurora-nocturne"].includes(initialTheme) ? initialTheme : "luxury-black");
 
   const loveStory = [
     {
@@ -119,7 +119,7 @@ export default function CreateInvitationForm({ initialTheme = "luxury-black" }: 
         <h2 className="text-lg font-semibold">Pilih tampilan undangan</h2>
         <p className="mb-3 mt-1 text-sm text-zinc-500">Tema masih bisa diganti nanti.</p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {[{id:"luxury-black", title:"Luxury Black", desc:"Elegan dengan nuansa gelap"}, {id:"elegant-gold", title:"Elegant Gold", desc:"Hangat dengan aksen keemasan"}, {id:"modern-editorial", title:"Modern Editorial", desc:"Sage lembut dengan sentuhan terracotta"}].map((option) => (
+          {[{id:"luxury-black", title:"Luxury Black", desc:"Elegan dengan nuansa gelap"}, {id:"elegant-gold", title:"Elegant Gold", desc:"Hangat dengan aksen keemasan"}, {id:"modern-editorial", title:"Modern Editorial", desc:"Sage lembut dengan sentuhan terracotta"}, {id:"aurora-nocturne", title:"Aurora Nocturne", desc:"Midnight teal, plum, dan coral dengan efek aurora"}].map((option) => (
             <button key={option.id} type="button" onClick={() => setTheme(option.id)} className={`rounded-xl border p-4 text-left transition ${theme === option.id ? "border-[#9A7B45] bg-amber-50 ring-2 ring-[#9A7B45]/30" : "border-zinc-200 hover:border-zinc-400"}`} aria-pressed={theme === option.id}>
               <span className="block font-semibold">{option.title}</span><span className="mt-1 block text-sm text-zinc-500">{option.desc}</span>
             </button>

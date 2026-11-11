@@ -1,6 +1,6 @@
 export type DemoInvitation = {
   slug: string;
-  theme: "luxury-black" | "elegant-gold" | "modern-editorial";
+  theme: "luxury-black" | "elegant-gold" | "modern-editorial" | "aurora-nocturne";
   groom: string;
   bride: string;
   groomTitle: string;
@@ -146,5 +146,42 @@ demoInvitations["demo-modern-editorial"] = {
   demoMessages: [
     { id: "editorial-wish-1", name: "Tasya & Rafi", message: "Selamat berbahagia Aditya dan Naila. Semoga hari-hari kalian selalu dipenuhi kasih dan kebaikan." },
     { id: "editorial-wish-2", name: "Keluarga Pranata", message: "Semoga menjadi keluarga yang harmonis, penuh berkah, dan saling menguatkan." },
+  ],
+};
+
+demoInvitations["demo-aurora-nocturne"] = {
+  ...demoInvitations["demo-modern-editorial"],
+  slug: "demo-aurora-nocturne",
+  theme: "aurora-nocturne",
+  groom: "Rafi Alvarendra",
+  bride: "Keisha Maharani",
+  groomTitle: "Putra kedua",
+  brideTitle: "Putri pertama",
+  groomFather: "Bima Alvarendra",
+  groomMother: "Sekar Wulandari",
+  brideFather: "Rendra Mahardika",
+  brideMother: "Intan Permata",
+  coverImage: "/images/invitation/preview/aurora-nocturne.png",
+  groomImage: "/images/invitation/demo/real/groom-portrait.jpg",
+  brideImage: "/images/invitation/demo/real/bride-portrait.jpg",
+  date: "2027-11-07T18:30:00+07:00",
+  akadDate: "Minggu, 7 November 2027",
+  akadTime: "15.30 WIB – selesai",
+  akadPlace: "Plataran Bandung, Dago Pakar",
+  resepsiDate: "Minggu, 7 November 2027",
+  resepsiTime: "18.30 – 21.00 WIB",
+  resepsiPlace: "Plataran Bandung, Dago Pakar",
+  mapsUrl: "https://maps.google.com/?q=Plataran+Bandung",
+  loveStory: [
+    { year: "2021", title: "Bertemu di tengah kota", description: "Sebuah pertemuan singkat di acara musik berubah menjadi percakapan panjang yang terus kami kenang.", image: "/images/invitation/demo/real/story-meet.jpg" },
+    { year: "2026", title: "Satu tujuan", description: "Setelah bertumbuh bersama, kami siap memulai babak baru dengan restu dan doa keluarga.", image: "/images/invitation/demo/real/story-engagement.jpg" },
+  ],
+  gallery: ["/images/invitation/demo/real/gallery-portrait.jpg", "/images/invitation/demo/real/gallery-akad.jpg", "/images/invitation/demo/real/gallery-reception.jpg"],
+  bankName: "Bank Mandiri",
+  accountNumber: "1410008723456",
+  accountName: "Keisha Maharani",
+  demoMessages: [
+    { id: "aurora-wish-1", name: "Lala & Nino", message: "Semoga perjalanan baru kalian penuh cerita indah, tawa, dan cinta yang terus menyala." },
+    { id: "aurora-wish-2", name: "Keluarga Maharani", message: "Selamat menempuh hidup baru. Semoga selalu menjadi rumah terbaik bagi satu sama lain." },
   ],
 };

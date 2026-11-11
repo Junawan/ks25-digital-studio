@@ -607,9 +607,14 @@ bottomRight:
 };
 
 const editorialBase = baseThemes["elegant-gold"];
+const auroraBase = baseThemes["luxury-black"];
 const editorialDivider = "/images/invitation/modern-editorial/divider.svg";
 const editorialFrame = "/images/invitation/modern-editorial/frame.svg";
 const editorialBranch = "/images/invitation/modern-editorial/branch.svg";
+const auroraDivider = "/images/invitation/aurora-nocturne/divider.svg";
+const auroraFrame = "/images/invitation/aurora-nocturne/frame.svg";
+const auroraBranch = "/images/invitation/aurora-nocturne/branch.svg";
+const auroraAmbient = "/images/invitation/aurora-nocturne/ambient.svg";
 
 export const themes = {
   ...baseThemes,
@@ -728,5 +733,106 @@ export const themes = {
       bottomLeft: editorialBranch,
       bottomRight: editorialBranch,
     },
+  },
+  "aurora-nocturne": {
+    ...auroraBase,
+    background: "bg-[#101722] aurora-theme",
+    font: { ...auroraBase.font, heading: "font-[family-name:var(--font-title)] tracking-[0.12em]" },
+    text: {
+      ...auroraBase.text,
+      primary: "text-[#FFB39F] aurora-shimmer",
+      secondary: "text-[#B7C5D2]",
+      accent: "text-[#52D8D0] aurora-shimmer",
+      body: "text-[#E4DFEA]",
+      frameTitle: "text-[#FFB39F]",
+      frameContent: "text-[#52D8D0]",
+    },
+    wrapper: {
+      ...auroraBase.wrapper,
+      background: "bg-[#101722] aurora-theme",
+      coverFrame: auroraFrame,
+      heroDivider: auroraDivider,
+      bottomDivider: auroraDivider,
+      guestFrame: auroraFrame,
+      button: "aurora-button",
+      subtitle: "text-[#52D8D0] aurora-shimmer",
+      guestTitle: "text-[#FFB39F] aurora-shimmer",
+      guestName: "text-[#F1D0FF]",
+      guestNote: "text-[#B7C5D2]",
+    },
+    hero: { ...auroraBase.hero, topOrnament: auroraDivider, divider: auroraDivider, dividerBottom: auroraDivider },
+    opening: { ...auroraBase.opening, ornament: auroraDivider },
+    couple: {
+      ...auroraBase.couple,
+      leftOrnament: auroraBranch,
+      rightOrnament: auroraBranch,
+      titleOrnament: auroraDivider,
+      centerImage: auroraDivider,
+      divider: auroraDivider,
+      photoFrame: auroraFrame,
+    },
+    loveStory: {
+      ...auroraBase.loveStory,
+      frame: auroraFrame,
+      divider: auroraDivider,
+      card: "rounded-3xl border border-[#52D8D0]/25 bg-[#172330]/90 shadow-[0_12px_40px_rgba(0,0,0,.22)]",
+      imageWrapper: "bg-[#101722]",
+      imageBorder: "border-[#FF8B79]/30",
+      iconColor: "text-[#FF8B79]",
+    },
+    events: { ...auroraBase.events, titleDivider: auroraDivider, frame: auroraFrame, bottomDivider: auroraDivider },
+    gallery: { ...auroraBase.gallery, title: "Momen Bahagia", divider: auroraDivider, card: "rounded-3xl border border-[#D8A3FF]/30 bg-[#172330] shadow-[0_10px_36px_rgba(0,0,0,.28)]" },
+    countdown: {
+      ...auroraBase.countdown,
+      frame: auroraFrame,
+      divider: auroraDivider,
+      heartColor: "text-[#FF8B79]",
+      card: "rounded-3xl border border-[#52D8D0]/25 bg-[#172330]/90 shadow-[0_0_32px_rgba(82,216,208,.08)]",
+      number: "text-[#52D8D0] aurora-shimmer",
+      label: "text-[#B7C5D2]",
+    },
+    rsvp: {
+      ...auroraBase.rsvp,
+      frame: auroraFrame,
+      divider: auroraDivider,
+      input: "w-full rounded-xl border border-[#52D8D0]/30 bg-[#172330] px-4 py-3 text-[#E4DFEA] placeholder:text-[#8292A0] focus:border-[#52D8D0]",
+      textarea: "w-full min-h-[140px] rounded-xl border border-[#52D8D0]/30 bg-[#172330] px-5 py-4 text-[#E4DFEA] placeholder:text-[#8292A0] leading-7 resize-none focus:outline-none focus:ring-2 focus:ring-[#52D8D0]/40 transition",
+      button: "aurora-button w-full",
+      iconColor: "text-[#FF8B79]",
+      helperText: "text-[#9EACB8]",
+    },
+    wishes: { ...auroraBase.wishes, divider: auroraDivider, card: "rounded-2xl border border-[#D8A3FF]/25 bg-[#172330]/90 p-5", name: "text-[#FFB39F]", message: "text-[#E4DFEA]" },
+    location: {
+      ...auroraBase.location,
+      frame: auroraFrame,
+      divider: auroraDivider,
+      iconColor: "text-[#52D8D0]",
+      card: "rounded-3xl border border-[#52D8D0]/25 bg-[#172330]/90 p-8 shadow-lg",
+      place: "text-[#E4DFEA]",
+      button: "aurora-button mt-8 inline-block",
+    },
+    gift: {
+      ...auroraBase.gift,
+      frame: auroraFrame,
+      divider: auroraDivider,
+      iconColor: "text-[#FF8B79]",
+      card: "rounded-3xl border border-[#D8A3FF]/25 bg-[#172330]/90 p-8",
+      qrisCard: "mt-10 rounded-3xl border border-[#D8A3FF]/25 bg-[#172330]/90 p-6",
+      qrisFrame: "inline-block rounded-2xl border border-[#52D8D0]/30 bg-white p-3",
+      bankLabel: "text-[#B7C5D2]",
+      bankName: "text-[#FFB39F]",
+      accountNumber: "text-white",
+      accountName: "text-[#B7C5D2]",
+      button: "aurora-button mt-6",
+    },
+    bottomNav: {
+      ...auroraBase.bottomNav,
+      background: "bg-[#101722]/85",
+      border: "border-[#52D8D0]/25",
+      icon: "text-[#52D8D0]",
+      active: "bg-[#FF8B79] text-[#101722]",
+      shadow: "shadow-[0_0_28px_rgba(82,216,208,.16)]",
+    },
+    backgroundCorner: { topLeft: auroraAmbient, topRight: auroraAmbient, bottomLeft: auroraAmbient, bottomRight: auroraAmbient },
   },
 };
