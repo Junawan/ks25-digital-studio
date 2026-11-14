@@ -17,7 +17,9 @@ async function authenticate(request: Request) {
   try {
     return await (await getAdminAuth()).verifyIdToken(idToken);
   } catch (error) {
-    const code = error && typeof error === "object" && "code" in error ? String(error.code) : "unknown";
+    const code = error && typeof error === "object" && "code" in error
+      ? String(error.code)
+      : error instanceof Error ? error.name : "unknown";
     const message = error instanceof Error ? error.message : String(error);
     console.error("Firebase ID token verification failed:", { code, message, expectedProjectId, tokenAudience });
     if (code.startsWith("auth/")) throw new Error(`invalid-id-token:${code}`);

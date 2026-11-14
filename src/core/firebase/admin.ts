@@ -68,13 +68,11 @@ function getAdminApp(): App {
       && privateKey.includes("-----BEGIN PRIVATE KEY-----")
       && privateKey.includes("-----END PRIVATE KEY-----")
   );
-  const runningOnGoogleCloud = Boolean(process.env.K_SERVICE || process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT);
-
   cachedApp = initializeApp({
-    // App Hosting/Cloud Run provides Application Default Credentials for its
-    // attached runtime service account. Prefer ADC there over possibly stale
-    // service-account secrets; keep explicit credentials for local hosting.
-    credential: hasServiceAccount && !runningOnGoogleCloud
+    // Use explicitly configured Firebase Admin credentials consistently in
+    // local and hosted runtimes. Fall back to the host's service identity when
+    // no service-account key is configured.
+    credential: hasServiceAccount
       ? cert({ projectId, clientEmail, privateKey })
       : applicationDefault(),
     ...(projectId ? { projectId } : {}),
