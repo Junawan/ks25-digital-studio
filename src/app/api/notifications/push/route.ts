@@ -1,5 +1,10 @@
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { getAdminAuth, getAdminDb, getAdminMessaging } from "@/core/firebase/admin";
+import { getAdminDb, getAdminMessaging } from "@/core/firebase/admin";
+import {
+  InvalidFirebaseIdTokenError,
+  verifyFirebaseIdToken,
+  type VerifiedFirebaseIdentity,
+} from "@/core/firebase/verifyIdToken";
 
 export const runtime = "nodejs";
 
@@ -27,8 +32,13 @@ export async function POST(request: Request) {
   if (!notificationId || notificationId.length > 200) return Response.json({ error: "Invalid notification" }, { status: 400 });
 
   try {
-    const auth = await getAdminAuth();
-    const decoded = await auth.verifyIdToken(idToken);
+    let decoded: VerifiedFirebaseIdentity;
+    try {
+      decoded = await verifyFirebaseIdToken(idToken);
+    } catch (error) {
+      if (error instanceof InvalidFirebaseIdTokenError) return Response.json({ error: "Unauthorized" }, { status: 401 });
+      throw error;
+    }
     const adminDb = getAdminDb();
     const [userSnapshot, notificationSnapshot] = await Promise.all([
       adminDb.collection("users").doc(decoded.uid).get(),

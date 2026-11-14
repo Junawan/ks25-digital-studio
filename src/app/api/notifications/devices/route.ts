@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { FieldValue } from "firebase-admin/firestore";
-import { getAdminAuth, getAdminDb, getAdminProjectId } from "@/core/firebase/admin";
+import { getAdminDb, getAdminProjectId } from "@/core/firebase/admin";
+import { verifyFirebaseIdToken } from "@/core/firebase/verifyIdToken";
 
 export const runtime = "nodejs";
 
@@ -15,7 +16,7 @@ async function authenticate(request: Request) {
     throw new Error("firebase-project-mismatch");
   }
   try {
-    return await (await getAdminAuth()).verifyIdToken(idToken);
+    return await verifyFirebaseIdToken(idToken);
   } catch (error) {
     const code = error && typeof error === "object" && "code" in error
       ? String(error.code)
