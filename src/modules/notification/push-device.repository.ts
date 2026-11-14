@@ -10,10 +10,11 @@ async function sendDeviceRequest(method: "POST" | "DELETE", token: string) {
     body: JSON.stringify({ token }),
   });
   if (!response.ok) {
-    const detail = await response.json().catch(() => null) as { error?: unknown; code?: unknown } | null;
+    const detail = await response.json().catch(() => null) as { error?: unknown; code?: unknown; diagnostic?: unknown } | null;
     const errorName = typeof detail?.error === "string" ? detail.error : "server_error";
     const reason = typeof detail?.code === "string" ? `${errorName}:${detail.code}` : errorName;
-    throw new Error(`Pendaftaran perangkat notifikasi gagal (${response.status}: ${reason}).`);
+    const diagnostic = typeof detail?.diagnostic === "string" ? ` ${detail.diagnostic}` : "";
+    throw new Error(`Pendaftaran perangkat notifikasi gagal (${response.status}: ${reason}).${diagnostic}`);
   }
   return await response.json().catch(() => ({})) as { pendingNotificationIds?: string[] };
 }

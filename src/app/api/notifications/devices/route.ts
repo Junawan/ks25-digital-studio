@@ -23,7 +23,9 @@ async function authenticate(request: Request) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("Firebase ID token verification failed:", { code, message, expectedProjectId, tokenAudience });
     if (code.startsWith("auth/")) throw new Error(`invalid-id-token:${code}`);
-    throw new Error(`admin-auth-unavailable:${code}`);
+    const unavailable = new Error(`admin-auth-unavailable:${code}`);
+    (unavailable as Error & { cause?: unknown }).cause = error;
+    throw unavailable;
   }
 }
 
@@ -83,7 +85,13 @@ export async function POST(request: Request) {
       return Response.json({ error: "invalid-id-token", code: error.message.slice("invalid-id-token:".length) }, { status: 401 });
     }
     if (error instanceof Error && error.message.startsWith("admin-auth-unavailable:")) {
-      return Response.json({ error: "firebase_admin_auth_unavailable", code: error.message.split(":").at(-1) }, { status: 503 });
+      const cause = (error as Error & { cause?: unknown }).cause;
+      const diagnostic = cause instanceof Error ? cause.message.slice(0, 240) : undefined;
+      return Response.json({
+        error: "firebase_admin_auth_unavailable",
+        code: error.message.split(":").at(-1),
+        ...(diagnostic ? { diagnostic } : {}),
+      }, { status: 503 });
     }
     console.error("FCM device registration failed:", error);
     return Response.json({ error: "registration_service_unavailable" }, { status: 503 });
