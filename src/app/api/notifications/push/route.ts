@@ -17,8 +17,6 @@ interface NotificationDocument {
   sourceId: string | null;
 }
 
-const SYSTEM_ADMIN_EMAIL = "jujunjunawan2@gmail.com";
-
 export async function POST(request: Request) {
   const authorization = request.headers.get("authorization") || "";
   const idToken = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
@@ -44,26 +42,28 @@ export async function POST(request: Request) {
       return Response.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    let systemAdminUserId: string | null = null;
+    let systemAdminUserIds: Set<string> | null = null;
     if (notification.receiverType === "system-admin") {
-      if (notification.module !== "subscription" || notification.type !== "payment" || !notification.sourceId || user.companyId !== notification.companyId) {
+      if (notification.module !== "subscription" || notification.type !== "payment" || !notification.sourceId) {
         return Response.json({ error: "Forbidden" }, { status: 403 });
       }
       const paymentSnapshot = await adminDb.collection("subscription-payments").doc(notification.sourceId).get();
       const payment = paymentSnapshot.data();
-      if (!paymentSnapshot.exists || payment?.status !== "pending" || payment.companyId !== user.companyId || payment.ownerId !== decoded.uid) {
+      const isSystemAdmin = user.isSystemAdmin === true;
+      const isPaymentOwner = paymentSnapshot.exists
+        && payment?.status === "pending"
+        && payment.companyId === user.companyId
+        && payment.ownerId === decoded.uid;
+      if (!paymentSnapshot.exists || payment?.companyId !== notification.companyId || (!isSystemAdmin && !isPaymentOwner)) {
         return Response.json({ error: "Forbidden" }, { status: 403 });
       }
-      try {
-        const target = await auth.getUserByEmail(SYSTEM_ADMIN_EMAIL);
-        const targetProfile = await adminDb.collection("users").doc(target.uid).get();
-        if (targetProfile.exists && targetProfile.data()?.status === "active" && targetProfile.data()?.isSystemAdmin === true) {
-          systemAdminUserId = target.uid;
-        }
-      } catch (error) {
-        console.warn("Subscription notification recipient is not available:", error);
-      }
-      if (!systemAdminUserId) return Response.json({ sent: false, reason: "recipient-unavailable" });
+      const adminProfiles = await adminDb.collection("users")
+        .where("isSystemAdmin", "==", true)
+        .get();
+      systemAdminUserIds = new Set(adminProfiles.docs
+        .filter((profile) => profile.data().status === "active")
+        .map((profile) => profile.id));
+      if (!systemAdminUserIds.size) return Response.json({ sent: false, reason: "recipient-unavailable" });
     } else if (user.companyId !== notification.companyId) {
       return Response.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -80,12 +80,14 @@ export async function POST(request: Request) {
     if (!maySend) return Response.json({ sent: false, duplicate: true });
 
     try {
-      const tokenSnapshot = systemAdminUserId
-        ? await adminDb.collection("company_push_devices").where("userId", "==", systemAdminUserId).get()
-        : await adminDb.collection("company_push_devices").where("companyId", "==", notification.companyId).get();
-      const targets = tokenSnapshot.docs.filter((entry) => {
+      const tokenSnapshots = systemAdminUserIds
+        ? await Promise.all([...systemAdminUserIds].map((userId) => adminDb.collection("company_push_devices").where("userId", "==", userId).get()))
+        : [await adminDb.collection("company_push_devices").where("companyId", "==", notification.companyId).get()];
+      const targets = tokenSnapshots.flatMap((snapshot) => snapshot.docs).filter((entry) => {
         const target = entry.data();
-        return systemAdminUserId ? target.userId === systemAdminUserId : notification.receiverType === "company" || target.userId === notification.receiverId;
+        return systemAdminUserIds
+          ? systemAdminUserIds.has(String(target.userId || ""))
+          : target.companyId === notification.companyId && (notification.receiverType === "company" || target.userId === notification.receiverId);
       }).map((entry) => ({ id: entry.id, token: String(entry.data().token || "") })).filter((entry) => entry.token.length > 0);
 
       if (!targets.length) {

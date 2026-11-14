@@ -67,8 +67,9 @@ export async function POST(request: Request) {
       if (!notification) return null;
       const companyBroadcast = notification.receiverType === "company";
       const userNotification = notification.receiverType === "user" && notification.receiverId === identity.uid;
+      const adminNotification = notification.receiverType === "system-admin" && user.isSystemAdmin === true;
       const sameCompany = notification.companyId === user.companyId;
-      return sameCompany && (companyBroadcast || userNotification) ? job.id : null;
+      return adminNotification || (sameCompany && (companyBroadcast || userNotification)) ? job.id : null;
     }))).filter((notificationId): notificationId is string => Boolean(notificationId));
     return Response.json({ registered: true, pendingNotificationIds });
   } catch (error) {
