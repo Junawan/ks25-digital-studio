@@ -24,41 +24,18 @@ export default function Payment({
           Informasi Pembayaran
         </h3>
 
-        {(settings.bankName ||
-          settings.accountNumber ||
-          settings.accountHolder) && (
+        {(settings.bankAccounts?.length || settings.bankName ||
+          settings.accountNumber || settings.accountHolder) && (
 
           <div className="rounded-lg border p-4">
 
-            {settings.bankName && (
-              <div className="flex justify-between py-1">
-                <span>Bank</span>
-
-                <span className="font-medium">
-                  {settings.bankName}
-                </span>
+            {(settings.bankAccounts?.length ? settings.bankAccounts : [{ bankName: settings.bankName, accountNumber: settings.accountNumber, accountHolder: settings.accountHolder }]).map((account, index) => (
+              <div key={`${account.bankName}-${account.accountNumber}-${index}`} className="border-b py-2 last:border-0">
+                {account.bankName && <div className="flex justify-between py-1"><span>Bank</span><span className="font-medium">{account.bankName}</span></div>}
+                {account.accountNumber && <div className="flex justify-between py-1"><span>No. Rekening</span><span className="font-medium">{account.accountNumber}</span></div>}
+                {account.accountHolder && <div className="flex justify-between py-1"><span>Atas Nama</span><span className="font-medium">{account.accountHolder}</span></div>}
               </div>
-            )}
-
-            {settings.accountNumber && (
-              <div className="flex justify-between py-1">
-                <span>No. Rekening</span>
-
-                <span className="font-medium">
-                  {settings.accountNumber}
-                </span>
-              </div>
-            )}
-
-            {settings.accountHolder && (
-              <div className="flex justify-between py-1">
-                <span>Atas Nama</span>
-
-                <span className="font-medium">
-                  {settings.accountHolder}
-                </span>
-              </div>
-            )}
+            ))}
 
           </div>
 

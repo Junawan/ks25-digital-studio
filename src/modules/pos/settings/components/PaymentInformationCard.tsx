@@ -6,7 +6,7 @@ import {
   useImperativeHandle,
   useState,
 } from "react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useWorkspace } from "@/core/workspace/WorkspaceProvider";
@@ -37,6 +37,7 @@ import {
 import QrisUploader from "./QrisUploader";
 import { storageService } from "@/shared/services/StorageService";
 import { saveSettings } from "../utils/saveSettings";
+import { Button } from "@/shared/components/ui/button";
 
 interface Props {
   hideSaveButton?: boolean;
@@ -44,7 +45,7 @@ interface Props {
 
 export interface PaymentInformationCardRef {
     validate(): Promise<boolean>;
-  getValues(): PaymentInformationInput;
+  getValues(): PaymentInformationInput & Pick<PosSettings, "bankName" | "accountNumber" | "accountHolder">;
   getSettings(): PosSettings | null;
 }
 
@@ -74,16 +75,10 @@ const PaymentInformationCard = forwardRef<
       ),
 
       defaultValues: {
-        bankName:
-          DEFAULT_POS_SETTINGS.bankName,
-
-        accountNumber:
-          DEFAULT_POS_SETTINGS.accountNumber,
-
-        accountHolder:
-          DEFAULT_POS_SETTINGS.accountHolder,
+        bankAccounts: DEFAULT_POS_SETTINGS.bankAccounts,
       },
     });
+  const bankAccounts = useFieldArray({ control: form.control, name: "bankAccounts" });
 
   useEffect(() => {
     async function load() {
@@ -100,8 +95,11 @@ const PaymentInformationCard = forwardRef<
             companyId
           );
 
-        const current =
-  data ?? {
+        const current = data ? {
+    ...DEFAULT_POS_SETTINGS,
+    ...data,
+    bankAccounts: data.bankAccounts?.length ? data.bankAccounts : (data.bankName || data.accountNumber || data.accountHolder ? [{ bankName: data.bankName ?? "", accountNumber: data.accountNumber ?? "", accountHolder: data.accountHolder ?? "" }] : []),
+  } : {
     companyId,
 
     ...DEFAULT_POS_SETTINGS,
@@ -112,11 +110,7 @@ const PaymentInformationCard = forwardRef<
 
 setSettings(current);
 
-form.reset({
-  bankName: current.bankName,
-  accountNumber: current.accountNumber,
-  accountHolder: current.accountHolder,
-});
+form.reset({ bankAccounts: current.bankAccounts });
       } finally {
         setLoading(false);
       }
@@ -131,7 +125,9 @@ form.reset({
   },
 
   getValues() {
-    return form.getValues();
+    const values = form.getValues();
+    const first = values.bankAccounts[0];
+    return { ...values, bankName: first?.bankName ?? "", accountNumber: first?.accountNumber ?? "", accountHolder: first?.accountHolder ?? "" };
   },
 
   getSettings() {
@@ -209,54 +205,23 @@ form.reset({
           <p>Memuat...</p>
         ) : (
           <form className="space-y-4">
-            <div className="space-y-2">
-              <label>
-                Nama Bank
-              </label>
-
-              <Input
-                disabled={saving}
-                {...form.register(
-                  "bankName"
-                )}
-              />
-
-              {form.formState.errors
-                .bankName && (
-                <p className="text-sm text-destructive">
-                  {
-                    form.formState
-                      .errors.bankName
-                      .message
-                  }
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label>
-                Nomor Rekening
-              </label>
-
-              <Input
-                disabled={saving}
-                {...form.register(
-                  "accountNumber"
-                )}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label>
-                Nama Pemilik
-              </label>
-
-              <Input
-                disabled={saving}
-                {...form.register(
-                  "accountHolder"
-                )}
-              />
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-medium">Rekening Bank</p>
+                <Button type="button" variant="outline" disabled={saving} onClick={() => bankAccounts.append({ bankName: "", accountNumber: "", accountHolder: "" })}>Tambah Rekening</Button>
+              </div>
+              {bankAccounts.fields.map((field, index) => (
+                <div key={field.id} className="space-y-3 rounded-lg border p-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">Rekening {index + 1}</p>
+                    <Button type="button" variant="ghost" disabled={saving} onClick={() => bankAccounts.remove(index)}>Hapus</Button>
+                  </div>
+                  <div className="space-y-2"><label htmlFor={`bank-${index}`}>Nama Bank</label><Input id={`bank-${index}`} disabled={saving} placeholder="Contoh: BCA" {...form.register(`bankAccounts.${index}.bankName`)} />{form.formState.errors.bankAccounts?.[index]?.bankName && <p className="text-sm text-destructive">{form.formState.errors.bankAccounts[index]?.bankName?.message}</p>}</div>
+                  <div className="space-y-2"><label htmlFor={`account-number-${index}`}>Nomor Rekening</label><Input id={`account-number-${index}`} disabled={saving} {...form.register(`bankAccounts.${index}.accountNumber`)} />{form.formState.errors.bankAccounts?.[index]?.accountNumber && <p className="text-sm text-destructive">{form.formState.errors.bankAccounts[index]?.accountNumber?.message}</p>}</div>
+                  <div className="space-y-2"><label htmlFor={`account-holder-${index}`}>Nama Pemilik</label><Input id={`account-holder-${index}`} disabled={saving} {...form.register(`bankAccounts.${index}.accountHolder`)} />{form.formState.errors.bankAccounts?.[index]?.accountHolder && <p className="text-sm text-destructive">{form.formState.errors.bankAccounts[index]?.accountHolder?.message}</p>}</div>
+                </div>
+              ))}
+              {!bankAccounts.fields.length && <p className="text-sm text-muted-foreground">Belum ada rekening bank. Tambahkan rekening jika diperlukan.</p>}
             </div>
 
             <QrisUploader

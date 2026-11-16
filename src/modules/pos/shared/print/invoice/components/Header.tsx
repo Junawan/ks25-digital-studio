@@ -80,14 +80,12 @@ console.log(
               </div>
             )}
 
-            {(settings.bankName ||
+            {(settings.bankAccounts?.length || settings.bankName ||
               settings.accountNumber) && (
               <div className="mt-1">
-                Rek.
-                {" "}
-                {settings.bankName}
-                {" "}
-                {settings.accountNumber}
+                {(settings.bankAccounts?.length ? settings.bankAccounts : [{ bankName: settings.bankName, accountNumber: settings.accountNumber }]).map((account, index) => (
+                  <div key={`${account.bankName}-${account.accountNumber}-${index}`}>Rek. {account.bankName} {account.accountNumber}</div>
+                ))}
               </div>
             )}
 

@@ -1,5 +1,11 @@
 export type PaperSize = "58mm" | "80mm";
 
+export interface BankAccount {
+  bankName: string;
+  accountNumber: string;
+  accountHolder: string;
+}
+
 export interface PosSettings {
   companyId: string;
 
@@ -19,6 +25,7 @@ signatureUrl: string | null;
   bankName: string;
   accountNumber: string;
   accountHolder: string;
+  bankAccounts: BankAccount[];
   qrisImageUrl: string | null;
 
   // Struk
@@ -50,6 +57,7 @@ signatureUrl: null,
   bankName: "",
   accountNumber: "",
   accountHolder: "",
+  bankAccounts: [],
   qrisImageUrl: null,
 
   receiptFooter: DEFAULT_RECEIPT_FOOTER,

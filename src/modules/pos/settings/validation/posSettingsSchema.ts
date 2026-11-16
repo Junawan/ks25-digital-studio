@@ -52,6 +52,12 @@ signatureUrl: z.string().nullable(),
     .trim()
     .max(100, "Nama pemilik rekening maksimal 100 karakter."),
 
+  bankAccounts: z.array(z.object({
+    bankName: z.string().trim().min(1).max(100),
+    accountNumber: z.string().trim().min(1).max(50),
+    accountHolder: z.string().trim().min(1).max(100),
+  })),
+
   qrisImageUrl: z
     .string()
     .trim()
