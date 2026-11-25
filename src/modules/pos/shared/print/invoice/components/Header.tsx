@@ -81,10 +81,10 @@ console.log(
             )}
 
             {(settings.bankAccounts?.length || settings.bankName ||
-              settings.accountNumber) && (
+              settings.accountNumber || settings.accountHolder) && (
               <div className="mt-1">
-                {(settings.bankAccounts?.length ? settings.bankAccounts : [{ bankName: settings.bankName, accountNumber: settings.accountNumber }]).map((account, index) => (
-                  <div key={`${account.bankName}-${account.accountNumber}-${index}`}>Rek. {account.bankName} {account.accountNumber}</div>
+                {(settings.bankAccounts?.length ? settings.bankAccounts : [{ bankName: settings.bankName, accountNumber: settings.accountNumber, accountHolder: settings.accountHolder }]).map((account, index) => (
+                  <div key={`${account.bankName}-${account.accountNumber}-${index}`}>Rek. {account.bankName} {account.accountNumber}{account.accountHolder ? ` · a.n. ${account.accountHolder}` : ""}</div>
                 ))}
               </div>
             )}
