@@ -53,23 +53,18 @@ export default function Payment({
 
         <div className="rounded-lg border p-4">
 
+          {transaction.paymentPlan && <div className="flex justify-between py-1"><span>Skema Pembayaran</span><span className="font-medium">{transaction.paymentPlan === "kasbon" ? "Kasbon" : transaction.paymentPlan === "dp" ? "DP / Cicilan" : "Lunas di Awal"}</span></div>}
           <div className="flex justify-between py-1">
-            <span>Metode</span>
-
+            <span>Metode Pembayaran</span>
             <span className="font-medium">
-              {transaction.paymentMethod === "cash"
-                ? "Tunai"
-                : transaction.paymentMethod ===
-                  "qris_static"
-                ? "QRIS"
-                : "QRIS Dinamis"}
+              {transaction.paymentMethod === "cash" ? "Tunai" : transaction.paymentMethod === "kasbon" ? "Kasbon" : transaction.paymentMethod === "qris_static" ? "QRIS" : "QRIS Dinamis"}
             </span>
           </div>
 
           {transaction.paymentMethod === "cash" && (
             <>
               <div className="flex justify-between py-1">
-                <span>Uang Diterima</span>
+                <span>Jumlah Dibayar</span>
 
                 <span className="font-medium">
                   {formatCurrency(

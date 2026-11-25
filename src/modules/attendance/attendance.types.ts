@@ -26,6 +26,8 @@ export interface AttendanceEmployee {
   nik: string;
   hireDate?: string;
   workLocationId?: string;
+  division?: string;
+  daysOff?: number[];
 }
 
 export interface AttendanceWorkLocation {

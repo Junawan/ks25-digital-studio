@@ -35,6 +35,8 @@ export interface Transaction {
 
   paymentMethod: PaymentMethod;
 
+  paymentPlan?: "full" | "dp" | "kasbon";
+
   subtotal: number;
 
   discount: number;
@@ -50,6 +52,8 @@ export interface Transaction {
   remainingAmount: number;
 
   changeAmount: number;
+
+  paymentHistory?: TransactionPayment[];
 
   status:
    | "unpaid"
@@ -83,6 +87,12 @@ export interface TransactionItem {
   subtotal: number;
 }
 
+export interface TransactionPayment {
+  amount: number;
+  paymentMethod: PaymentMethod;
+  paidAt: Date;
+}
+
 export interface TransactionSummary {
   subtotal: number;
 
@@ -94,4 +104,5 @@ export interface TransactionSummary {
 export type PaymentMethod =
   | "cash"
   | "qris_static"
-  | "qris_dynamic";
+  | "qris_dynamic"
+  | "kasbon";

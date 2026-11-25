@@ -10,6 +10,7 @@ import {
   ReceiptText,
   ChartColumn,
   ShoppingCart,
+  CircleAlert,
 } from "lucide-react";
 
 interface MenuItem {
@@ -35,6 +36,11 @@ const menus: MenuItem[] = [
     title: "Riwayat",
     href: "/pos/history",
     icon: ReceiptText,
+  },
+  {
+    title: "Belum Lunas",
+    href: "/pos/unpaid",
+    icon: CircleAlert,
   },
   {
     title: "Pemasukan",
@@ -80,7 +86,7 @@ export default function PosBottomNavigation() {
         mx-auto
         grid
         max-w-screen-lg
-        grid-cols-6
+        grid-cols-7
         "
       >
         {menus.map((menu) => {
@@ -116,8 +122,8 @@ export default function PosBottomNavigation() {
 
     ${
       active
-        ? "bg-primary text-primary-foreground shadow"
-        : "text-muted-foreground"
+        ? menu.href === "/pos/unpaid" ? "bg-amber-500 text-white shadow" : "bg-primary text-primary-foreground shadow"
+        : menu.href === "/pos/unpaid" ? "text-amber-600" : "text-muted-foreground"
     }
     `}
   >
@@ -131,8 +137,8 @@ export default function PosBottomNavigation() {
 
     ${
       active
-        ? "font-semibold text-primary"
-        : "text-muted-foreground"
+        ? menu.href === "/pos/unpaid" ? "font-semibold text-amber-700" : "font-semibold text-primary"
+        : menu.href === "/pos/unpaid" ? "font-medium text-amber-700" : "text-muted-foreground"
     }
     `}
   >

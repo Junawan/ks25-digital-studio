@@ -42,6 +42,8 @@ function employeeFromData(data: Record<string, unknown>): EmployeeProfile {
     nik: typeof data.nik === "string" ? data.nik : "",
     hireDate: typeof data.hireDate === "string" ? data.hireDate : "",
     type: data.type === "owner" ? "owner" : "employee",
+    division: typeof data.division === "string" ? data.division : "",
+    daysOff: Array.isArray(data.daysOff) ? data.daysOff.filter((day): day is number => typeof day === "number" && day >= 0 && day <= 6) : [],
   };
 }
 
@@ -79,8 +81,8 @@ export async function registerEmployeeProfile(
 
     const existing = snapshot.exists() ? employeeFromData(snapshot.data()) : null;
     const employee = existing?.fullName
-      ? { fullName: normalizedName, nik: normalizedNik, hireDate: input.hireDate, type: input.type ?? existing.type ?? "employee" }
-      : { fullName: normalizedName, nik: normalizedNik, hireDate: input.hireDate, type: input.type ?? "employee" };
+      ? { fullName: normalizedName, nik: normalizedNik, hireDate: input.hireDate, type: input.type ?? existing.type ?? "employee", division: input.division ?? existing.division ?? "", daysOff: input.daysOff ?? existing.daysOff ?? [] }
+      : { fullName: normalizedName, nik: normalizedNik, hireDate: input.hireDate, type: input.type ?? "employee", division: input.division ?? "", daysOff: input.daysOff ?? [] };
     const now = new Date();
     transaction.set(ref, {
       companyId,
@@ -109,11 +111,11 @@ export async function updateEmployeeProfile(companyId: string, input: EmployeePr
     const snapshot = await transaction.get(ref);
     if (!snapshot.exists()) throw new Error("Profil tidak ditemukan.");
     transaction.update(ref, {
-      fullName, hireDate: input.hireDate, type: input.type ?? "employee", updatedAt: new Date(),
+      fullName, hireDate: input.hireDate, type: input.type ?? "employee", division: input.division ?? "", daysOff: input.daysOff ?? [], updatedAt: new Date(),
       ...(pinHash && pinSaltHex ? { pinHash, pinSalt: pinSaltHex, pinIterations: PIN_ITERATIONS } : {}),
     });
   });
-  return { fullName, nik, hireDate: input.hireDate, type: input.type ?? "employee" } satisfies EmployeeProfile;
+  return { fullName, nik, hireDate: input.hireDate, type: input.type ?? "employee", division: input.division ?? "", daysOff: input.daysOff ?? [] } satisfies EmployeeProfile;
 }
 
 export async function verifyEmployeePin(companyId: string, nik: string, pin: string) {

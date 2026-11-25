@@ -152,6 +152,8 @@ export default function PaymentSuccessDialog({
                   : paymentMethod ===
                       "qris_static"
                     ? "QRIS"
+                    : paymentMethod === "kasbon"
+                    ? "Kasbon"
                     : "QRIS API"}
               </span>
             </div>
@@ -217,6 +219,8 @@ export default function PaymentSuccessDialog({
             </Button>
 
           </div>
+
+          {paymentMethod === "kasbon" && <div className="flex justify-between rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-900"><span>Status Pembayaran</span><strong>BELUM LUNAS · Sisa Rp {Math.max(0, total - paidAmount).toLocaleString("id-ID")}</strong></div>}
 
         </div>
 

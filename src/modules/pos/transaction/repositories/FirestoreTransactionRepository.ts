@@ -38,6 +38,12 @@ export class FirestoreTransactionRepository
       data.updatedAt?.toDate
         ? data.updatedAt.toDate()
         : data.updatedAt,
+    paymentHistory: Array.isArray(data.paymentHistory)
+      ? data.paymentHistory.map((payment: Record<string, any>) => ({
+          ...payment,
+          paidAt: payment.paidAt?.toDate ? payment.paidAt.toDate() : new Date(payment.paidAt),
+        }))
+      : undefined,
   } as Transaction;
 }
 
@@ -123,7 +129,7 @@ async getById(
     return null;
   }
 
-  return snapshot.data() as Transaction;
+  return this.mapTransaction(snapshot.data());
 
 }
 

@@ -177,13 +177,15 @@ export default function Receipt80({
 
           <span>
             {transaction.paymentMethod === "cash"
-              ? "Cash"
+              ? "Tunai"
               : transaction.paymentMethod ===
                 "qris_static"
               ? "QRIS"
               : "QRIS API"}
           </span>
         </div>
+
+        {transaction.paymentPlan && <div className="flex justify-between"><span>Skema</span><span>{transaction.paymentPlan === "kasbon" ? "Kasbon" : transaction.paymentPlan === "dp" ? "DP / Cicilan" : "Lunas di Awal"}</span></div>}
 
         {/* TOTAL PEMBAYARAN */}
         <div className="flex justify-between">

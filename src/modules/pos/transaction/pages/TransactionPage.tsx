@@ -1116,7 +1116,7 @@ if (!company) {
   }
 
   total={
-    dp > 0
+    dp > 0 && paymentMethod !== "kasbon"
       ? dp
       : summary.total
   }

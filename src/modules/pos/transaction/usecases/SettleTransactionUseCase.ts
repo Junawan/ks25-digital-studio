@@ -144,6 +144,11 @@ export class SettleTransactionUseCase {
       paidAmount:
         totalPaid,
 
+      paymentHistory: [
+        ...(transaction.paymentHistory ?? (transaction.paidAmount > 0 ? [{ amount: transaction.paidAmount, paymentMethod: transaction.paymentMethod, paidAt: transaction.createdAt }] : [])),
+        { amount: appliedAmount, paymentMethod: input.paymentMethod, paidAt: new Date() },
+      ],
+
       remainingAmount: nextRemaining,
 
       changeAmount,

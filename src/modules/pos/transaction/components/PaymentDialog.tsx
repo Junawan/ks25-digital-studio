@@ -80,20 +80,23 @@ export default function PaymentDialog({
         <div className="space-y-4">
           <div className="rounded-lg border bg-muted p-4 text-center">
             <p className="text-sm text-muted-foreground">
-  {dp > 0
+              {paymentMethod === "kasbon" ? "Pembayaran Awal Kasbon" : dp > 0
     ? "Pembayaran DP"
     : "Total Pembayaran"}
 </p>
 
             <p className="mt-1 text-3xl font-bold">
               Rp{" "}
-              {total.toLocaleString(
+              {(paymentMethod === "kasbon" ? 0 : total).toLocaleString(
                 "id-ID"
               )}
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <Button type="button" variant={paymentMethod === "kasbon" ? "default" : "outline"} onClick={() => onPaymentMethodChange("kasbon")}>
+              Kasbon
+            </Button>
             <Button
               type="button"
               variant={
@@ -181,6 +184,12 @@ export default function PaymentDialog({
             </div>
           )}
 
+          {paymentMethod === "kasbon" && (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+              Pembayaran awal Rp0. Sisa tagihan: <strong>Rp {total.toLocaleString("id-ID")}</strong>. Transaksi akan tercatat sebagai belum lunas dan dapat dicicil dari menu Transaksi Belum Lunas.
+            </div>
+          )}
+
           {paymentMethod ===
             "qris_static" && (
             <div className="space-y-4 text-center">
@@ -252,7 +261,9 @@ export default function PaymentDialog({
 >
   {loading
     ? "Memproses..."
-    : paymentMethod === "cash"
+            : paymentMethod === "kasbon"
+              ? "Simpan Kasbon"
+              : paymentMethod === "cash"
       ? "Bayar"
       : paymentMethod ===
           "qris_static"

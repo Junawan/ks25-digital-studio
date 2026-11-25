@@ -185,9 +185,11 @@ export default function TransactionCard({
           <Badge
             variant="secondary"
           >
-            {transaction.paymentMethod ===
+            {transaction.paymentPlan === "kasbon" ? "Kasbon" : transaction.paymentMethod ===
             "cash"
               ? "Cash"
+              : transaction.paymentMethod === "kasbon"
+                ? "Kasbon"
               : transaction.paymentMethod ===
                   "qris_static"
                 ? "QRIS"

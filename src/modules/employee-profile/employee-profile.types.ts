@@ -3,6 +3,8 @@ export interface EmployeeProfile {
   nik: string;
   hireDate?: string;
   type?: "owner" | "employee";
+  division?: string;
+  daysOff?: number[];
 }
 
 export interface EmployeeProfileDocument extends EmployeeProfile {

@@ -44,7 +44,7 @@ export default function Summary({
             font-bold
             ${
               transaction.status === "unpaid"
-                ? "border-slate-300 bg-slate-50"
+                ? "border-amber-300 bg-amber-50 text-amber-900"
                 : transaction.status === "paid"
                 ? "border-slate-300 bg-slate-50"
                 : "border-slate-300 bg-slate-50"

@@ -1,5 +1,5 @@
 import {
-  addDoc, arrayUnion, collection, doc, getDoc, getDocs, orderBy, query, runTransaction, updateDoc, where,
+  addDoc, arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, runTransaction, setDoc, updateDoc, where,
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { db, storage } from "@/core/firebase";
@@ -12,17 +12,20 @@ const normalized = (value: string) => value.trim().toLocaleUpperCase("id-ID");
 const recordId = (companyId: string, date: string, nik: string) => encodeURIComponent(`${companyId}:${date}:${normalized(nik)}`);
 const profileId = (companyId: string, nik: string) => encodeURIComponent(`${companyId}:${normalized(nik)}`);
 const localDate = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+const numericDaysOff = (value: unknown): number[] => Array.isArray(value)
+  ? value.filter((day: unknown): day is number => typeof day === "number" && day >= 0 && day <= 6)
+  : [];
 
 export const attendanceRepository = {
   async employee(companyId: string, nik: string): Promise<AttendanceEmployee | null> {
     const snapshot = await getDoc(doc(db, COLLECTIONS.employees, profileId(companyId, nik)));
     if (!snapshot.exists()) return null;
     const data = snapshot.data();
-    return { fullName: String(data.fullName ?? "Karyawan"), nik: String(data.nik ?? normalized(nik)), hireDate: typeof data.hireDate === "string" ? data.hireDate : "", workLocationId: typeof data.workLocationId === "string" ? data.workLocationId : "" };
+    return { fullName: String(data.fullName ?? "Karyawan"), nik: String(data.nik ?? normalized(nik)), hireDate: typeof data.hireDate === "string" ? data.hireDate : "", workLocationId: typeof data.workLocationId === "string" ? data.workLocationId : "", division: typeof data.division === "string" ? data.division : "", daysOff: numericDaysOff(data.daysOff) };
   },
   async employees(companyId: string): Promise<AttendanceEmployee[]> {
     const snapshot = await getDocs(query(collection(db, COLLECTIONS.employees), where("companyId", "==", companyId)));
-    return snapshot.docs.map((entry) => ({ fullName: String(entry.data().fullName ?? "Karyawan"), nik: String(entry.data().nik ?? ""), hireDate: typeof entry.data().hireDate === "string" ? entry.data().hireDate : "", workLocationId: typeof entry.data().workLocationId === "string" ? entry.data().workLocationId : "" }));
+    return snapshot.docs.map((entry) => { const data = entry.data(); return { fullName: String(data.fullName ?? "Karyawan"), nik: String(data.nik ?? ""), hireDate: typeof data.hireDate === "string" ? data.hireDate : "", workLocationId: typeof data.workLocationId === "string" ? data.workLocationId : "", division: typeof data.division === "string" ? data.division : "", daysOff: numericDaysOff(data.daysOff) }; });
   },
   async today(companyId: string, date = localDate()): Promise<AttendanceRecord[]> {
     try {
@@ -96,6 +99,12 @@ export const attendanceRepository = {
     const profile = doc(db, COLLECTIONS.employees, profileId(companyId, nik));
     await updateDoc(profile, { hireDate, updatedAt: new Date() });
   },
+  async companyHolidays(companyId: string): Promise<string[]> {
+    const snapshot = await getDocs(query(collection(db, "attendance_company_holidays"), where("companyId", "==", companyId)));
+    return snapshot.docs.map((entry) => String(entry.data().date ?? "")).filter(Boolean).sort();
+  },
+  addCompanyHoliday: (companyId: string, date: string) => setDoc(doc(db, "attendance_company_holidays", encodeURIComponent(`${companyId}:${date}`)), { companyId, date, createdAt: new Date() }, { merge: true }),
+  removeCompanyHoliday: (companyId: string, date: string) => deleteDoc(doc(db, "attendance_company_holidays", encodeURIComponent(`${companyId}:${date}`))),
   adminPin: (companyId: string) => getDoc(doc(db, COLLECTIONS.admin, encodeURIComponent(companyId))),
   saveAdminPin: async (companyId: string, hash: string, salt: string, createdBy: string) => {
     const ref = doc(db, COLLECTIONS.admin, encodeURIComponent(companyId));

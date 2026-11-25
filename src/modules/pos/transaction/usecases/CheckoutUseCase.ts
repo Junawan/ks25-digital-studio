@@ -65,7 +65,7 @@ export class CheckoutUseCase {
   subtotal - input.discount
 );
 
-const dp = Math.max(
+const dp = input.paymentMethod === "kasbon" ? 0 : Math.max(
   0,
   input.dp || 0
 );
@@ -81,9 +81,9 @@ const paymentTarget =
     ? dp
     : total;
 
-if (
+if (input.paymentMethod !== "kasbon" && (
   input.paidAmount < paymentTarget
-) {
+)) {
   throw new Error(
     dp > 0
       ? "Pembayaran DP masih kurang."
@@ -91,10 +91,7 @@ if (
   );
 }
 
-const paymentAmount =
-  input.paymentMethod === "cash"
-    ? input.paidAmount
-    : paymentTarget;
+const paymentAmount = input.paymentMethod === "kasbon" ? 0 : paymentTarget;
 
 const remainingAmount =
   Math.max(
@@ -170,6 +167,8 @@ if (!cashier) {
         paymentMethod:
           input.paymentMethod,
 
+        paymentPlan: input.paymentMethod === "kasbon" ? "kasbon" : dp > 0 ? "dp" : "full",
+
         subtotal,
 
         discount:
@@ -184,6 +183,8 @@ keterangan:
 
         paidAmount:
   paymentAmount,
+
+paymentHistory: paymentAmount > 0 ? [{ amount: paymentAmount, paymentMethod: input.paymentMethod, paidAt: new Date() }] : [],
 
 remainingAmount,
 

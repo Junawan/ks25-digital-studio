@@ -6,7 +6,9 @@ import {
   Trash2,
   CreditCard,
   Package,
+  History,
 } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 
@@ -56,6 +58,7 @@ export default function TransactionHistoryCard({
   onSettlement,
   printing = false,
 }: Props) {
+  const [showPayments, setShowPayments] = useState(false);
   const totalQty =
     transaction.items.reduce(
       (total, item) =>
@@ -273,18 +276,31 @@ export default function TransactionHistoryCard({
 
         {/* Status Pembayaran */}
 
+        {transaction.status !== "cancelled" && (
+          <div className="border-t pt-3">
+            <Button type="button" variant="outline" size="sm" onClick={() => setShowPayments((value) => !value)}>
+              <History className="mr-2 h-4 w-4" />Riwayat Pembayaran
+            </Button>
+            {showPayments && <div className="mt-3 rounded-md border bg-muted/30 p-3 text-sm">
+              {(transaction.paymentHistory ?? (transaction.paidAmount > 0 ? [{ amount: transaction.paidAmount, paymentMethod: transaction.paymentMethod, paidAt: transaction.createdAt }] : [])).map((payment, index) => <div key={`${payment.amount}-${index}`} className="flex flex-wrap justify-between gap-2 border-b py-2 last:border-0"><span>{new Date(payment.paidAt).toLocaleString("id-ID")} · {payment.paymentMethod === "cash" ? "Tunai" : payment.paymentMethod === "kasbon" ? "Kasbon" : "QRIS"}</span><strong>{formatCurrency(payment.amount)}</strong></div>)}
+              {!transaction.paidAmount && <p className="py-1 text-muted-foreground">Belum ada pembayaran. Sisa {formatCurrency(transaction.remainingAmount)}.</p>}
+            </div>}
+          </div>
+        )}
+
 <div className="flex justify-end border-t pt-4">
 
   {transaction.status === "unpaid" ? (
 
-    <div className="
+    <div className={`
       rounded-md
       border
       px-4
       py-2
       text-sm
       font-bold
-    ">
+      ${transaction.status === "unpaid" ? "border-amber-300 bg-amber-50 text-amber-900" : ""}
+    `}>
       BELUM LUNAS
     </div>
 
@@ -334,7 +350,7 @@ export default function TransactionHistoryCard({
   >
     <CreditCard className="mr-2 h-4 w-4" />
 
-    Lunasi
+    Bayar / Cicil
   </Button>
 )}
 

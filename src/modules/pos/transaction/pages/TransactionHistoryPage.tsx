@@ -53,8 +53,11 @@ import PackingListOptionsDialog from "../../shared/print/PackingListOptionsDialo
 import { printPackingList } from "../../shared/print/printPackingList";
 import type { PackingListDetails } from "../../shared/print/printPackingList";
 import { resolveTransactionHsCodes } from "../../shared/print/resolveTransactionHsCodes";
+import { usePathname } from "next/navigation";
 
 export default function TransactionHistoryPage() {
+  const pathname = usePathname();
+  const unpaidOnly = pathname === "/pos/unpaid";
 
   const { workspace } =
     useWorkspace();
@@ -89,6 +92,8 @@ export default function TransactionHistoryPage() {
 ] = useState<
   "all" | "paid" | "unpaid" | "cancelled"
 >("all");
+
+  useEffect(() => { setStatusFilter(unpaidOnly ? "unpaid" : "all"); }, [unpaidOnly]);
 
   const [
     settings,
@@ -194,7 +199,7 @@ const [
         /*
          * Filter tanggal
          */
-        const dateMatches = dateMode === "day"
+        const dateMatches = unpaidOnly ? true : dateMode === "day"
           ? transactionDate === selectedDate
           : dateMode === "range"
             ? transactionDate >= dateFrom && transactionDate <= dateTo
@@ -259,6 +264,7 @@ const [
     selectedMonth,
     search,
     statusFilter,
+    unpaidOnly,
   ]);
 
     function handleOpenSettlement(
@@ -309,9 +315,7 @@ async function handleSettlement(
 
       });
 
-    toast.success(
-      "Transaksi berhasil dilunasi."
-    );
+    toast.success(paidAmount >= selectedTransaction.remainingAmount ? "Transaksi berhasil dilunasi." : "Pembayaran cicilan berhasil dicatat.");
 
     setSettlementOpen(false);
 
@@ -539,8 +543,8 @@ async function handleSettlement(
     <div className="space-y-6">
 
       <PageHeader
-        title="Riwayat Transaksi"
-        description="Daftar transaksi penjualan"
+        title={unpaidOnly ? "Transaksi Belum Lunas" : "Riwayat Transaksi"}
+        description={unpaidOnly ? "Pantau sisa pembayaran dan catat cicilan pelanggan." : "Daftar transaksi penjualan"}
       />
 
       {/* FILTER */}
